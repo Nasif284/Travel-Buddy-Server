@@ -4,6 +4,7 @@ import { RegisterSchema, validate } from '../../../validators/user/auth';
 import { asyncHandler } from '../../../middleware/asyncHandler';
 import { VerifyOtpSchema } from '../../../validators/user/auth/verifyOtp.validator';
 import { authenticate } from '../../../middleware/user/auth/userAuth.middleware';
+import { LoginSchema } from '../../../validators/user/auth/login.validator';
 
 export function buildAuthRoutes(controller: AuthController): Router {
   const router = Router();
@@ -19,6 +20,7 @@ export function buildAuthRoutes(controller: AuthController): Router {
     authenticate,
     asyncHandler(controller.verifyEmail),
   );
+  router.post('/login', validate(LoginSchema), asyncHandler(controller.login));
 
   return router;
 }

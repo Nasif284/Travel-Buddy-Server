@@ -12,6 +12,7 @@ import * as schema from '../database/schema';
 import { RedisOtpService } from '../services/redisOtp.service';
 import { EmailService } from '../services/email.service';
 import { EmailVerification } from '../../application/use-cases/auth/verify-email.usecase';
+import { LoginUseCase } from '../../application/use-cases/auth/login.usecase';
 
 export interface AppContainer {
   authController: AuthController;
@@ -37,7 +38,13 @@ export function buildContainer(
     redisOtpService,
   );
   const verifyEmail = new EmailVerification(redisOtpService, userRepository);
+  const login = new LoginUseCase(
+    userRepository,
+    tokenService,
+    hashService,
+    sessionService,
+  );
 
-  const authController = new AuthController(register, verifyEmail);
+  const authController = new AuthController(register, verifyEmail, login);
   return { authController };
 }

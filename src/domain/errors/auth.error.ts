@@ -71,6 +71,12 @@ export class InvalidRefreshTokenError extends AppError {
   }
 }
 
+export class UserNotVerifiedError extends AppError {
+  constructor() {
+    super(HttpStatus.BAD_REQUEST, 'USER_NOT_VERIFIED', 'User not verified');
+  }
+}
+
 export class UnauthorizedError extends AppError {
   constructor(message = 'Access token is missing or invalid.') {
     super(HttpStatus.UNAUTHORIZED, 'UNAUTHORIZED', message);

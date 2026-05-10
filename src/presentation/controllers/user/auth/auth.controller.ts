@@ -4,6 +4,8 @@ import { Register } from '../../../../application/use-cases/auth';
 import { config } from '../../../../config/env.config';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
 import { EmailVerification } from '../../../../application/use-cases/auth/verify-email.usecase';
+import { LoginUseCase } from '../../../../application/use-cases/auth/login.usecase';
+
 function getCookieOptions(maxAgeSeconds: number): CookieOptions {
   return {
     httpOnly: true,
@@ -21,6 +23,7 @@ export class AuthController {
   constructor(
     private readonly _registerUseCase: Register,
     private readonly _verifyEmailUseCase: EmailVerification,
+    private readonly _loginUseCase: LoginUseCase,
   ) {
     this._accessTtl = parseInt(config.jwt.accessExpiration ?? '900');
     this._refreshTtl = parseInt(config.jwt.refreshExpiration ?? '2592000');
@@ -47,5 +50,19 @@ export class AuthController {
     const { code } = req.body;
     const result = await this._verifyEmailUseCase.execute({ email, code });
     return res.status(HttpStatus.OK).json(result);
+  };
+  login = async (req: Request, res: Response): Promise<Response> => {
+    const result = await this._loginUseCase.execute(req.body);
+    res.cookie(
+      'accessToken',
+      result.accessToken,
+      getCookieOptions(this._accessTtl),
+    );
+    res.cookie(
+      'refreshToken',
+      result.refreshToken,
+      getCookieOptions(this._refreshTtl),
+    );
+    return res.status(HttpStatus.OK).json(result.response);
   };
 }
