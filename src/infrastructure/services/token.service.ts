@@ -6,19 +6,19 @@ import { ITokenService, TokenPayload } from '../../application/interfaces/servic
 import { config } from '../../config/env.config';
 
 export class JwtTokenService implements ITokenService {
-  private readonly accessSecret: string;
-  private readonly accessExpiry: number;
+  private readonly _accessSecret: string;
+  private readonly _accessExpiry: number;
 
   constructor() {
-    this.accessSecret = config.jwt.accessSecret!;
-    this.accessExpiry = parseInt(
-      process.env.JWT_ACCESS_EXPIRY_SECONDS ?? '900',
+    this._accessSecret = config.jwt.accessSecret!;
+    this._accessExpiry = parseInt(
+      config.jwt.accessExpiration ?? '900',
     );
   }
 
   generateAccessToken(payload: TokenPayload): string {
-    return jwt.sign(payload, this.accessSecret, {
-      expiresIn: this.accessExpiry,
+    return jwt.sign(payload, this._accessSecret, {
+      expiresIn: this._accessExpiry,
     });
   }
 
@@ -28,7 +28,7 @@ export class JwtTokenService implements ITokenService {
 
   verifyAccessToken(token: string): TokenPayload {
     try {
-      return jwt.verify(token, this.accessSecret) as TokenPayload;
+      return jwt.verify(token, this._accessSecret) as TokenPayload;
     } catch {
       throw new UnauthorizedError('Access token is invalid or expired.');
     }

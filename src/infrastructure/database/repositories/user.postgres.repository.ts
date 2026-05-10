@@ -50,4 +50,7 @@ export class PostgresUserRepository implements IUserRepository {
       return UserMapper.toDomain(user!);
     });
   }
+  async updateEmailVerified(email: string): Promise<void> {
+     await this.db.update(schema.users).set({isEmailVerified:true,emailVerifiedAt:new Date()}).where(eq(schema.users.email,email))
+  }
 }

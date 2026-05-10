@@ -36,6 +36,7 @@ export class RedisOtpService implements IOtpService {
 
   async send(email: string, purpose: OtpPurpose): Promise<void> {
     const code = generateCode();
+    console.log(code)
     const codeHash = await this._hashService.hash(code);
 
     const value: OtpRedisValue = { codeHash, attempts: 0 };

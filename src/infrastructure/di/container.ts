@@ -11,7 +11,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
 import { RedisOtpService } from '../services/redisOtp.service';
 import { EmailService } from '../services/email.service';
-import { EmailVerification } from '../../application/use-cases/auth/verifyEmail.usecase';
+import { EmailVerification } from '../../application/use-cases/auth/verify-email.usecase';
 
 export interface AppContainer {
   authController: AuthController;
@@ -36,7 +36,7 @@ export function buildContainer(
     sessionService,
     redisOtpService
   );
-  const verifyEmail = new EmailVerification()
+  const verifyEmail = new EmailVerification(redisOtpService,userRepository)
 
   const authController = new AuthController(register,verifyEmail);
   return { authController };

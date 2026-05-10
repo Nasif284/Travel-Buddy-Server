@@ -3,13 +3,12 @@ import { CookieOptions } from 'express';
 import { Register } from '../../../../application/use-cases/auth';
 import { config } from '../../../../config/env.config';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
-import { EmailVerification } from '../../../../application/use-cases/auth/verifyEmail.usecase';
+import { EmailVerification } from '../../../../application/use-cases/auth/verify-email.usecase';
 function getCookieOptions(maxAgeSeconds: number): CookieOptions {
   return {
     httpOnly: true,
     secure: config.env == 'development' ? false : true,
     sameSite: 'lax',
-    domain: 'localhost',
     path: '/',
     maxAge: maxAgeSeconds * 1000,
   };
@@ -25,6 +24,7 @@ export class AuthController {
   }
 
   register = async (req: Request, res: Response): Promise<Response> => {
+      console.log(config.env == 'development');
       const result = await this._registerUseCase.execute(req.body);
       res.cookie(
         'accessToken',
@@ -40,6 +40,9 @@ export class AuthController {
       return res.status(HttpStatus.CREATED).json(result.response);
   };
   verifyEmail = async (req:Request,res:Response):Promise<Response> =>{
-    
+    const { email } = req.user
+    const {code} = req.body
+    const result = await this._verifyEmailUseCase.execute({email,code})
+    return res.status(HttpStatus.OK).json(result)
   }
 }
