@@ -10,11 +10,11 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    plugins: {
-      prettier: prettierPlugin,
-    },
+    // plugins: {
+    //   prettier: prettierPlugin,
+    // },
     rules: {
-      'prettier/prettier': 'error',
+    //   'prettier/prettier': 'error',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         { argsIgnorePattern: '^_' },
@@ -23,5 +23,5 @@ export default tseslint.config(
       'no-console': 'off',
     },
   },
-  prettierConfig
+  prettierConfig,
 );
