@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
 
     ports:
-      - "5000:5000"
+      - '5000:5000'
 
     env_file:
       - .env
@@ -32,13 +32,13 @@ services:
       POSTGRES_DB: ${DB_NAME:-travelbuddy}
 
     ports:
-      - "5433:5432"
+      - '5433:5432'
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-nasif}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-nasif}']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -47,7 +47,7 @@ services:
     image: redis:alpine
 
     ports:
-      - "6379:6379"
-      
+      - '6379:6379'
+
 volumes:
   postgres_data:

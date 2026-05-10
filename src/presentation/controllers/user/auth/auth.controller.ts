@@ -18,31 +18,34 @@ export class AuthController {
   private readonly _accessTtl: number;
   private readonly _refreshTtl: number;
 
-  constructor(private readonly _registerUseCase: Register, private readonly _verifyEmailUseCase: EmailVerification) {
+  constructor(
+    private readonly _registerUseCase: Register,
+    private readonly _verifyEmailUseCase: EmailVerification,
+  ) {
     this._accessTtl = parseInt(config.jwt.accessExpiration ?? '900');
     this._refreshTtl = parseInt(config.jwt.refreshExpiration ?? '2592000');
   }
 
   register = async (req: Request, res: Response): Promise<Response> => {
-      console.log(config.env == 'development');
-      const result = await this._registerUseCase.execute(req.body);
-      res.cookie(
-        'accessToken',
-        result.accessToken,
-        getCookieOptions(this._accessTtl),
-      );
-      res.cookie(
-        'refreshToken',
-        result.refreshToken,
-        getCookieOptions(this._refreshTtl),
-      );
-      
-      return res.status(HttpStatus.CREATED).json(result.response);
+    console.log(config.env == 'development');
+    const result = await this._registerUseCase.execute(req.body);
+    res.cookie(
+      'accessToken',
+      result.accessToken,
+      getCookieOptions(this._accessTtl),
+    );
+    res.cookie(
+      'refreshToken',
+      result.refreshToken,
+      getCookieOptions(this._refreshTtl),
+    );
+
+    return res.status(HttpStatus.CREATED).json(result.response);
   };
-  verifyEmail = async (req:Request,res:Response):Promise<Response> =>{
-    const { email } = req.user
-    const {code} = req.body
-    const result = await this._verifyEmailUseCase.execute({email,code})
-    return res.status(HttpStatus.OK).json(result)
-  }
+  verifyEmail = async (req: Request, res: Response): Promise<Response> => {
+    const { email } = req.user;
+    const { code } = req.body;
+    const result = await this._verifyEmailUseCase.execute({ email, code });
+    return res.status(HttpStatus.OK).json(result);
+  };
 }

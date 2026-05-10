@@ -1,8 +1,11 @@
 import jwt from 'jsonwebtoken';
-import crypto from "crypto"
+import crypto from 'crypto';
 
 import { UnauthorizedError } from '../../domain/errors/auth.error';
-import { ITokenService, TokenPayload } from '../../application/interfaces/services/token.service.interface';
+import {
+  ITokenService,
+  TokenPayload,
+} from '../../application/interfaces/services/token.service.interface';
 import { config } from '../../config/env.config';
 
 export class JwtTokenService implements ITokenService {
@@ -11,9 +14,7 @@ export class JwtTokenService implements ITokenService {
 
   constructor() {
     this._accessSecret = config.jwt.accessSecret!;
-    this._accessExpiry = parseInt(
-      config.jwt.accessExpiration ?? '900',
-    );
+    this._accessExpiry = parseInt(config.jwt.accessExpiration ?? '900');
   }
 
   generateAccessToken(payload: TokenPayload): string {

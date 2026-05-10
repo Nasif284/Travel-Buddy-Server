@@ -4,9 +4,12 @@ import { OtpPurpose } from '../../domain/enums';
 import { IOtpService } from '../../application/interfaces/services/otp.service.interface';
 import { IHashService } from '../../application/interfaces/services/hash.service.interface';
 import { IEmailService } from '../../application/interfaces/services/email.service.interface';
-import { InvalidOtpError, OtpMaxAttemptsError, OtpNotFoundError } from '../../domain/errors/auth.error';
+import {
+  InvalidOtpError,
+  OtpMaxAttemptsError,
+  OtpNotFoundError,
+} from '../../domain/errors/auth.error';
 import { config } from '../../config/env.config';
-
 
 interface OtpRedisValue {
   codeHash: string;
@@ -14,7 +17,7 @@ interface OtpRedisValue {
 }
 
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export class RedisOtpService implements IOtpService {
@@ -36,7 +39,7 @@ export class RedisOtpService implements IOtpService {
 
   async send(email: string, purpose: OtpPurpose): Promise<void> {
     const code = generateCode();
-    console.log(code)
+    console.log(code);
     const codeHash = await this._hashService.hash(code);
 
     const value: OtpRedisValue = { codeHash, attempts: 0 };

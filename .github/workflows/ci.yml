@@ -2,9 +2,9 @@ name: Travel Buddy CI
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-check:

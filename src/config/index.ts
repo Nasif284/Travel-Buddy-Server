@@ -1,2 +1,2 @@
-export * from "./db.pg.config"
-export * from "./redis.config"
+export * from './db.pg.config';
+export * from './redis.config';

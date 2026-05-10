@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
-import { IEmailService, SendEmailOptions } from '../../application/interfaces/services/email.service.interface';
+import {
+  IEmailService,
+  SendEmailOptions,
+} from '../../application/interfaces/services/email.service.interface';
 import { config } from '../../config/env.config';
 
 export class EmailService implements IEmailService {
@@ -14,22 +17,22 @@ export class EmailService implements IEmailService {
         pass: config.smtp.password,
       },
     });
-    }
-    
-    async sendEmail(options: SendEmailOptions): Promise<void> {
-        await this._transporter.sendMail({
-            from: config.smtp.from,
-            to: options.to,
-            subject: options.subject,
-            html:options.html
-        })
-    }
+  }
 
-   async sendOtp(email: string, code: string): Promise<void> {
-       await this.sendEmail({
-         to: email,
-         subject: 'Verify Your Email',
-         html: `
+  async sendEmail(options: SendEmailOptions): Promise<void> {
+    await this._transporter.sendMail({
+      from: config.smtp.from,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+  }
+
+  async sendOtp(email: string, code: string): Promise<void> {
+    await this.sendEmail({
+      to: email,
+      subject: 'Verify Your Email',
+      html: `
         <div style="font-family: Arial, sans-serif;">
           <h2>Email Verification</h2>
 
@@ -42,6 +45,6 @@ export class EmailService implements IEmailService {
           <p>This OTP expires in 10 minutes.</p>
         </div>
       `,
-       });
-    }
+    });
+  }
 }

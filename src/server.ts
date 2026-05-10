@@ -26,7 +26,7 @@ async function bootstrap(): Promise<void> {
     process.exit(1);
   }
 
-  const db = getDB()
+  const db = getDB();
   const container = buildContainer(db, redis);
   const app = createApp(container);
 

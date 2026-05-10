@@ -17,9 +17,9 @@ export function createApp(container: AppContainer): Application {
   app.use(express.urlencoded({ extended: true }));
   app.use(morganMiddleware);
   app.use(cookieParser());
-  app.get("/", (req, res) => {
-    res.send("jhklfdsakf")
-  })
+  app.get('/', (req, res) => {
+    res.send('jhklfdsakf');
+  });
   app.use('/api/v1', buildRoutes(container));
 
   app.use(globalErrorHandler);

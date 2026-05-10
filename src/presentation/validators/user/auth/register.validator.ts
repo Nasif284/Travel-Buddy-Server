@@ -6,10 +6,7 @@ export const RegisterSchema = z.object({
     .max(100, 'Full name cannot exceed 100 characters.')
     .trim(),
 
-  email: z
-    .email('Invalid email address format.')
-    .toLowerCase()
-    .trim(),
+  email: z.email('Invalid email address format.').toLowerCase().trim(),
 
   password: z
     .string()

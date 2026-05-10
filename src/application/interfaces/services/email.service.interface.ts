@@ -4,6 +4,6 @@ export interface SendEmailOptions {
   html: string;
 }
 export interface IEmailService {
-  sendEmail(options:SendEmailOptions):Promise<void>;
+  sendEmail(options: SendEmailOptions): Promise<void>;
   sendOtp(email: string, code: string): Promise<void>;
 }

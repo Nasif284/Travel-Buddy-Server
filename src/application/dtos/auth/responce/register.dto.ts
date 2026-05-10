@@ -1,5 +1,5 @@
 export interface RegisterResponseDTO {
-  success:boolean,
+  success: boolean;
   message: string;
   user: {
     id: string;

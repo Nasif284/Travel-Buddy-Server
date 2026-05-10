@@ -99,7 +99,7 @@ export class User {
     this.passwordHash = props.passwordHash;
     this.avatarUrl = props.avatarUrl;
     this.coverUrl = props.coverUrl;
-    this.bio = props.bio ;
+    this.bio = props.bio;
     this.dateOfBirth = props.dateOfBirth;
     this.genderCode = props.genderCode;
     this.countryCode = props.countryCode;

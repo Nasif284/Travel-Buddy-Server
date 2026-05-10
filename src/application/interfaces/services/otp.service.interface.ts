@@ -1,4 +1,4 @@
-import { OtpPurpose } from "../../../domain/enums";
+import { OtpPurpose } from '../../../domain/enums';
 
 export interface IOtpService {
   send(email: string, purpose: OtpPurpose): Promise<void>;

@@ -35,7 +35,3 @@ export const profileVisibilities = pgTable('profile_visibilities', {
 export const requestFromOptions = pgTable('request_from_options', {
   code: varchar('code', { length: 30 }).primaryKey(),
 });
-
-
-
-

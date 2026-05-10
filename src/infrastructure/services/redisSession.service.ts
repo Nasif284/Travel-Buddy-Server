@@ -1,7 +1,6 @@
 import { Redis } from 'ioredis';
 import { ISessionService } from '../../application/interfaces/services/session.service.interface';
 
-
 export class RedisSessionService implements ISessionService {
   constructor(private readonly redis: Redis) {}
 

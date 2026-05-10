@@ -66,7 +66,6 @@ export const users = pgTable('users', {
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 
-
 export const userOnboarding = pgTable('user_onboarding', {
   userId: uuid('user_id')
     .primaryKey()
@@ -99,7 +98,6 @@ export const userPrivacySettings = pgTable('user_privacy_settings', {
   ),
 });
 
-
 export const userLanguages = pgTable('user_languages', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
@@ -108,7 +106,6 @@ export const userLanguages = pgTable('user_languages', {
   language: varchar('language', { length: 100 }).notNull(),
 });
 
-
 export const userTravelSkills = pgTable('user_travel_skills', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
@@ -116,7 +113,6 @@ export const userTravelSkills = pgTable('user_travel_skills', {
     .references(() => users.id, { onDelete: 'cascade' }),
   skill: varchar('skill', { length: 100 }).notNull(),
 });
-
 
 export const userInterests = pgTable('user_interests', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -140,7 +136,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   interests: many(userInterests),
 }));
 
-
 export const userOnboardingRelations = relations(userOnboarding, ({ one }) => ({
   user: one(users, { fields: [userOnboarding.userId], references: [users.id] }),
 }));
@@ -162,12 +157,15 @@ export const userLanguagesRelations = relations(userLanguages, ({ one }) => ({
   }),
 }));
 
-export const userTravelSkillsRelations = relations(userTravelSkills, ({ one }) => ({
-  user: one(users, {
-    fields: [userTravelSkills.userId],
-    references: [users.id],
+export const userTravelSkillsRelations = relations(
+  userTravelSkills,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userTravelSkills.userId],
+      references: [users.id],
+    }),
   }),
-}));
+);
 
 export const userInterestsRelations = relations(userInterests, ({ one }) => ({
   user: one(users, {

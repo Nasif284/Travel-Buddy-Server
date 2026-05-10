@@ -24,9 +24,9 @@ export function buildContainer(
   const hashService = new BcryptHashService();
   const tokenService = new JwtTokenService();
   const sessionService = new RedisSessionService(redis);
-  const emailService = new EmailService()
-  const redisOtpService = new RedisOtpService(redis, hashService, emailService)
-  
+  const emailService = new EmailService();
+  const redisOtpService = new RedisOtpService(redis, hashService, emailService);
+
   const userRepository = new PostgresUserRepository(db);
 
   const register = new Register(
@@ -34,10 +34,10 @@ export function buildContainer(
     hashService,
     tokenService,
     sessionService,
-    redisOtpService
+    redisOtpService,
   );
-  const verifyEmail = new EmailVerification(redisOtpService,userRepository)
+  const verifyEmail = new EmailVerification(redisOtpService, userRepository);
 
-  const authController = new AuthController(register,verifyEmail);
+  const authController = new AuthController(register, verifyEmail);
   return { authController };
 }

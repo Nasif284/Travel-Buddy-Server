@@ -1,8 +1,4 @@
-import {
-  pgTable,
-  varchar,
-} from 'drizzle-orm/pg-core';
-
+import { pgTable, varchar } from 'drizzle-orm/pg-core';
 
 export const currencies = pgTable('currencies', {
   code: varchar('code', { length: 10 }).primaryKey(),
@@ -15,7 +11,6 @@ export const countries = pgTable('countries', {
   phonePrefix: varchar('phone_prefix', { length: 10 }),
   flagEmoji: varchar('flag_emoji', { length: 10 }),
 });
-
 
 export type CurrencyRecord = typeof currencies.$inferSelect;
 export type CountryRecord = typeof countries.$inferSelect;

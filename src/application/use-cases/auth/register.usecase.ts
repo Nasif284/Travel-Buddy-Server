@@ -15,7 +15,7 @@ interface Result {
   refreshToken: string;
 }
 
-export class Register implements IBaseUseCase<RegisterRequestDTO,Result> {
+export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
   private readonly _refreshTtl: number;
 
   constructor(

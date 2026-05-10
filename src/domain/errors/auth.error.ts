@@ -1,5 +1,5 @@
 import { HttpStatus } from '../enums/HttpStatusCodes.constants';
-import { AppError } from '../../presentation/Errors/app.error'; 
+import { AppError } from '../../presentation/Errors/app.error';
 
 export class InvalidCredentialsError extends AppError {
   constructor() {

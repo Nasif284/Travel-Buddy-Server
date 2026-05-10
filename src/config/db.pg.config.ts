@@ -26,7 +26,7 @@ export function getDatabasePool(): Pool {
 export function getDB() {
   if (!db) {
     const p = getDatabasePool();
-    db = drizzle(p, { schema});
+    db = drizzle(p, { schema });
   }
   return db;
 }

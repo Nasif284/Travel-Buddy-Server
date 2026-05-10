@@ -1,4 +1,4 @@
-import { User } from "../../../domain/entities/user/user.entity"; 
+import { User } from '../../../domain/entities/user/user.entity';
 
 export interface CreateUserData {
   fullName: string;

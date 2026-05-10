@@ -42,7 +42,9 @@ export class PostgresUserRepository implements IUserRepository {
         })
         .returning({ id: schema.users.id });
 
-      await tx.insert(schema.userPrivacySettings).values({ userId: newUser.id })
+      await tx
+        .insert(schema.userPrivacySettings)
+        .values({ userId: newUser.id });
 
       const user = await tx.query.users.findFirst({
         where: eq(schema.users.id, newUser.id),
@@ -51,6 +53,9 @@ export class PostgresUserRepository implements IUserRepository {
     });
   }
   async updateEmailVerified(email: string): Promise<void> {
-     await this.db.update(schema.users).set({isEmailVerified:true,emailVerifiedAt:new Date()}).where(eq(schema.users.email,email))
+    await this.db
+      .update(schema.users)
+      .set({ isEmailVerified: true, emailVerifiedAt: new Date() })
+      .where(eq(schema.users.email, email));
   }
 }

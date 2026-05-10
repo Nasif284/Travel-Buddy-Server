@@ -1,10 +1,4 @@
-import {
-  pgTable,
-  uuid,
-  varchar,
-  text,
-  timestamp,
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core';
 import { sql, relations } from 'drizzle-orm';
 import { accountStatuses } from './lookups.schema';
 
@@ -49,7 +43,6 @@ export const adminRoles = pgTable('admin_roles', {
   ),
 });
 
-
 export const adminsRelations = relations(admins, ({ many }) => ({
   roles: many(adminRoles),
 }));
@@ -58,7 +51,6 @@ export const adminRolesRelations = relations(adminRoles, ({ one }) => ({
   admin: one(admins, { fields: [adminRoles.adminId], references: [admins.id] }),
   role: one(roles, { fields: [adminRoles.roleId], references: [roles.id] }),
 }));
-
 
 export type RoleRecord = typeof roles.$inferSelect;
 export type AdminRecord = typeof admins.$inferSelect;
