@@ -13,46 +13,47 @@ export const roles = pgTable('roles', {
 
 export const admins = pgTable('admins', {
   id: uuid('id').primaryKey().defaultRandom(),
+
+  roleId: uuid('role_id')
+    .notNull()
+    .references(() => roles.id),
+
   fullName: varchar('full_name', { length: 100 }).notNull(),
+
   email: varchar('email', { length: 255 }).notNull().unique(),
+
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+
   accountStatusCode: varchar('account_status_code', { length: 20 })
     .default('active')
     .references(() => accountStatuses.code),
+
   avatarUrl: varchar('avatar_url', { length: 500 }),
+
   lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
+
   createdBy: uuid('created_by').references((): any => admins.id),
+
   createdAt: timestamp('created_at', { withTimezone: true }).default(
     sql`now()`,
   ),
+
   updatedAt: timestamp('updated_at', { withTimezone: true }).default(
     sql`now()`,
   ),
 });
 
-export const adminRoles = pgTable('admin_roles', {
-  adminId: uuid('admin_id')
-    .notNull()
-    .references(() => admins.id, { onDelete: 'cascade' }),
-  roleId: uuid('role_id')
-    .notNull()
-    .references(() => roles.id, { onDelete: 'cascade' }),
-  grantedBy: uuid('granted_by').references(() => admins.id),
-  grantedAt: timestamp('granted_at', { withTimezone: true }).default(
-    sql`now()`,
-  ),
-});
-
-export const adminsRelations = relations(admins, ({ many }) => ({
-  roles: many(adminRoles),
+export const adminsRelations = relations(admins, ({ one }) => ({
+  role: one(roles, {
+    fields: [admins.roleId],
+    references: [roles.id],
+  }),
 }));
 
-export const adminRolesRelations = relations(adminRoles, ({ one }) => ({
-  admin: one(admins, { fields: [adminRoles.adminId], references: [admins.id] }),
-  role: one(roles, { fields: [adminRoles.roleId], references: [roles.id] }),
+export const rolesRelations = relations(roles, ({ many }) => ({
+  admins: many(admins),
 }));
 
 export type RoleRecord = typeof roles.$inferSelect;
 export type AdminRecord = typeof admins.$inferSelect;
 export type NewAdmin = typeof admins.$inferInsert;
-export type AdminRoleRecord = typeof adminRoles.$inferSelect;

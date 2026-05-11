@@ -1,20 +1,20 @@
 import { StringValue } from 'ms';
-import { AccountStatus } from '../../../domain/enums';
+import { AccountStatus } from '../../../../domain/enums';
 import {
   AccountBannedError,
   AccountSuspendedError,
   InvalidRefreshTokenError,
   UserNotFoundError,
-} from '../../../domain/errors/auth.error';
+} from '../../../../domain/errors/auth.error';
 import {
   JwtTokenService,
   RedisSessionService,
-} from '../../../infrastructure/services';
-import { RefreshTokenRequestDTO } from '../../dtos/auth/request/refrsh-token.dto';
-import { RefreshTokenResponseDTO } from '../../dtos/auth/responce/refresh-token.dto';
-import { IBaseUseCase } from '../../interfaces/base-usecase.interface';
-import { IUserRepository } from '../../interfaces/repositories/user.reposetory';
-import { config } from '../../../config/env.config';
+} from '../../../../infrastructure/services';
+import { RefreshTokenRequestDTO } from '../../../dtos/auth/request/refrsh-token.dto';
+import { RefreshTokenResponseDTO } from '../../../dtos/auth/responce/refresh-token.dto';
+import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
+import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
+import { config } from '../../../../config/env.config';
 
 export class RefreshToken implements IBaseUseCase<
   RefreshTokenRequestDTO,

@@ -1,7 +1,7 @@
-import { RedisOtpService } from '../../../infrastructure/services/redisOtp.service';
-import { ForgotPasswordRequestDTO } from '../../dtos/auth/request/fortgot-password.dto';
-import { ForgotPasswordResponseDTO } from '../../dtos/auth/responce/forgot-password.dto';
-import { IBaseUseCase } from '../../interfaces/base-usecase.interface';
+import { RedisOtpService } from '../../../../infrastructure/services/redisOtp.service';
+import { ForgotPasswordRequestDTO } from '../../../dtos/auth/request/fortgot-password.dto';
+import { ForgotPasswordResponseDTO } from '../../../dtos/auth/responce/forgot-password.dto';
+import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 
 export class ForgotPassword implements IBaseUseCase<
   ForgotPasswordRequestDTO,

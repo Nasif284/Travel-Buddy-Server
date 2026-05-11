@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { CookieOptions } from 'express';
-import { Register } from '../../../../application/use-cases/auth';
+import { Register } from '../../../../application/use-cases/auth/user';
 import { config } from '../../../../config/env.config';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
-import { EmailVerification } from '../../../../application/use-cases/auth/verify-email.usecase';
-import { LoginUseCase } from '../../../../application/use-cases/auth/login.usecase';
-import { ForgotPassword } from '../../../../application/use-cases/auth/forgot-password.usecase';
-import { ResetPassword } from '../../../../application/use-cases/auth/reset-password.usecase';
+import { EmailVerification } from '../../../../application/use-cases/auth/user/verify-email.usecase';
+import { LoginUseCase } from '../../../../application/use-cases/auth/user/login.usecase';
+import { ForgotPassword } from '../../../../application/use-cases/auth/user/forgot-password.usecase';
+import { ResetPassword } from '../../../../application/use-cases/auth/user/reset-password.usecase';
 import jwt from 'jsonwebtoken';
-import { RefreshToken } from '../../../../application/use-cases/auth/refresh-tokem.usecase';
+import { RefreshToken } from '../../../../application/use-cases/auth/user/refresh-tokem.usecase';
 function getCookieOptions(maxAge: number): CookieOptions {
   return {
     httpOnly: true,
@@ -36,7 +36,6 @@ export class AuthController {
   }
 
   register = async (req: Request, res: Response): Promise<Response> => {
-    console.log(config.env == 'development');
     const result = await this._registerUseCase.execute(req.body);
     res.cookie(
       'accessToken',

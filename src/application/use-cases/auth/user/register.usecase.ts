@@ -1,13 +1,13 @@
-import { config } from '../../../config/env.config';
-import { EmailAlreadyExistsError } from '../../../domain/errors/auth.error';
-import { RegisterRequestDTO } from '../../dtos/auth/request/register.dto';
-import { RegisterResponseDTO } from '../../dtos/auth/responce/register.dto';
-import { IUserRepository } from '../../interfaces/repositories/user.reposetory';
-import { IHashService } from '../../interfaces/services/hash.service.interface';
-import { IOtpService } from '../../interfaces/services/otp.service.interface';
-import { ISessionService } from '../../interfaces/services/session.service.interface';
-import { ITokenService } from '../../interfaces/services/token.service.interface';
-import { IBaseUseCase } from '../../interfaces/base-usecase.interface';
+import { config } from '../../../../config/env.config';
+import { EmailAlreadyExistsError } from '../../../../domain/errors/auth.error';
+import { RegisterRequestDTO } from '../../../dtos/auth/request/register.dto';
+import { RegisterResponseDTO } from '../../../dtos/auth/responce/register.dto';
+import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
+import { IHashService } from '../../../interfaces/services/hash.service.interface';
+import { IOtpService } from '../../../interfaces/services/otp.service.interface';
+import { ISessionService } from '../../../interfaces/services/session.service.interface';
+import { ITokenService } from '../../../interfaces/services/token.service.interface';
+import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 
 interface Result {
   response: RegisterResponseDTO;

@@ -5,20 +5,25 @@ import {
   RedisSessionService,
 } from '../services';
 import { PostgresUserRepository } from '../database/repositories/user.postgres.repository';
-import { Register } from '../../application/use-cases/auth';
+import { Register } from '../../application/use-cases/auth/user';
 import { AuthController } from '../../presentation/controllers/user/auth/auth.controller';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
 import { RedisOtpService } from '../services/redisOtp.service';
 import { EmailService } from '../services/email.service';
-import { EmailVerification } from '../../application/use-cases/auth/verify-email.usecase';
-import { LoginUseCase } from '../../application/use-cases/auth/login.usecase';
-import { ForgotPassword } from '../../application/use-cases/auth/forgot-password.usecase';
-import { ResetPassword } from '../../application/use-cases/auth/reset-password.usecase';
-import { RefreshToken } from '../../application/use-cases/auth/refresh-tokem.usecase';
+import { EmailVerification } from '../../application/use-cases/auth/user/verify-email.usecase';
+import { LoginUseCase } from '../../application/use-cases/auth/user/login.usecase';
+import { ForgotPassword } from '../../application/use-cases/auth/user/forgot-password.usecase';
+import { ResetPassword } from '../../application/use-cases/auth/user/reset-password.usecase';
+import { RefreshToken } from '../../application/use-cases/auth/user/refresh-tokem.usecase';
+import { AdminLogin } from '../../application/use-cases/auth/admin/login.usecase';
+import { AdminAuthController } from '../../presentation/controllers/admin/auth/admin.auth.controller';
+import { PostgresAdminRepository } from '../database/repositories/admin.prostgres.respository';
+import { CreateAdmin } from '../../application/use-cases/auth/admin/create.usecase';
 
 export interface AppContainer {
   authController: AuthController;
+  adminAuthController: AdminAuthController;
 }
 
 export function buildContainer(
@@ -32,6 +37,7 @@ export function buildContainer(
   const redisOtpService = new RedisOtpService(redis, hashService, emailService);
 
   const userRepository = new PostgresUserRepository(db);
+  const adminRepository = new PostgresAdminRepository(db);
 
   const register = new Register(
     userRepository,
@@ -54,6 +60,13 @@ export function buildContainer(
     sessionService,
     userRepository,
   );
+  const adminLoginUseCase = new AdminLogin(
+    adminRepository,
+    tokenService,
+    sessionService,
+    hashService,
+  );
+  const createAdmin = new CreateAdmin(adminRepository, hashService);
 
   const authController = new AuthController(
     register,
@@ -63,5 +76,10 @@ export function buildContainer(
     resetPassword,
     refreshToken,
   );
-  return { authController };
+  const adminAuthController = new AdminAuthController(
+    adminLoginUseCase,
+    createAdmin,
+  );
+
+  return { authController, adminAuthController };
 }
