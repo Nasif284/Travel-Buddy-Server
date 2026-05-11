@@ -27,7 +27,7 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
     private readonly _hashService: IHashService,
     private readonly _sessionService: ISessionService,
   ) {
-    this._refreshTtl = parseInt(config.jwt.refreshExpiration);
+    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
   }
   async execute(dto: LoginRequestDTO): Promise<Result> {
     const { email, password } = dto;

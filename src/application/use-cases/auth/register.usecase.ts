@@ -25,7 +25,7 @@ export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
     private readonly _sessionService: ISessionService,
     private readonly _otpService: IOtpService,
   ) {
-    this._refreshTtl = parseInt(config.jwt.refreshExpiration ?? '2592000');
+    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
   }
 
   async execute(dto: RegisterRequestDTO): Promise<Result> {

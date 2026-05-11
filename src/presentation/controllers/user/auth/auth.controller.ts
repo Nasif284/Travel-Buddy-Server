@@ -7,13 +7,15 @@ import { EmailVerification } from '../../../../application/use-cases/auth/verify
 import { LoginUseCase } from '../../../../application/use-cases/auth/login.usecase';
 import { ForgotPassword } from '../../../../application/use-cases/auth/forgot-password.usecase';
 import { ResetPassword } from '../../../../application/use-cases/auth/reset-password.usecase';
-
-function getCookieOptions(maxAgeSeconds: number): CookieOptions {
+import jwt from 'jsonwebtoken';
+import { RefreshToken } from '../../../../application/use-cases/auth/refresh-tokem.usecase';
+function getCookieOptions(maxAge: number): CookieOptions {
   return {
     httpOnly: true,
     secure: config.env == 'development' ? false : true,
     sameSite: 'lax',
     path: '/',
+    maxAge,
   };
 }
 
@@ -27,9 +29,10 @@ export class AuthController {
     private readonly _loginUseCase: LoginUseCase,
     private readonly _forgotPasswordUseCase: ForgotPassword,
     private readonly _resetPasswordUseCase: ResetPassword,
+    private readonly _refreshTokenUseCase: RefreshToken,
   ) {
-    this._accessTtl = parseInt(config.jwt.accessExpiration ?? '900');
-    this._refreshTtl = parseInt(config.jwt.refreshExpiration ?? '2592000');
+    this._accessTtl = 15 * 60 * 1000;
+    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
   }
 
   register = async (req: Request, res: Response): Promise<Response> => {
@@ -65,6 +68,44 @@ export class AuthController {
       result.refreshToken,
       getCookieOptions(this._refreshTtl),
     );
+    return res.status(HttpStatus.OK).json(result.response);
+  };
+
+  refreshToken = async (req: Request, res: Response): Promise<Response> => {
+    const refreshToken = req.cookies?.refreshToken as string;
+    if (!refreshToken) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: 'Session expired, login again',
+      });
+    }
+    const decoded = (await jwt.decode(refreshToken)) as {
+      userId: string;
+      email: string;
+    } | null;
+    const userId: string | undefined = decoded?.userId;
+    if (!userId) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: 'User id is missing',
+      });
+    }
+
+    const result = await this._refreshTokenUseCase.execute({
+      token: refreshToken,
+      userId,
+    });
+    res.cookie(
+      'accessToken',
+      result.accessToken,
+      getCookieOptions(this._accessTtl),
+    );
+    res.cookie(
+      'refreshToken',
+      result.refreshToken,
+      getCookieOptions(this._refreshTtl),
+    );
+
     return res.status(HttpStatus.OK).json(result.response);
   };
 

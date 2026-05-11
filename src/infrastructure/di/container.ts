@@ -15,6 +15,7 @@ import { EmailVerification } from '../../application/use-cases/auth/verify-email
 import { LoginUseCase } from '../../application/use-cases/auth/login.usecase';
 import { ForgotPassword } from '../../application/use-cases/auth/forgot-password.usecase';
 import { ResetPassword } from '../../application/use-cases/auth/reset-password.usecase';
+import { RefreshToken } from '../../application/use-cases/auth/refresh-tokem.usecase';
 
 export interface AppContainer {
   authController: AuthController;
@@ -48,6 +49,11 @@ export function buildContainer(
   );
   const forgotPassword = new ForgotPassword(redisOtpService);
   const resetPassword = new ResetPassword(hashService, userRepository);
+  const refreshToken = new RefreshToken(
+    tokenService,
+    sessionService,
+    userRepository,
+  );
 
   const authController = new AuthController(
     register,
@@ -55,6 +61,7 @@ export function buildContainer(
     login,
     forgotPassword,
     resetPassword,
+    refreshToken,
   );
   return { authController };
 }

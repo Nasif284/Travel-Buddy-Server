@@ -22,6 +22,7 @@ export function buildAuthRoutes(controller: AuthController): Router {
     asyncHandler(controller.verifyEmail),
   );
   router.post('/login', validate(LoginSchema), asyncHandler(controller.login));
+  router.post('/refresh', asyncHandler(controller.refreshToken));
   router.post(
     '/password/forgot',
     validate(ForgotPasswordSchema),
