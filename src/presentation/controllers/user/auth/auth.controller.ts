@@ -5,6 +5,8 @@ import { config } from '../../../../config/env.config';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
 import { EmailVerification } from '../../../../application/use-cases/auth/verify-email.usecase';
 import { LoginUseCase } from '../../../../application/use-cases/auth/login.usecase';
+import { ForgotPassword } from '../../../../application/use-cases/auth/forgot-password.usecase';
+import { ResetPassword } from '../../../../application/use-cases/auth/reset-password.usecase';
 
 function getCookieOptions(maxAgeSeconds: number): CookieOptions {
   return {
@@ -12,7 +14,6 @@ function getCookieOptions(maxAgeSeconds: number): CookieOptions {
     secure: config.env == 'development' ? false : true,
     sameSite: 'lax',
     path: '/',
-    maxAge: maxAgeSeconds * 1000,
   };
 }
 
@@ -24,6 +25,8 @@ export class AuthController {
     private readonly _registerUseCase: Register,
     private readonly _verifyEmailUseCase: EmailVerification,
     private readonly _loginUseCase: LoginUseCase,
+    private readonly _forgotPasswordUseCase: ForgotPassword,
+    private readonly _resetPasswordUseCase: ResetPassword,
   ) {
     this._accessTtl = parseInt(config.jwt.accessExpiration ?? '900');
     this._refreshTtl = parseInt(config.jwt.refreshExpiration ?? '2592000');
@@ -46,8 +49,7 @@ export class AuthController {
     return res.status(HttpStatus.CREATED).json(result.response);
   };
   verifyEmail = async (req: Request, res: Response): Promise<Response> => {
-    const { email } = req.user;
-    const { code } = req.body;
+    const { code, email } = req.body;
     const result = await this._verifyEmailUseCase.execute({ email, code });
     return res.status(HttpStatus.OK).json(result);
   };
@@ -64,5 +66,15 @@ export class AuthController {
       getCookieOptions(this._refreshTtl),
     );
     return res.status(HttpStatus.OK).json(result.response);
+  };
+
+  forgotPassword = async (req: Request, res: Response): Promise<Response> => {
+    const result = await this._forgotPasswordUseCase.execute(req.body);
+    return res.status(HttpStatus.OK).json(result);
+  };
+
+  resetPassword = async (req: Request, res: Response): Promise<Response> => {
+    const result = await this._resetPasswordUseCase.execute(req.body);
+    return res.status(HttpStatus.OK).json(result);
   };
 }

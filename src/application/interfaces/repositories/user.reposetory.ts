@@ -11,4 +11,5 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   create(data: CreateUserData): Promise<User>;
   updateEmailVerified(email: string): Promise<void>;
+  updatePassword(id: string, password: string): Promise<void>;
 }

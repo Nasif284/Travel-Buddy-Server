@@ -44,7 +44,10 @@ export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
       email: user.email,
       userId: user.id,
     });
-    const refreshToken = this._tokenService.generateRefreshToken();
+    const refreshToken = this._tokenService.generateRefreshToken({
+      email: user.email,
+      userId: user.id,
+    });
     const tokenHash = this._tokenService.hashToken(refreshToken);
     await this._sessionService.store(user.id, tokenHash, this._refreshTtl);
 

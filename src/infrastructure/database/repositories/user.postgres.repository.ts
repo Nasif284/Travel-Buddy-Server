@@ -58,4 +58,10 @@ export class PostgresUserRepository implements IUserRepository {
       .set({ isEmailVerified: true, emailVerifiedAt: new Date() })
       .where(eq(schema.users.email, email));
   }
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({ passwordHash })
+      .where(eq(schema.users.id, id));
+  }
 }

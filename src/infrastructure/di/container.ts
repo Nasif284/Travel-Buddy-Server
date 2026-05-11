@@ -13,6 +13,8 @@ import { RedisOtpService } from '../services/redisOtp.service';
 import { EmailService } from '../services/email.service';
 import { EmailVerification } from '../../application/use-cases/auth/verify-email.usecase';
 import { LoginUseCase } from '../../application/use-cases/auth/login.usecase';
+import { ForgotPassword } from '../../application/use-cases/auth/forgot-password.usecase';
+import { ResetPassword } from '../../application/use-cases/auth/reset-password.usecase';
 
 export interface AppContainer {
   authController: AuthController;
@@ -44,7 +46,15 @@ export function buildContainer(
     hashService,
     sessionService,
   );
+  const forgotPassword = new ForgotPassword(redisOtpService);
+  const resetPassword = new ResetPassword(hashService, userRepository);
 
-  const authController = new AuthController(register, verifyEmail, login);
+  const authController = new AuthController(
+    register,
+    verifyEmail,
+    login,
+    forgotPassword,
+    resetPassword,
+  );
   return { authController };
 }

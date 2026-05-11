@@ -48,7 +48,10 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
       email: user.email,
       userId: user.id,
     });
-    const refreshToken = this._tokenService.generateRefreshToken();
+    const refreshToken = this._tokenService.generateRefreshToken({
+      email: user.email,
+      userId: user.id,
+    });
     const refreshTokenHash = await this._hashService.hash(refreshToken);
     await this._sessionService.store(
       user.id,
