@@ -15,8 +15,9 @@ import { RefreshTokenResponseDTO } from '../../../dtos/auth/user/responce/refres
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 import { config } from '../../../../config/env.config';
+import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
 
-export class RefreshToken implements IBaseUseCase<
+export class AdminRefreshToken implements IBaseUseCase<
   RefreshTokenRequestDTO,
   RefreshTokenResponseDTO
 > {
@@ -24,7 +25,7 @@ export class RefreshToken implements IBaseUseCase<
   constructor(
     private readonly _tokenService: JwtTokenService,
     private readonly _sessionService: RedisSessionService,
-    private readonly _userRepository: IUserRepository,
+    private readonly _adminRepository: IAdminRepository,
   ) {
     this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
   }
@@ -34,7 +35,7 @@ export class RefreshToken implements IBaseUseCase<
     const isValid = this._sessionService.isValid(userId, tokenHash);
     if (!isValid) throw new InvalidRefreshTokenError();
 
-    const user = await this._userRepository.findById(userId);
+    const user = await this._adminRepository.findById(userId);
     if (!user) {
       throw new UserNotFoundError();
     }

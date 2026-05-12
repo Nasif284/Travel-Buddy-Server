@@ -1,6 +1,6 @@
 import { RedisOtpService } from '../../../../infrastructure/services/redisOtp.service';
-import { EmailVerificationRequestDTO } from '../../../dtos/auth/request/email-verification.dto';
-import { EmailVerificationResponseDTO } from '../../../dtos/auth/responce/email-verification.dto';
+import { EmailVerificationRequestDTO } from '../../../dtos/auth/user/request/email-verification.dto';
+import { EmailVerificationResponseDTO } from '../../../dtos/auth/user/responce/email-verification.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 

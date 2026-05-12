@@ -28,7 +28,7 @@ export const users = pgTable('users', {
   fullName: varchar('full_name', { length: 100 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   phone: varchar('phone', { length: 20 }).unique(),
-  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+  passwordHash: varchar('password_hash', { length: 255 }),
   avatarUrl: varchar('avatar_url', { length: 500 }),
   coverUrl: varchar('cover_url', { length: 500 }),
   bio: text('bio'),

@@ -7,8 +7,8 @@ import {
   UserNotFoundError,
   UserNotVerifiedError,
 } from '../../../../domain/errors/auth.error';
-import { LoginRequestDTO } from '../../../dtos/auth/request/login.dto';
-import { LoginResponseDTO } from '../../../dtos/auth/responce/login.dto';
+import { LoginRequestDTO } from '../../../dtos/auth/user/request/login.dto';
+import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';
@@ -32,6 +32,7 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
   async execute(dto: LoginRequestDTO): Promise<Result> {
     const { email, password } = dto;
     const user = await this._userRepository.findByEmail(email);
+
     if (!user) throw new UserNotFoundError();
     const valid = await this._hashService.compare(password, user.passwordHash);
     if (!valid) throw new IncorrectPasswordError();
@@ -52,7 +53,7 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
       email: user.email,
       userId: user.id,
     });
-    const refreshTokenHash = await this._hashService.hash(refreshToken);
+    const refreshTokenHash = this._tokenService.hashToken(refreshToken);
     await this._sessionService.store(
       user.id,
       refreshTokenHash,

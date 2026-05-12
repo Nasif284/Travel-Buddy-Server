@@ -2,11 +2,10 @@ import { Router } from 'express';
 import { AuthController } from '../../../controllers/user/auth/auth.controller';
 import { RegisterSchema, validate } from '../../../validators/user/auth';
 import { asyncHandler } from '../../../middleware/asyncHandler';
-import { VerifyOtpSchema } from '../../../validators/user/auth/verify-otp.validator';
+import { VerifyEmailSchema } from '../../../validators/user/auth/verify-email.validator';
 import { LoginSchema } from '../../../validators/user/auth/login.validator';
-import { ForgotPasswordSchema } from '../../../validators/user/auth/forgot-password.validator';
-import { ResetPasswordSchema } from '../../../validators/user/auth/reset-password.validator';
 import { buildPasswordRoutes } from './password/password.route';
+import { authenticate } from '../../../middleware/user/auth/userAuth.middleware';
 
 export function buildAuthRoutes(controller: AuthController): Router {
   const router = Router();
@@ -18,20 +17,14 @@ export function buildAuthRoutes(controller: AuthController): Router {
   );
   router.post(
     '/verify',
-    validate(VerifyOtpSchema),
+    validate(VerifyEmailSchema),
     asyncHandler(controller.verifyEmail),
   );
+  router.post('/send-otp', asyncHandler(controller.sendOtp));
+  router.post('/verify-otp', asyncHandler(controller.verifyOtp));
   router.post('/login', validate(LoginSchema), asyncHandler(controller.login));
+  router.post('/google', asyncHandler(controller.googleAuth));
   router.post('/refresh', asyncHandler(controller.refreshToken));
-  router.post(
-    '/password/forgot',
-    validate(ForgotPasswordSchema),
-    asyncHandler(controller.forgotPassword),
-  );
-  router.post(
-    '/password/forgot/reset',
-    validate(ResetPasswordSchema),
-    asyncHandler(controller.resetPassword),
-  );
+  router.post('/logout', authenticate, asyncHandler(controller.logout));
   return router;
 }

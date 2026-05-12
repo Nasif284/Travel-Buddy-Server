@@ -9,6 +9,10 @@ import { ForgotPassword } from '../../../../application/use-cases/auth/user/forg
 import { ResetPassword } from '../../../../application/use-cases/auth/user/reset-password.usecase';
 import jwt from 'jsonwebtoken';
 import { RefreshToken } from '../../../../application/use-cases/auth/user/refresh-tokem.usecase';
+import { SendOtp } from '../../../../application/use-cases/auth/user/send-otp.usecase';
+import { Logout } from '../../../../application/use-cases/auth/user/logout.usecase';
+import { VerifyOtp } from '../../../../application/use-cases/auth/user/otp-verify.usecase';
+import { GoogleAuth } from '../../../../application/use-cases/auth/user/google-auth.usecase';
 function getCookieOptions(maxAge: number): CookieOptions {
   return {
     httpOnly: true,
@@ -16,6 +20,14 @@ function getCookieOptions(maxAge: number): CookieOptions {
     sameSite: 'lax',
     path: '/',
     maxAge,
+  };
+}
+function getClearCookieOptions(): CookieOptions {
+  return {
+    httpOnly: true,
+    secure: config.env == 'development' ? false : true,
+    sameSite: 'lax',
+    path: '/',
   };
 }
 
@@ -30,6 +42,10 @@ export class AuthController {
     private readonly _forgotPasswordUseCase: ForgotPassword,
     private readonly _resetPasswordUseCase: ResetPassword,
     private readonly _refreshTokenUseCase: RefreshToken,
+    private readonly _sendOtp: SendOtp,
+    private readonly _logout: Logout,
+    private readonly _verifyOtp: VerifyOtp,
+    private readonly _googleAuth: GoogleAuth,
   ) {
     this._accessTtl = 15 * 60 * 1000;
     this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
@@ -116,5 +132,46 @@ export class AuthController {
   resetPassword = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._resetPasswordUseCase.execute(req.body);
     return res.status(HttpStatus.OK).json(result);
+  };
+
+  sendOtp = async (req: Request, res: Response): Promise<Response> => {
+    const result = await this._sendOtp.execute(req.body);
+    return res.status(HttpStatus.OK).json(result);
+  };
+
+  logout = async (req: Request, res: Response): Promise<Response> => {
+    const refreshToken = req.cookies?.refreshToken as string | undefined;
+    const userId = req.user?.userId;
+    let result;
+    if (userId && refreshToken) {
+      result = await this._logout.execute({ userId, refreshToken });
+    }
+
+    res.clearCookie('accessToken', getClearCookieOptions());
+    res.clearCookie('refreshToken', getClearCookieOptions());
+
+    return res.status(HttpStatus.OK).json(result);
+  };
+
+  verifyOtp = async (req: Request, res: Response): Promise<Response> => {
+    const result = await this._verifyOtp.execute(req.body);
+    return res.status(HttpStatus.OK).json(result);
+  };
+  googleAuth = async (req: Request, res: Response) => {
+    const { token } = req.body;
+    const result = await this._googleAuth.execute({ token });
+
+    res.cookie(
+      'accessToken',
+      result.accessToken,
+      getCookieOptions(this._accessTtl),
+    );
+    res.cookie(
+      'refreshToken',
+      result.refreshToken,
+      getCookieOptions(this._refreshTtl),
+    );
+
+    return res.status(HttpStatus.OK).json(result.response);
   };
 }

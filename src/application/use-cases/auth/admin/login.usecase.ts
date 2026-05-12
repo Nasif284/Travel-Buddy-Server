@@ -5,8 +5,8 @@ import {
   JwtTokenService,
   RedisSessionService,
 } from '../../../../infrastructure/services';
-import { LoginRequestDTO } from '../../../dtos/auth/request/login.dto';
-import { LoginResponseDTO } from '../../../dtos/auth/responce/login.dto';
+import { LoginRequestDTO } from '../../../dtos/auth/user/request/login.dto';
+import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
 export interface Result {

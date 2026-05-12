@@ -1,6 +1,6 @@
 import { UserNotFoundError } from '../../../../domain/errors/auth.error';
-import { ResetPasswordRequestDTO } from '../../../dtos/auth/request/reset-password.dto';
-import { ResetPasswordResponseDTO } from '../../../dtos/auth/responce/reset-password.dto';
+import { ResetPasswordRequestDTO } from '../../../dtos/auth/user/request/reset-password.dto';
+import { ResetPasswordResponseDTO } from '../../../dtos/auth/user/responce/reset-password.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';

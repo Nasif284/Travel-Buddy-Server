@@ -1,7 +1,7 @@
 import { config } from '../../../../config/env.config';
 import { EmailAlreadyExistsError } from '../../../../domain/errors/auth.error';
-import { RegisterRequestDTO } from '../../../dtos/auth/request/register.dto';
-import { RegisterResponseDTO } from '../../../dtos/auth/responce/register.dto';
+import { RegisterRequestDTO } from '../../../dtos/auth/user/request/register.dto';
+import { RegisterResponseDTO } from '../../../dtos/auth/user/responce/register.dto';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';
 import { IOtpService } from '../../../interfaces/services/otp.service.interface';

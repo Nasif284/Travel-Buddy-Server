@@ -7,11 +7,17 @@ import { buildRoutes } from '../routes';
 import { AppContainer } from '../../infrastructure/di/container';
 import { globalErrorHandler } from '../middleware/error.middleware';
 import morganMiddleware from '../../infrastructure/logging/morgan.middleware';
+import { config } from '../../config/env.config';
 
 export function createApp(container: AppContainer): Application {
   const app = express();
   app.use(helmet());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: config.frontend_url,
+      credentials: true,
+    }),
+  );
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

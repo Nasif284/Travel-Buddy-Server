@@ -1,5 +1,5 @@
 import { z } from 'zod';
-export const VerifyOtpSchema = z.object({
+export const VerifyEmailSchema = z.object({
   email: z.email('Invalid email address.').toLowerCase().trim(),
   code: z
     .string()

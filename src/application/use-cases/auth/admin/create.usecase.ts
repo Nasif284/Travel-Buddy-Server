@@ -1,6 +1,6 @@
 import { BcryptHashService } from '../../../../infrastructure/services';
-import { CreateAdminRequestDTO } from '../../../dtos/admin/request/create-admin.dto';
-import { CreateAdminResponseDTO } from '../../../dtos/admin/response/create-admin.dto';
+import { CreateAdminRequestDTO } from '../../../dtos/auth/admin/request/create-admin.dto';
+import { CreateAdminResponseDTO } from '../../../dtos/auth/admin/response/create-admin.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
 
