@@ -3,17 +3,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const config = {
-  port: process.env.PORT || 5000,
-  env: process.env.NODE_ENV || 'development',
+  port: process.env.PORT,
+  env: process.env.NODE_ENV,
   frontend_url: process.env.FRONTEND_URL,
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET!,
     refreshSecret: process.env.JWT_REFRESH_SECRET!,
-    accessExpiration: '15m',
-    refreshExpiration: '7d',
+    accessExpiration: process.env.ACCESS_TOKEN_TTL,
+    refreshExpiration: process.env.REFRESH_TOKEN_TTL,
   },
   redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
+    url: process.env.REDIS_URL,
   },
   db: {
     url: process.env.DATABASE_URL,

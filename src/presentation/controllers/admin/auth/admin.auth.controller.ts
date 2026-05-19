@@ -6,6 +6,7 @@ import { CreateAdmin } from '../../../../application/use-cases/auth/admin/create
 import { Logout } from '../../../../application/use-cases/auth/user/logout.usecase';
 import jwt from 'jsonwebtoken';
 import { AdminRefreshToken } from '../../../../application/use-cases/auth/admin/admin-refresh.usercase';
+import ms, { StringValue } from 'ms';
 function getCookieOptions(maxAge: number): CookieOptions {
   return {
     httpOnly: true,
@@ -34,8 +35,10 @@ export class AdminAuthController {
     private readonly _logoutUseCase: Logout,
     private readonly _refreshUseCase: AdminRefreshToken,
   ) {
-    this._accessTtl = 15 * 60 * 1000;
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
 
   login = async (req: Request, res: Response): Promise<Response> => {

@@ -1,9 +1,11 @@
+import ms, { StringValue } from 'ms';
 import { config } from '../../../../config/env.config';
 import { AccountStatus } from '../../../../domain/enums';
 import {
   AccountBannedError,
   AccountSuspendedError,
   IncorrectPasswordError,
+  InvalidCredentialsError,
   UserNotFoundError,
   UserNotVerifiedError,
 } from '../../../../domain/errors/auth.error';
@@ -27,13 +29,16 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
     private readonly _hashService: IHashService,
     private readonly _sessionService: ISessionService,
   ) {
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
   async execute(dto: LoginRequestDTO): Promise<Result> {
     const { email, password } = dto;
     const user = await this._userRepository.findByEmail(email);
 
-    if (!user) throw new UserNotFoundError();
+    if (!user || !user.passwordHash) throw new UserNotFoundError();
+
     const valid = await this._hashService.compare(password, user.passwordHash);
     if (!valid) throw new IncorrectPasswordError();
     if (user.accountStatusCode == AccountStatus.BANNED) {

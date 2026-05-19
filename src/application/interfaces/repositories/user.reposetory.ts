@@ -1,6 +1,6 @@
-import { User } from '../../../domain/entities/user/user.entity';
-import { UserRecord } from '../../../infrastructure/database/schema';
 import { GetAllUsersRequestDTO } from '../../dtos/user-management/request/get-users.dto';
+
+import { User } from '../../../domain/entities/user/user.entity';
 
 export interface CreateUserData {
   fullName: string;
@@ -10,12 +10,18 @@ export interface CreateUserData {
 }
 
 export interface IUserRepository {
-  findById(id: string): Promise<User | null>;
+  findUserById(id: string): Promise<User | null>;
+
   findByEmail(email: string): Promise<User | null>;
-  create(data: CreateUserData): Promise<User>;
+
+  createUser(data: CreateUserData): Promise<User>;
+
   updateEmailVerified(email: string): Promise<void>;
+
   updatePassword(id: string, password: string): Promise<void>;
-  getAllUsers(
-    payload: GetAllUsersRequestDTO,
-  ): Promise<{ users: UserRecord[]; count: number } | null>;
+
+  getAllUsers(payload: GetAllUsersRequestDTO): Promise<{
+    users: User[];
+    count: number;
+  }>;
 }

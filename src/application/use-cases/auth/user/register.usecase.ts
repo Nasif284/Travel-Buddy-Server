@@ -8,6 +8,7 @@ import { IOtpService } from '../../../interfaces/services/otp.service.interface'
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
+import ms, { StringValue } from 'ms';
 
 interface Result {
   response: RegisterResponseDTO;
@@ -25,7 +26,9 @@ export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
     private readonly _sessionService: ISessionService,
     private readonly _otpService: IOtpService,
   ) {
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
 
   async execute(dto: RegisterRequestDTO): Promise<Result> {
@@ -35,7 +38,7 @@ export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
 
     const passwordHash = await this._hashService.hash(dto.password);
 
-    const user = await this._userRepository.create({
+    const user = await this._userRepository.createUser({
       fullName: dto.fullName,
       email: dto.email,
       passwordHash,

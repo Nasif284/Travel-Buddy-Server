@@ -15,7 +15,7 @@ export class CreateAdmin implements IBaseUseCase<
   async execute(dto: CreateAdminRequestDTO): Promise<CreateAdminResponseDTO> {
     const { fullName, email, password, role } = dto;
     const passwordHash = await this._hashService.hash(password);
-    const admin = await this._adminRepository.create({
+    const admin = await this._adminRepository.createAdmin({
       fullName,
       email,
       passwordHash,

@@ -37,7 +37,7 @@ export interface UserProps {
   fullName: string;
   email: string;
   phone: string | null;
-  passwordHash: string;
+  passwordHash: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
   bio: string | null;
@@ -67,7 +67,7 @@ export class User {
   readonly fullName: string;
   readonly email: string;
   readonly phone: string | null;
-  readonly passwordHash: string;
+  readonly passwordHash: string | null;
   readonly avatarUrl: string | null;
   readonly coverUrl: string | null;
   readonly bio: string | null;

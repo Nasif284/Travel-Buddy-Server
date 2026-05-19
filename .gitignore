@@ -35,3 +35,4 @@ Thumbs.db
 # Infrastructure / Database local data
 .redis/
 dump.rdb
+/src/generated/prisma

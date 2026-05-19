@@ -1,11 +1,10 @@
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { PostgresAdminRepository } from '../../database/repositories/admin.prostgres.respository';
-import * as schema from '../../database/schema';
-import { PostgresUserRepository } from '../../database/repositories/user.postgres.repository';
+import { AdminRepository } from '../../database/repositories/admin.respository';
+import { UserRepository } from '../../database/repositories/user.repository';
+import { PrismaClient } from '@prisma/client';
 
-export function BuildAdminRepositories(db: NodePgDatabase<typeof schema>) {
+export function BuildAdminRepositories(db: PrismaClient) {
   return {
-    adminRepository: new PostgresAdminRepository(db),
-    userRepository: new PostgresUserRepository(db),
+    adminRepository: new AdminRepository(db),
+    userRepository: new UserRepository(db),
   };
 }

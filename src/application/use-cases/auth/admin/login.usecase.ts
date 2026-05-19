@@ -1,14 +1,14 @@
+import ms, { StringValue } from 'ms';
+import { config } from '../../../../config/env.config';
 import { AdminNotFoundError } from '../../../../domain/errors/admin.error';
 import { IncorrectPasswordError } from '../../../../domain/errors/auth.error';
-import {
-  BcryptHashService,
-  JwtTokenService,
-  RedisSessionService,
-} from '../../../../infrastructure/services';
 import { LoginRequestDTO } from '../../../dtos/auth/user/request/login.dto';
 import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
+import { IHashService } from '../../../interfaces/services/hash.service.interface';
+import { ISessionService } from '../../../interfaces/services/session.service.interface';
+import { ITokenService } from '../../../interfaces/services/token.service.interface';
 export interface Result {
   accessToken: string;
   refreshToken: string;
@@ -18,11 +18,13 @@ export class AdminLogin implements IBaseUseCase<LoginRequestDTO, Result> {
   private readonly _refreshTtl: number;
   constructor(
     private readonly _adminRepository: IAdminRepository,
-    private readonly _tokenService: JwtTokenService,
-    private readonly _sessionService: RedisSessionService,
-    private readonly _hashService: BcryptHashService,
+    private readonly _tokenService: ITokenService,
+    private readonly _sessionService: ISessionService,
+    private readonly _hashService: IHashService,
   ) {
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
   async execute(dto: LoginRequestDTO): Promise<Result> {
     const { email, password } = dto;

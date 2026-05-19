@@ -13,6 +13,7 @@ import { SendOtp } from '../../../../application/use-cases/auth/user/send-otp.us
 import { Logout } from '../../../../application/use-cases/auth/user/logout.usecase';
 import { VerifyOtp } from '../../../../application/use-cases/auth/user/otp-verify.usecase';
 import { GoogleAuth } from '../../../../application/use-cases/auth/user/google-auth.usecase';
+import ms, { StringValue } from 'ms';
 function getCookieOptions(maxAge: number): CookieOptions {
   return {
     httpOnly: true,
@@ -47,8 +48,10 @@ export class AuthController {
     private readonly _verifyOtp: VerifyOtp,
     private readonly _googleAuth: GoogleAuth,
   ) {
-    this._accessTtl = 15 * 60 * 1000;
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
 
   register = async (req: Request, res: Response): Promise<Response> => {

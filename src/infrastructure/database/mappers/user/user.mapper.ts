@@ -2,6 +2,13 @@
 
 import { User, UserProps } from '../../../../domain/entities/user/user.entity';
 import {
+  Prisma,
+  PrismaClient,
+  User as PrismaUser,
+  UserOnboarding,
+  UserPrivacy,
+} from '@prisma/client';
+import {
   AccountStatus,
   Gender,
   TravelType,
@@ -11,15 +18,10 @@ import {
   RequestFromOption,
   OnboardingSource,
 } from '../../../../domain/enums';
-import type {
-  UserRecord,
-  UserOnboardingRecord,
-  UserPrivacyRecord,
-} from '../../schema';
 
-type UserWithRelations = UserRecord & {
-  onboarding?: UserOnboardingRecord | null;
-  privacySettings?: UserPrivacyRecord | null;
+type UserWithRelations = PrismaUser & {
+  onboarding?: UserOnboarding | null;
+  privacySettings?: UserPrivacy | null;
 };
 
 export class UserMapper {

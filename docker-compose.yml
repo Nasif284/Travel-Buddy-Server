@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
 
-    command: sh -c "npm run db:push && npm run dev"
+    command: sh -c "npm run db:push && npm run db:generate && npm run dev"
 
     volumes:
       - .:/app

@@ -9,6 +9,9 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/infrastructure/database/schema/schema.prisma"
+  ],
   "exclude": ["node_modules"]
 }

@@ -1,0 +1,63 @@
+model Gender{
+    code String @id @db.VarChar(30)
+    users User[]
+
+    @@map("genders")
+}
+
+model TravelType {
+  code  String @id @db.VarChar(20)
+  users User[]
+
+  @@map("travel_types")
+}
+
+model TravelPersonality {
+  code  String @id @db.VarChar(20)
+  users User[]
+
+  @@map("travel_personalities")
+}
+
+model MatchPreference {
+  code  String @id @db.VarChar(20)
+  users User[]
+
+  @@map("match_preferences")
+}
+
+model AccountStatus {
+  code   String  @id @db.VarChar(20)
+  users  User[]
+  admins Admin[]
+
+  @@map("account_statuses")
+}
+
+model OnlineStatus {
+  code          String         @id @db.VarChar(20)
+  userLocations UserLocation[]
+
+  @@map("online_statuses")
+}
+
+model ProfileVisibility {
+  code          String       @id @db.VarChar(30)
+  userPrivacies UserPrivacy[]
+
+  @@map("profile_visibilities")
+}
+
+model RequestFromOption {
+  code          String       @id @db.VarChar(30)
+  userPrivacies UserPrivacy[]
+
+  @@map("request_from_options")
+}
+
+model OnboardingSource {
+  code            String           @id @db.VarChar(50)
+  userOnboardings UserOnboarding[]
+
+  @@map("onboarding_sources")
+}

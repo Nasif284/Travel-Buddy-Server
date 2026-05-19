@@ -1,12 +1,13 @@
+import ms, { StringValue } from 'ms';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
-import {
-  JwtTokenService,
-  RedisSessionService,
-} from '../../../../infrastructure/services';
 import { verifyGoogleToken } from '../../../../infrastructure/services/google-auth.service';
 import { AppError } from '../../../../presentation/Errors/app.error';
 import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
+import { ISessionService } from '../../../interfaces/services/session.service.interface';
+import { ITokenService } from '../../../interfaces/services/token.service.interface';
+import { config } from '../../../../config/env.config';
+
 interface Result {
   accessToken: string;
   refreshToken: string;
@@ -16,10 +17,12 @@ export class GoogleAuth {
   private readonly _refreshTtl: number;
   constructor(
     private readonly _userRepository: IUserRepository,
-    private readonly _tokenService: JwtTokenService,
-    private readonly _sessionService: RedisSessionService,
+    private readonly _tokenService: ITokenService,
+    private readonly _sessionService: ISessionService,
   ) {
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
   async execute(dto: { token: string }): Promise<Result> {
     const { token } = dto;
@@ -37,7 +40,7 @@ export class GoogleAuth {
     }
     const user =
       (await this._userRepository.findByEmail(payload.email)) ??
-      (await this._userRepository.create({
+      (await this._userRepository.createUser({
         email: payload.email,
         fullName: payload.name,
         avatarUrl: payload.picture,

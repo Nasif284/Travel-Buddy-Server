@@ -1,0 +1,55 @@
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(60)
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  admins      Admin[]
+  invites     AdminInvite[]
+
+  @@map("roles")
+}
+
+model Admin {
+  id            String        @id @default(uuid()) @db.Uuid
+  fullName      String        @map("full_name") @db.VarChar(100)
+  email         String        @unique @db.VarChar(255)
+  passwordHash  String        @map("password_hash") @db.VarChar(255)
+  avatarUrl     String?       @map("avatar_url") @db.VarChar(500)
+  lastActiveAt  DateTime?     @map("last_active_at") @db.Timestamptz(6)
+  createdBy     String?       @map("created_by") @db.Uuid
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+  
+  roleId              String        @map("role_id") @db.Uuid
+  role                Role          @relation(fields: [roleId], references: [id])
+
+  accountStatusCode   String        @default("active") @map("account_status_code") @db.VarChar(20)
+  accountStatus       AccountStatus @relation(fields: [accountStatusCode], references: [code])
+
+  invitesSent         AdminInvite[]
+
+  @@index([email])
+  @@index([accountStatusCode])
+  @@map("admins")
+}
+
+model AdminInvite {
+  id         String    @id @default(uuid()) @db.Uuid
+  email      String    @db.VarChar(255)
+  tokenHash  String    @unique @map("token_hash") @db.VarChar(255)
+  status     String    @default("pending") @db.VarChar(20)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
+  acceptedAt DateTime? @map("accepted_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  roleId     String    @map("role_id") @db.Uuid
+  role       Role      @relation(fields: [roleId], references: [id])
+
+  invitedBy  String    @map("invited_by") @db.Uuid
+  inviter    Admin     @relation(fields: [invitedBy], references: [id])
+
+  @@index([email])
+  @@index([status])
+  @@map("admin_invites")
+}

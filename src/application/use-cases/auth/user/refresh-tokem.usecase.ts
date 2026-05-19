@@ -1,4 +1,3 @@
-import { StringValue } from 'ms';
 import { AccountStatus } from '../../../../domain/enums';
 import {
   AccountBannedError,
@@ -6,14 +5,13 @@ import {
   InvalidRefreshTokenError,
   UserNotFoundError,
 } from '../../../../domain/errors/auth.error';
-import {
-  JwtTokenService,
-  RedisSessionService,
-} from '../../../../infrastructure/services';
 import { RefreshTokenRequestDTO } from '../../../dtos/auth/user/request/refrsh-token.dto';
 import { RefreshTokenResponseDTO } from '../../../dtos/auth/user/responce/refresh-token.dto';
 import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
+import { ITokenService } from '../../../interfaces/services/token.service.interface';
+import { ISessionService } from '../../../interfaces/services/session.service.interface';
+import ms, { StringValue } from 'ms';
 import { config } from '../../../../config/env.config';
 
 export class RefreshToken implements IBaseUseCase<
@@ -22,11 +20,13 @@ export class RefreshToken implements IBaseUseCase<
 > {
   private readonly _refreshTtl: number;
   constructor(
-    private readonly _tokenService: JwtTokenService,
-    private readonly _sessionService: RedisSessionService,
+    private readonly _tokenService: ITokenService,
+    private readonly _sessionService: ISessionService,
     private readonly _userRepository: IUserRepository,
   ) {
-    this._refreshTtl = 7 * 24 * 60 * 60 * 1000;
+    this._refreshTtl = ms(
+      (config.jwt.refreshExpiration ?? '7d') as StringValue,
+    );
   }
   async execute(dto: RefreshTokenRequestDTO): Promise<RefreshTokenResponseDTO> {
     const { token, userId } = dto;
@@ -34,7 +34,7 @@ export class RefreshToken implements IBaseUseCase<
     const isValid = this._sessionService.isValid(userId, tokenHash);
     if (!isValid) throw new InvalidRefreshTokenError();
 
-    const user = await this._userRepository.findById(userId);
+    const user = await this._userRepository.findUserById(userId);
     if (!user) {
       throw new UserNotFoundError();
     }
