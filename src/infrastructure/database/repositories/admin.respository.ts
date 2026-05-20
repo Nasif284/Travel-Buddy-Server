@@ -10,13 +10,10 @@ import {
 import { Admin } from '../../../domain/entities/admin/admin.entity';
 
 import { AdminMapper } from '../mappers/admin.mapper';
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../di/tokens';
 
-type AdminWithRole = Prisma.AdminGetPayload<{
-  include: {
-    role: true;
-  };
-}>;
-
+@injectable()
 export class AdminRepository
   extends BaseRepository<
     PrismaAdmin,
@@ -25,7 +22,7 @@ export class AdminRepository
   >
   implements IAdminRepository
 {
-  constructor(prisma: PrismaClient) {
+  constructor(@inject(TOKENS.PrismaClient) prisma: PrismaClient) {
     super(prisma, prisma.admin);
   }
 

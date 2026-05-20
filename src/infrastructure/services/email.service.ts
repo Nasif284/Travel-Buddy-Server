@@ -4,7 +4,8 @@ import {
   SendEmailOptions,
 } from '../../application/interfaces/services/email.service.interface';
 import { config } from '../../config/env.config';
-
+import { injectable } from 'tsyringe';
+@injectable()
 export class EmailService implements IEmailService {
   private _transporter;
   constructor() {

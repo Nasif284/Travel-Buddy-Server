@@ -9,15 +9,22 @@ import { ISessionService } from '../../../interfaces/services/session.service.in
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
 import ms, { StringValue } from 'ms';
 import { IRegister } from '../../../interfaces/use-cases/auth/user/register.interface';
-
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
+@injectable()
 export class Register implements IRegister {
   private readonly _refreshTtl: number;
 
   constructor(
+    @inject(TOKENS.IUserRepository)
     private readonly _userRepository: IUserRepository,
+    @inject(TOKENS.IHashService)
     private readonly _hashService: IHashService,
+    @inject(TOKENS.ITokenService)
     private readonly _tokenService: ITokenService,
+    @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
+    @inject(TOKENS.IOtpService)
     private readonly _otpService: IOtpService,
   ) {
     this._refreshTtl = ms(

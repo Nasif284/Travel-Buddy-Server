@@ -1,12 +1,16 @@
+import { inject, injectable } from 'tsyringe';
 import { UserNotFoundError } from '../../../../domain/errors/auth.error';
 import { ResetPasswordRequestDTO } from '../../../dtos/auth/user/request/reset-password.dto';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';
 import { IResetPassword } from '../../../interfaces/use-cases/auth/user/reset-password.interface';
-
+import { TOKENS } from '../../../../infrastructure/di/tokens';
+@injectable()
 export class ResetPassword implements IResetPassword {
   constructor(
+    @inject(TOKENS.IHashService)
     private readonly _hashService: IHashService,
+    @inject(TOKENS.IUserRepository)
     private readonly _userRepository: IUserRepository,
   ) {}
   async execute(dto: ResetPasswordRequestDTO): Promise<void> {

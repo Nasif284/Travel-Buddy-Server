@@ -1,8 +1,11 @@
 import { Redis } from 'ioredis';
 import { ISessionService } from '../../application/interfaces/services/session.service.interface';
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../di/tokens';
 
+@injectable()
 export class RedisSessionService implements ISessionService {
-  constructor(private readonly redis: Redis) {}
+  constructor(@inject(TOKENS.RedisClient) private readonly redis: Redis) {}
 
   private key(userId: string, tokenHash: string): string {
     return `session:${userId}:${tokenHash}`;

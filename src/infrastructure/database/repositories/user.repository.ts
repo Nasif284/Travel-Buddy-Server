@@ -13,7 +13,9 @@ import { User } from '../../../domain/entities/user/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
 
 import { GetAllUsersRequestDTO } from '../../../application/dtos/user-management/request/get-users.dto';
-
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../di/tokens';
+@injectable()
 export class UserRepository
   extends BaseRepository<
     PrismaUser,
@@ -22,7 +24,7 @@ export class UserRepository
   >
   implements IUserRepository
 {
-  constructor(prisma: PrismaClient) {
+  constructor(@inject(TOKENS.PrismaClient) prisma: PrismaClient) {
     super(prisma, prisma.user);
   }
 

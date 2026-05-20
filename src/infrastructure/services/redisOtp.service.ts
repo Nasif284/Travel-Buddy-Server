@@ -10,6 +10,8 @@ import {
   OtpNotFoundError,
 } from '../../domain/errors/auth.error';
 import { config } from '../../config/env.config';
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../di/tokens';
 
 interface OtpRedisValue {
   codeHash: string;
@@ -20,14 +22,15 @@ function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+@injectable()
 export class RedisOtpService implements IOtpService {
   private readonly _expirySeconds: number;
   private readonly _maxAttempts: number;
 
   constructor(
-    private readonly _redis: Redis,
-    private readonly _hashService: IHashService,
-    private readonly _emailService: IEmailService,
+    @inject(TOKENS.RedisClient) private readonly _redis: Redis,
+    @inject(TOKENS.IHashService) private readonly _hashService: IHashService,
+    @inject(TOKENS.IEmailService) private readonly _emailService: IEmailService,
   ) {
     this._expirySeconds = parseInt(config.otp.expiryInMinutes ?? '10') * 60;
     this._maxAttempts = parseInt(config.otp.maxAttempts ?? '3');

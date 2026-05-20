@@ -15,13 +15,19 @@ import { IHashService } from '../../../interfaces/services/hash.service.interfac
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
 import { ILogin } from '../../../interfaces/use-cases/auth/user/login.interface';
-
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
+@injectable()
 export class LoginUseCase implements ILogin {
   private readonly _refreshTtl: number;
   constructor(
+    @inject(TOKENS.IUserRepository)
     private readonly _userRepository: IUserRepository,
+    @inject(TOKENS.ITokenService)
     private readonly _tokenService: ITokenService,
+    @inject(TOKENS.IHashService)
     private readonly _hashService: IHashService,
+    @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
   ) {
     this._refreshTtl = ms(

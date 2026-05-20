@@ -1,20 +1,20 @@
-import { HttpStatus } from '../../../domain/enums/HttpStatusCodes.constants';
-import { AppError } from '../../../presentation/Errors/app.error';
+import { inject, injectable } from 'tsyringe';
 import { GetAllUsersRequestDTO } from '../../dtos/user-management/request/get-users.dto';
 import { GetAllUserResponseDTO } from '../../dtos/user-management/response/get-users.dto';
 import { IUserRepository } from '../../interfaces/repositories/user.reposetory';
 import { IGetUsers } from '../../interfaces/use-cases/user-management/get-users.interface';
-
+import { UserNotFoundError } from '../../../domain/errors/auth.error';
+import { TOKENS } from '../../../infrastructure/di/tokens';
+@injectable()
 export class GetAllUsers implements IGetUsers {
-  constructor(private readonly _userRepository: IUserRepository) {}
+  constructor(
+    @inject(TOKENS.IUserRepository)
+    private readonly _userRepository: IUserRepository,
+  ) {}
   async execute(dto: GetAllUsersRequestDTO): Promise<GetAllUserResponseDTO> {
     const result = await this._userRepository.getAllUsers(dto);
     if (!result) {
-      throw new AppError(
-        HttpStatus.NOT_FOUND,
-        'NO_USER_FOUNT',
-        'No users found',
-      );
+      throw new UserNotFoundError();
     }
     const totalPages = Math.ceil(result.count / dto.limit);
     return {

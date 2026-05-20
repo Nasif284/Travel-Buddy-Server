@@ -13,12 +13,17 @@ import { ISessionService } from '../../../interfaces/services/session.service.in
 import ms, { StringValue } from 'ms';
 import { config } from '../../../../config/env.config';
 import { IRefreshToken } from '../../../interfaces/use-cases/auth/user/refresh-token.interface';
-
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
+@injectable()
 export class RefreshToken implements IRefreshToken {
   private readonly _refreshTtl: number;
   constructor(
+    @inject(TOKENS.ITokenService)
     private readonly _tokenService: ITokenService,
+    @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
+    @inject(TOKENS.IUserRepository)
     private readonly _userRepository: IUserRepository,
   ) {
     this._refreshTtl = ms(

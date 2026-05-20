@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express, { Application } from 'express';
 import { AppContainer } from '../../infrastructure/di/container';
 import cors from 'cors';

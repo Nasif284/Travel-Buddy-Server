@@ -4,7 +4,8 @@ import { GetAllUsersRequestDTO } from '../../../../application/dtos/user-managem
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
 import { ApiResponse } from '../../../responses/common-response';
 import { USER_MANAGEMENT_MESSAGES } from '../../../../shared/constants/messages/success/user-management';
-
+import { injectable } from 'tsyringe';
+@injectable()
 export class UserManagementController {
   constructor(private readonly _getAllUsersUseCase: GetAllUsers) {}
   getAllUsers = async (req: Request, res: Response): Promise<Response> => {

@@ -13,12 +13,17 @@ import ms, { StringValue } from 'ms';
 import { config } from '../../../../config/env.config';
 import { IAdminRefreshToken } from '../../../interfaces/use-cases/auth/admin/admin-refresh.interface';
 import { AdminNotFoundError } from '../../../../domain/errors/admin.error';
-
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
+@injectable()
 export class AdminRefreshToken implements IAdminRefreshToken {
   private readonly _refreshTtl: number;
   constructor(
+    @inject(TOKENS.ITokenService)
     private readonly _tokenService: ITokenService,
+    @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
+    @inject(TOKENS.IAdminRepository)
     private readonly _adminRepository: IAdminRepository,
   ) {
     this._refreshTtl = ms(

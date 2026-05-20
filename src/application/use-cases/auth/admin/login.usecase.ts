@@ -9,13 +9,19 @@ import { IHashService } from '../../../interfaces/services/hash.service.interfac
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
 import { IAdminLogin } from '../../../interfaces/use-cases/auth/admin/login.interface';
-
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
+@injectable()
 export class AdminLogin implements IAdminLogin {
   private readonly _refreshTtl: number;
   constructor(
+    @inject(TOKENS.IAdminRepository)
     private readonly _adminRepository: IAdminRepository,
+    @inject(TOKENS.ITokenService)
     private readonly _tokenService: ITokenService,
+    @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
+    @inject(TOKENS.IHashService)
     private readonly _hashService: IHashService,
   ) {
     this._refreshTtl = ms(

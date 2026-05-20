@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { injectable } from 'tsyringe';
 
 interface GoogleUser {
   email: string;

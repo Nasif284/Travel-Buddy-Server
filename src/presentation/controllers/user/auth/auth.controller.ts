@@ -18,7 +18,8 @@ import { ApiResponse } from '../../../responses/common-response';
 import { USER_MESSAGES } from '../../../../shared/constants/messages/success/user.messages';
 import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.code';
 import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
-
+import { injectable } from 'tsyringe';
+@injectable()
 export class AuthController {
   private readonly _accessTtl: number;
   private readonly _refreshTtl: number;

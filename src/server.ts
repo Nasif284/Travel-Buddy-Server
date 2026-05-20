@@ -1,8 +1,8 @@
+import 'reflect-metadata';
 import 'dotenv/config';
 import { DbManager, getRedisClient } from './config';
 import { buildContainer } from './infrastructure/di/container';
 import { App } from './presentation/express/app';
-import 'reflect-metadata';
 
 const PORT = parseInt(process.env.PORT ?? '3000');
 

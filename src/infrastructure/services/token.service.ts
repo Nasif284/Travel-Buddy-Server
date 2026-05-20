@@ -8,7 +8,9 @@ import {
 } from '../../application/interfaces/services/token.service.interface';
 import { config } from '../../config/env.config';
 import { StringValue } from 'ms';
+import { injectable } from 'tsyringe';
 
+@injectable()
 export class JwtTokenService implements ITokenService {
   private readonly _accessSecret: string;
   private readonly _refreshSecret: string;
@@ -38,7 +40,7 @@ export class JwtTokenService implements ITokenService {
     try {
       return jwt.verify(token, this._accessSecret) as TokenPayload;
     } catch {
-      throw new UnauthorizedError('Access token is invalid or expired.');
+      throw new UnauthorizedError();
     }
   }
 
