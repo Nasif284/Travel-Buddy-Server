@@ -1,9 +1,7 @@
 // src/infrastructure/database/mappers/UserMapper.ts
 
-import { User, UserProps } from '../../../../domain/entities/user/user.entity';
+import { User, UserProps } from '../../../domain/entities/user/user.entity';
 import {
-  Prisma,
-  PrismaClient,
   User as PrismaUser,
   UserOnboarding,
   UserPrivacy,
@@ -17,7 +15,7 @@ import {
   ProfileVisibility,
   RequestFromOption,
   OnboardingSource,
-} from '../../../../domain/enums';
+} from '../../../domain/enums';
 
 type UserWithRelations = PrismaUser & {
   onboarding?: UserOnboarding | null;

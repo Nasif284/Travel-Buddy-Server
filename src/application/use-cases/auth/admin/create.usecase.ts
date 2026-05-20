@@ -1,13 +1,10 @@
 import { BcryptHashService } from '../../../../infrastructure/services';
 import { CreateAdminRequestDTO } from '../../../dtos/auth/admin/request/create-admin.dto';
 import { CreateAdminResponseDTO } from '../../../dtos/auth/admin/response/create-admin.dto';
-import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
+import { ICreate } from '../../../interfaces/use-cases/auth/admin/create.interface';
 
-export class CreateAdmin implements IBaseUseCase<
-  CreateAdminRequestDTO,
-  CreateAdminResponseDTO
-> {
+export class CreateAdmin implements ICreate {
   constructor(
     private readonly _adminRepository: IAdminRepository,
     private readonly _hashService: BcryptHashService,
@@ -22,13 +19,9 @@ export class CreateAdmin implements IBaseUseCase<
       role,
     });
     return {
-      success: true,
-      message: 'Admin created successfully',
-      data: {
-        admin: {
-          id: admin.id,
-          email: admin.email,
-        },
+      admin: {
+        id: admin.id,
+        email: admin.email,
       },
     };
   }

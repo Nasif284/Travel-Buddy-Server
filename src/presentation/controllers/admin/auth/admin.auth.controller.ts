@@ -7,24 +7,11 @@ import { Logout } from '../../../../application/use-cases/auth/user/logout.useca
 import jwt from 'jsonwebtoken';
 import { AdminRefreshToken } from '../../../../application/use-cases/auth/admin/admin-refresh.usercase';
 import ms, { StringValue } from 'ms';
-function getCookieOptions(maxAge: number): CookieOptions {
-  return {
-    httpOnly: true,
-    secure: config.env == 'development' ? false : true,
-    sameSite: 'lax',
-    path: '/',
-    maxAge,
-  };
-}
+import { ApiResponse } from '../../../responses/common-response';
+import { ADMIN_MESSAGES } from '../../../../shared/constants/messages/success/admin.messages';
+import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.code';
+import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
 
-function getClearCookieOptions(): CookieOptions {
-  return {
-    httpOnly: true,
-    secure: config.env == 'development' ? false : true,
-    sameSite: 'lax',
-    path: '/',
-  };
-}
 export class AdminAuthController {
   private readonly _accessTtl: number;
   private readonly _refreshTtl: number;
@@ -41,46 +28,72 @@ export class AdminAuthController {
     );
   }
 
+  private getCookieOptions(maxAge: number): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: config.env == 'development' ? false : true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge,
+    };
+  }
+
+  private getClearCookieOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: config.env == 'development' ? false : true,
+      sameSite: 'lax',
+      path: '/',
+    };
+  }
+
   login = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._loginUseCase.execute(req.body);
     res.cookie(
       'accessToken',
       result.accessToken,
-      getCookieOptions(this._accessTtl),
+      this.getCookieOptions(this._accessTtl),
     );
     res.cookie(
       'refreshToken',
       result.refreshToken,
-      getCookieOptions(this._refreshTtl),
+      this.getCookieOptions(this._refreshTtl),
     );
-    return res.status(HttpStatus.OK).json(result.response);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(ADMIN_MESSAGES.LOGGED_ID, result.user));
   };
 
   create = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._createAdminUseCase.execute(req.body);
-    return res.status(HttpStatus.OK).json(result);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(ADMIN_MESSAGES.CREATED, result.admin));
   };
 
   logout = async (req: Request, res: Response): Promise<Response> => {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     const userId = req.user?.userId;
-    let result;
     if (userId && refreshToken) {
-      result = await this._logoutUseCase.execute({ userId, refreshToken });
+      await this._logoutUseCase.execute({ userId, refreshToken });
     }
-
-    res.clearCookie('accessToken', getClearCookieOptions());
-    res.clearCookie('refreshToken', getClearCookieOptions());
-
-    return res.status(HttpStatus.OK).json(result);
+    res.clearCookie('accessToken', this.getClearCookieOptions());
+    res.clearCookie('refreshToken', this.getClearCookieOptions());
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(ADMIN_MESSAGES.LOGGED_OUT));
   };
   refreshToken = async (req: Request, res: Response): Promise<Response> => {
     const refreshToken = req.cookies?.refreshToken as string;
     if (!refreshToken) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        success: false,
-        message: 'Session expired, login again',
-      });
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json(
+          ApiResponse.error(
+            AUTH_ERROR_CODES.INVALID_REFRESH_TOKEN,
+            AUTH_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+          ),
+        );
     }
     const decoded = (await jwt.decode(refreshToken)) as {
       userId: string;
@@ -88,10 +101,14 @@ export class AdminAuthController {
     } | null;
     const userId: string | undefined = decoded?.userId;
     if (!userId) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        success: false,
-        message: 'User id is missing',
-      });
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json(
+          ApiResponse.error(
+            AUTH_ERROR_CODES.USER_NOT_FOUND,
+            AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
+          ),
+        );
     }
     const result = await this._refreshUseCase.execute({
       token: refreshToken,
@@ -100,14 +117,16 @@ export class AdminAuthController {
     res.cookie(
       'accessToken',
       result.accessToken,
-      getCookieOptions(this._accessTtl),
+      this.getCookieOptions(this._accessTtl),
     );
     res.cookie(
       'refreshToken',
       result.refreshToken,
-      getCookieOptions(this._refreshTtl),
+      this.getCookieOptions(this._refreshTtl),
     );
 
-    return res.status(HttpStatus.OK).json(result.response);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(ADMIN_MESSAGES.REFRESH_TOKEN, result.user));
   };
 }

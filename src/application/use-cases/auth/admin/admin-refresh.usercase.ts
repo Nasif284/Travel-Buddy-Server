@@ -3,21 +3,18 @@ import {
   AccountBannedError,
   AccountSuspendedError,
   InvalidRefreshTokenError,
-  UserNotFoundError,
 } from '../../../../domain/errors/auth.error';
 import { RefreshTokenRequestDTO } from '../../../dtos/auth/user/request/refrsh-token.dto';
 import { RefreshTokenResponseDTO } from '../../../dtos/auth/user/responce/refresh-token.dto';
-import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import ms, { StringValue } from 'ms';
 import { config } from '../../../../config/env.config';
+import { IAdminRefreshToken } from '../../../interfaces/use-cases/auth/admin/admin-refresh.interface';
+import { AdminNotFoundError } from '../../../../domain/errors/admin.error';
 
-export class AdminRefreshToken implements IBaseUseCase<
-  RefreshTokenRequestDTO,
-  RefreshTokenResponseDTO
-> {
+export class AdminRefreshToken implements IAdminRefreshToken {
   private readonly _refreshTtl: number;
   constructor(
     private readonly _tokenService: ITokenService,
@@ -31,12 +28,12 @@ export class AdminRefreshToken implements IBaseUseCase<
   async execute(dto: RefreshTokenRequestDTO): Promise<RefreshTokenResponseDTO> {
     const { token, userId } = dto;
     const tokenHash = this._tokenService.hashToken(token);
-    const isValid = this._sessionService.isValid(userId, tokenHash);
+    const isValid = await this._sessionService.isValid(userId, tokenHash);
     if (!isValid) throw new InvalidRefreshTokenError();
 
-    const user = await this._adminRepository.findById(userId);
+    const user = await this._adminRepository.findAdminById(userId);
     if (!user) {
-      throw new UserNotFoundError();
+      throw new AdminNotFoundError();
     }
     if (user.accountStatusCode == AccountStatus.BANNED) {
       throw new AccountBannedError();
@@ -55,20 +52,19 @@ export class AdminRefreshToken implements IBaseUseCase<
       userId,
       email: user.email,
     });
-    await this._sessionService.store(userId, tokenHash, this._refreshTtl);
+    const newRefreshTokenHash = this._tokenService.hashToken(newRefreshToken);
+    await this._sessionService.store(
+      userId,
+      newRefreshTokenHash,
+      this._refreshTtl,
+    );
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-      response: {
-        success: true,
-        message: 'token refreshed successfully',
-        data: {
-          user: {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-          },
-        },
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
       },
     };
   }

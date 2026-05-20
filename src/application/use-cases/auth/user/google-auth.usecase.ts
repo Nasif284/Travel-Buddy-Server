@@ -7,13 +7,9 @@ import { IUserRepository } from '../../../interfaces/repositories/user.reposetor
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
 import { config } from '../../../../config/env.config';
+import { IGoogleAuth } from '../../../interfaces/use-cases/auth/user/google-auth.interface';
 
-interface Result {
-  accessToken: string;
-  refreshToken: string;
-  response: LoginResponseDTO;
-}
-export class GoogleAuth {
+export class GoogleAuth implements IGoogleAuth {
   private readonly _refreshTtl: number;
   constructor(
     private readonly _userRepository: IUserRepository,
@@ -24,7 +20,7 @@ export class GoogleAuth {
       (config.jwt.refreshExpiration ?? '7d') as StringValue,
     );
   }
-  async execute(dto: { token: string }): Promise<Result> {
+  async execute(dto: { token: string }): Promise<LoginResponseDTO> {
     const { token } = dto;
     const payload = await verifyGoogleToken(token);
 
@@ -63,17 +59,11 @@ export class GoogleAuth {
     return {
       accessToken,
       refreshToken,
-      response: {
-        success: true,
-        message: 'google authentication successful',
-        data: {
-          user: {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            avatarUrl: user.avatarUrl,
-          },
-        },
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        avatarUrl: user.avatarUrl,
       },
     };
   }

@@ -4,17 +4,13 @@ import { AdminNotFoundError } from '../../../../domain/errors/admin.error';
 import { IncorrectPasswordError } from '../../../../domain/errors/auth.error';
 import { LoginRequestDTO } from '../../../dtos/auth/user/request/login.dto';
 import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
-import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
-export interface Result {
-  accessToken: string;
-  refreshToken: string;
-  response: LoginResponseDTO;
-}
-export class AdminLogin implements IBaseUseCase<LoginRequestDTO, Result> {
+import { IAdminLogin } from '../../../interfaces/use-cases/auth/admin/login.interface';
+
+export class AdminLogin implements IAdminLogin {
   private readonly _refreshTtl: number;
   constructor(
     private readonly _adminRepository: IAdminRepository,
@@ -26,7 +22,7 @@ export class AdminLogin implements IBaseUseCase<LoginRequestDTO, Result> {
       (config.jwt.refreshExpiration ?? '7d') as StringValue,
     );
   }
-  async execute(dto: LoginRequestDTO): Promise<Result> {
+  async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
     const { email, password } = dto;
     const admin = await this._adminRepository.findByEmail(email);
     if (!admin) {
@@ -52,16 +48,10 @@ export class AdminLogin implements IBaseUseCase<LoginRequestDTO, Result> {
     return {
       accessToken,
       refreshToken,
-      response: {
-        success: true,
-        message: 'admin logged in successfully',
-        data: {
-          user: {
-            id: admin.id,
-            email: admin.email,
-            fullName: admin.fullName,
-          },
-        },
+      user: {
+        id: admin.id,
+        email: admin.email,
+        fullName: admin.fullName,
       },
     };
   }

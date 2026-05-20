@@ -1,12 +1,17 @@
 import { HttpStatus } from '../enums/HttpStatusCodes.constants';
+
 import { AppError } from '../../presentation/Errors/app.error';
+import { AUTH_ERROR_CODES } from '../../shared/constants/error-codes/auth.code';
+import { AUTH_ERROR_MESSAGES } from '../../shared/constants/messages/error/auth.messages';
 
 export class InvalidCredentialsError extends AppError {
   constructor() {
     super(
       HttpStatus.UNAUTHORIZED,
-      'INVALID_CREDENTIALS',
-      'Email or password is incorrect.',
+
+      AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+
+      AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS,
     );
   }
 }
@@ -15,8 +20,10 @@ export class EmailAlreadyExistsError extends AppError {
   constructor() {
     super(
       HttpStatus.CONFLICT,
-      'EMAIL_ALREADY_EXISTS',
-      'An account with this email already exists.',
+
+      AUTH_ERROR_CODES.EMAIL_ALREADY_EXISTS,
+
+      AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS,
     );
   }
 }
@@ -25,8 +32,10 @@ export class PhoneAlreadyExistsError extends AppError {
   constructor() {
     super(
       HttpStatus.CONFLICT,
-      'PHONE_ALREADY_EXISTS',
-      'An account with this phone number already exists.',
+
+      AUTH_ERROR_CODES.PHONE_ALREADY_EXISTS,
+
+      AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS,
     );
   }
 }
@@ -35,8 +44,10 @@ export class InvalidOtpError extends AppError {
   constructor() {
     super(
       HttpStatus.BAD_REQUEST,
-      'INVALID_OTP',
-      'The OTP entered is incorrect or has expired.',
+
+      AUTH_ERROR_CODES.INVALID_OTP,
+
+      AUTH_ERROR_MESSAGES.INVALID_OTP,
     );
   }
 }
@@ -45,8 +56,10 @@ export class OtpMaxAttemptsError extends AppError {
   constructor() {
     super(
       HttpStatus.BAD_REQUEST,
-      'OTP_MAX_ATTEMPTS',
-      'Too many incorrect attempts. Please request a new OTP.',
+
+      AUTH_ERROR_CODES.OTP_MAX_ATTEMPTS,
+
+      AUTH_ERROR_MESSAGES.OTP_MAX_ATTEMPTS,
     );
   }
 }
@@ -55,8 +68,10 @@ export class OtpNotFoundError extends AppError {
   constructor() {
     super(
       HttpStatus.BAD_REQUEST,
-      'OTP_NOT_FOUND',
-      'No active OTP found. Please request a new one.',
+
+      AUTH_ERROR_CODES.OTP_NOT_FOUND,
+
+      AUTH_ERROR_MESSAGES.OTP_NOT_FOUND,
     );
   }
 }
@@ -65,21 +80,35 @@ export class InvalidRefreshTokenError extends AppError {
   constructor() {
     super(
       HttpStatus.UNAUTHORIZED,
-      'INVALID_REFRESH_TOKEN',
-      'Session expired. Please log in again.',
+
+      AUTH_ERROR_CODES.INVALID_REFRESH_TOKEN,
+
+      AUTH_ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
     );
   }
 }
 
 export class UserNotVerifiedError extends AppError {
   constructor() {
-    super(HttpStatus.BAD_REQUEST, 'USER_NOT_VERIFIED', 'User not verified');
+    super(
+      HttpStatus.BAD_REQUEST,
+
+      AUTH_ERROR_CODES.USER_NOT_VERIFIED,
+
+      AUTH_ERROR_MESSAGES.USER_NOT_VERIFIED,
+    );
   }
 }
 
 export class UnauthorizedError extends AppError {
-  constructor(message = 'Access token is missing or invalid.') {
-    super(HttpStatus.UNAUTHORIZED, 'UNAUTHORIZED', message);
+  constructor(message = AUTH_ERROR_MESSAGES.UNAUTHORIZED) {
+    super(
+      HttpStatus.UNAUTHORIZED,
+
+      AUTH_ERROR_CODES.UNAUTHORIZED,
+
+      message,
+    );
   }
 }
 
@@ -87,8 +116,10 @@ export class AccountSuspendedError extends AppError {
   constructor() {
     super(
       HttpStatus.FORBIDDEN,
-      'ACCOUNT_SUSPENDED',
-      'Your account has been suspended. Please contact support.',
+
+      AUTH_ERROR_CODES.ACCOUNT_SUSPENDED,
+
+      AUTH_ERROR_MESSAGES.ACCOUNT_SUSPENDED,
     );
   }
 }
@@ -97,8 +128,10 @@ export class AccountBannedError extends AppError {
   constructor() {
     super(
       HttpStatus.FORBIDDEN,
-      'ACCOUNT_BANNED',
-      'Your account has been permanently banned.',
+
+      AUTH_ERROR_CODES.ACCOUNT_BANNED,
+
+      AUTH_ERROR_MESSAGES.ACCOUNT_BANNED,
     );
   }
 }
@@ -107,14 +140,22 @@ export class IncorrectPasswordError extends AppError {
   constructor() {
     super(
       HttpStatus.BAD_REQUEST,
-      'INCORRECT_PASSWORD',
-      'The current password you entered is incorrect.',
+
+      AUTH_ERROR_CODES.INCORRECT_PASSWORD,
+
+      AUTH_ERROR_MESSAGES.INCORRECT_PASSWORD,
     );
   }
 }
 
 export class UserNotFoundError extends AppError {
   constructor() {
-    super(HttpStatus.NOT_FOUND, 'USER_NOT_FOUND', 'User not found.');
+    super(
+      HttpStatus.NOT_FOUND,
+
+      AUTH_ERROR_CODES.USER_NOT_FOUND,
+
+      AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
+    );
   }
 }

@@ -5,23 +5,18 @@ import {
   AccountBannedError,
   AccountSuspendedError,
   IncorrectPasswordError,
-  InvalidCredentialsError,
   UserNotFoundError,
   UserNotVerifiedError,
 } from '../../../../domain/errors/auth.error';
 import { LoginRequestDTO } from '../../../dtos/auth/user/request/login.dto';
 import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
-import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
-interface Result {
-  accessToken: string;
-  refreshToken: string;
-  response: LoginResponseDTO;
-}
-export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
+import { ILogin } from '../../../interfaces/use-cases/auth/user/login.interface';
+
+export class LoginUseCase implements ILogin {
   private readonly _refreshTtl: number;
   constructor(
     private readonly _userRepository: IUserRepository,
@@ -33,7 +28,7 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
       (config.jwt.refreshExpiration ?? '7d') as StringValue,
     );
   }
-  async execute(dto: LoginRequestDTO): Promise<Result> {
+  async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
     const { email, password } = dto;
     const user = await this._userRepository.findByEmail(email);
 
@@ -67,17 +62,12 @@ export class LoginUseCase implements IBaseUseCase<LoginRequestDTO, Result> {
     return {
       accessToken,
       refreshToken,
-      response: {
-        success: true,
-        message: 'user logged in successfully',
-        data: {
-          user: {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            avatarUrl: user.avatarUrl,
-          },
-        },
+
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        avatarUrl: user.avatarUrl,
       },
     };
   }

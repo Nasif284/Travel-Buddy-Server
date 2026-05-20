@@ -14,23 +14,10 @@ import { Logout } from '../../../../application/use-cases/auth/user/logout.useca
 import { VerifyOtp } from '../../../../application/use-cases/auth/user/otp-verify.usecase';
 import { GoogleAuth } from '../../../../application/use-cases/auth/user/google-auth.usecase';
 import ms, { StringValue } from 'ms';
-function getCookieOptions(maxAge: number): CookieOptions {
-  return {
-    httpOnly: true,
-    secure: config.env == 'development' ? false : true,
-    sameSite: 'lax',
-    path: '/',
-    maxAge,
-  };
-}
-function getClearCookieOptions(): CookieOptions {
-  return {
-    httpOnly: true,
-    secure: config.env == 'development' ? false : true,
-    sameSite: 'lax',
-    path: '/',
-  };
-}
+import { ApiResponse } from '../../../responses/common-response';
+import { USER_MESSAGES } from '../../../../shared/constants/messages/success/user.messages';
+import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.code';
+import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
 
 export class AuthController {
   private readonly _accessTtl: number;
@@ -54,39 +41,63 @@ export class AuthController {
     );
   }
 
+  private getCookieOptions(maxAge: number): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: config.env == 'development' ? false : true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge,
+    };
+  }
+  private getClearCookieOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: config.env == 'development' ? false : true,
+      sameSite: 'lax',
+      path: '/',
+    };
+  }
+
   register = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._registerUseCase.execute(req.body);
     res.cookie(
       'accessToken',
       result.accessToken,
-      getCookieOptions(this._accessTtl),
+      this.getCookieOptions(this._accessTtl),
     );
     res.cookie(
       'refreshToken',
       result.refreshToken,
-      getCookieOptions(this._refreshTtl),
+      this.getCookieOptions(this._refreshTtl),
     );
 
-    return res.status(HttpStatus.CREATED).json(result.response);
+    return res
+      .status(HttpStatus.CREATED)
+      .json(ApiResponse.success(USER_MESSAGES.REGISTER_SUCCESS, result.user));
   };
   verifyEmail = async (req: Request, res: Response): Promise<Response> => {
     const { code, email } = req.body;
     const result = await this._verifyEmailUseCase.execute({ email, code });
-    return res.status(HttpStatus.OK).json(result);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.EMAIL_VERIFIED, result));
   };
   login = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._loginUseCase.execute(req.body);
     res.cookie(
       'accessToken',
       result.accessToken,
-      getCookieOptions(this._accessTtl),
+      this.getCookieOptions(this._accessTtl),
     );
     res.cookie(
       'refreshToken',
       result.refreshToken,
-      getCookieOptions(this._refreshTtl),
+      this.getCookieOptions(this._refreshTtl),
     );
-    return res.status(HttpStatus.OK).json(result.response);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.LOGIN_SUCCESS, result.user));
   };
 
   refreshToken = async (req: Request, res: Response): Promise<Response> => {
@@ -103,10 +114,14 @@ export class AuthController {
     } | null;
     const userId: string | undefined = decoded?.userId;
     if (!userId) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        success: false,
-        message: 'User id is missing',
-      });
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json(
+          ApiResponse.error(
+            AUTH_ERROR_CODES.USER_NOT_FOUND,
+            AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
+          ),
+        );
     }
 
     const result = await this._refreshTokenUseCase.execute({
@@ -116,49 +131,60 @@ export class AuthController {
     res.cookie(
       'accessToken',
       result.accessToken,
-      getCookieOptions(this._accessTtl),
+      this.getCookieOptions(this._accessTtl),
     );
     res.cookie(
       'refreshToken',
       result.refreshToken,
-      getCookieOptions(this._refreshTtl),
+      this.getCookieOptions(this._refreshTtl),
     );
 
-    return res.status(HttpStatus.OK).json(result.response);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.TOKEN_REFRESHED, result.user));
   };
 
   forgotPassword = async (req: Request, res: Response): Promise<Response> => {
-    const result = await this._forgotPasswordUseCase.execute(req.body);
-    return res.status(HttpStatus.OK).json(result);
+    await this._forgotPasswordUseCase.execute(req.body);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.FORGOT_PASSWORD_EMAIL_SENT));
   };
 
   resetPassword = async (req: Request, res: Response): Promise<Response> => {
-    const result = await this._resetPasswordUseCase.execute(req.body);
-    return res.status(HttpStatus.OK).json(result);
+    await this._resetPasswordUseCase.execute(req.body);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.PASSWORD_RESET_SUCCESS));
   };
 
   sendOtp = async (req: Request, res: Response): Promise<Response> => {
-    const result = await this._sendOtp.execute(req.body);
-    return res.status(HttpStatus.OK).json(result);
+    await this._sendOtp.execute(req.body);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.OTP_SENT));
   };
 
   logout = async (req: Request, res: Response): Promise<Response> => {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     const userId = req.user?.userId;
-    let result;
     if (userId && refreshToken) {
-      result = await this._logout.execute({ userId, refreshToken });
+      await this._logout.execute({ userId, refreshToken });
     }
 
-    res.clearCookie('accessToken', getClearCookieOptions());
-    res.clearCookie('refreshToken', getClearCookieOptions());
+    res.clearCookie('accessToken', this.getClearCookieOptions());
+    res.clearCookie('refreshToken', this.getClearCookieOptions());
 
-    return res.status(HttpStatus.OK).json(result);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.LOGOUT_SUCCESS));
   };
 
   verifyOtp = async (req: Request, res: Response): Promise<Response> => {
-    const result = await this._verifyOtp.execute(req.body);
-    return res.status(HttpStatus.OK).json(result);
+    await this._verifyOtp.execute(req.body);
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.OTP_VERIFIED));
   };
   googleAuth = async (req: Request, res: Response) => {
     const { token } = req.body;
@@ -167,14 +193,18 @@ export class AuthController {
     res.cookie(
       'accessToken',
       result.accessToken,
-      getCookieOptions(this._accessTtl),
+      this.getCookieOptions(this._accessTtl),
     );
     res.cookie(
       'refreshToken',
       result.refreshToken,
-      getCookieOptions(this._refreshTtl),
+      this.getCookieOptions(this._refreshTtl),
     );
 
-    return res.status(HttpStatus.OK).json(result.response);
+    return res
+      .status(HttpStatus.OK)
+      .json(
+        ApiResponse.success(USER_MESSAGES.GOOGLE_AUTH_SUCCESS, result.user),
+      );
   };
 }

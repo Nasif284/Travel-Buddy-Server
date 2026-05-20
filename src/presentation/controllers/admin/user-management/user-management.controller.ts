@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { GetAllUsers } from '../../../../application/use-cases/user-management/get-users.usecase';
 import { GetAllUsersRequestDTO } from '../../../../application/dtos/user-management/request/get-users.dto';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
+import { ApiResponse } from '../../../responses/common-response';
+import { USER_MANAGEMENT_MESSAGES } from '../../../../shared/constants/messages/success/user-management';
 
 export class UserManagementController {
   constructor(private readonly _getAllUsersUseCase: GetAllUsers) {}
@@ -16,8 +18,11 @@ export class UserManagementController {
       },
       orderBy: req.query.orderBy as string,
     };
-    console.log(payload);
     const result = await this._getAllUsersUseCase.execute(payload);
-    return res.status(HttpStatus.OK).json(result);
+    return res
+      .status(HttpStatus.OK)
+      .json(
+        ApiResponse.success(USER_MANAGEMENT_MESSAGES.GET_ALL_USERS, result),
+      );
   };
 }

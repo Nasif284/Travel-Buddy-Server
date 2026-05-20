@@ -2,13 +2,10 @@ import { HttpStatus } from '../../../domain/enums/HttpStatusCodes.constants';
 import { AppError } from '../../../presentation/Errors/app.error';
 import { GetAllUsersRequestDTO } from '../../dtos/user-management/request/get-users.dto';
 import { GetAllUserResponseDTO } from '../../dtos/user-management/response/get-users.dto';
-import { IBaseUseCase } from '../../interfaces/base-usecase.interface';
 import { IUserRepository } from '../../interfaces/repositories/user.reposetory';
+import { IGetUsers } from '../../interfaces/use-cases/user-management/get-users.interface';
 
-export class GetAllUsers implements IBaseUseCase<
-  GetAllUsersRequestDTO,
-  GetAllUserResponseDTO
-> {
+export class GetAllUsers implements IGetUsers {
   constructor(private readonly _userRepository: IUserRepository) {}
   async execute(dto: GetAllUsersRequestDTO): Promise<GetAllUserResponseDTO> {
     const result = await this._userRepository.getAllUsers(dto);
@@ -21,15 +18,11 @@ export class GetAllUsers implements IBaseUseCase<
     }
     const totalPages = Math.ceil(result.count / dto.limit);
     return {
-      success: true,
-      message: 'Fetched all users',
-      data: {
-        users: result.users,
-        limit: dto.limit,
-        page: dto.page,
-        total: result.count,
-        totalPages,
-      },
+      users: result.users,
+      limit: dto.limit,
+      page: dto.page,
+      total: result.count,
+      totalPages,
     };
   }
 }

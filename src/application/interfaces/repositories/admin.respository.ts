@@ -1,4 +1,4 @@
-import { Admin } from '@prisma/client';
+import { Admin } from '../../../domain/entities/admin/admin.entity';
 
 export interface CreateAdminData {
   fullName: string;
@@ -8,7 +8,7 @@ export interface CreateAdminData {
 }
 
 export interface IAdminRepository {
-  findById(id: string): Promise<Admin | null>;
+  findAdminById(id: string): Promise<Admin | null>;
   findByEmail(email: string): Promise<Admin | null>;
   createAdmin(data: CreateAdminData): Promise<Admin>;
 }

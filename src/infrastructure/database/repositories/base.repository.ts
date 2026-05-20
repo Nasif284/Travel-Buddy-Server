@@ -26,7 +26,9 @@ export abstract class BaseRepository<
   }
 
   async findMany(conditions: object): Promise<TModel[]> {
-    return this.model.findMany(conditions);
+    return this.model.findMany({
+      ...conditions,
+    });
   }
 
   async create(data: TCreateInput): Promise<TModel> {

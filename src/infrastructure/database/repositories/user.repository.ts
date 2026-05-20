@@ -10,7 +10,7 @@ import {
 
 import { User } from '../../../domain/entities/user/user.entity';
 
-import { UserMapper } from '../mappers/user/user.mapper';
+import { UserMapper } from '../mappers/user.mapper';
 
 import { GetAllUsersRequestDTO } from '../../../application/dtos/user-management/request/get-users.dto';
 

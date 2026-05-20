@@ -1,0 +1,16 @@
+export const AUTH_ERROR_MESSAGES = {
+  INVALID_CREDENTIALS: 'Email or password is incorrect.',
+  EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
+  PHONE_ALREADY_EXISTS: 'An account with this phone number already exists.',
+  INVALID_OTP: 'The OTP entered is incorrect or has expired.',
+  OTP_MAX_ATTEMPTS: 'Too many incorrect attempts. Please request a new OTP.',
+  OTP_NOT_FOUND: 'No active OTP found. Please request a new one.',
+  INVALID_REFRESH_TOKEN: 'Session expired. Please log in again.',
+  USER_NOT_VERIFIED: 'User not verified.',
+  UNAUTHORIZED: 'Access token is missing or invalid.',
+  ACCOUNT_SUSPENDED: 'Your account has been suspended. Please contact support.',
+  ACCOUNT_BANNED: 'Your account has been permanently banned.',
+  INCORRECT_PASSWORD: 'The current password you entered is incorrect.',
+  USER_NOT_FOUND: 'User not found.',
+  ADMIN_NOT_FOUND: 'Admin not found',
+} as const;

@@ -1,6 +1,4 @@
-// prisma.admin.repository.ts
-
-import { Admin, Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, Admin as PrismaAdmin } from '@prisma/client';
 
 import { BaseRepository } from './base.repository';
 
@@ -9,9 +7,19 @@ import {
   IAdminRepository,
 } from '../../../application/interfaces/repositories/admin.respository';
 
+import { Admin } from '../../../domain/entities/admin/admin.entity';
+
+import { AdminMapper } from '../mappers/admin.mapper';
+
+type AdminWithRole = Prisma.AdminGetPayload<{
+  include: {
+    role: true;
+  };
+}>;
+
 export class AdminRepository
   extends BaseRepository<
-    Admin,
+    PrismaAdmin,
     Prisma.AdminCreateInput,
     Prisma.AdminUpdateInput
   >
@@ -21,14 +29,40 @@ export class AdminRepository
     super(prisma, prisma.admin);
   }
 
-  async findById(id: string): Promise<Admin | null> {
-    return super.findById(id);
+  async findAdminById(id: string): Promise<Admin | null> {
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id,
+      },
+
+      include: {
+        role: true,
+      },
+    });
+
+    if (!admin) {
+      return null;
+    }
+
+    return AdminMapper.toDomain(admin);
   }
 
   async findByEmail(email: string): Promise<Admin | null> {
-    return this.findFirst({
-      email,
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        email,
+      },
+
+      include: {
+        role: true,
+      },
     });
+
+    if (!admin) {
+      return null;
+    }
+
+    return AdminMapper.toDomain(admin);
   }
 
   async createAdmin(data: CreateAdminData): Promise<Admin> {
@@ -42,7 +76,7 @@ export class AdminRepository
       throw new Error('Invalid admin role');
     }
 
-    return super.create({
+    const createdAdmin = await this.create({
       fullName: data.fullName,
 
       email: data.email,
@@ -55,5 +89,21 @@ export class AdminRepository
         },
       },
     });
+
+    const adminWithRole = await this.prisma.admin.findUnique({
+      where: {
+        id: createdAdmin.id,
+      },
+
+      include: {
+        role: true,
+      },
+    });
+
+    if (!adminWithRole) {
+      throw new Error('Admin creation failed');
+    }
+
+    return AdminMapper.toDomain(adminWithRole);
   }
 }

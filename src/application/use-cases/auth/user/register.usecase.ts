@@ -7,16 +7,10 @@ import { IHashService } from '../../../interfaces/services/hash.service.interfac
 import { IOtpService } from '../../../interfaces/services/otp.service.interface';
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
 import { ITokenService } from '../../../interfaces/services/token.service.interface';
-import { IBaseUseCase } from '../../../interfaces/base-usecase.interface';
 import ms, { StringValue } from 'ms';
+import { IRegister } from '../../../interfaces/use-cases/auth/user/register.interface';
 
-interface Result {
-  response: RegisterResponseDTO;
-  accessToken: string;
-  refreshToken: string;
-}
-
-export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
+export class Register implements IRegister {
   private readonly _refreshTtl: number;
 
   constructor(
@@ -31,7 +25,7 @@ export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
     );
   }
 
-  async execute(dto: RegisterRequestDTO): Promise<Result> {
+  async execute(dto: RegisterRequestDTO): Promise<RegisterResponseDTO> {
     const isExist = await this._userRepository.findByEmail(dto.email);
 
     if (isExist) throw new EmailAlreadyExistsError();
@@ -59,14 +53,10 @@ export class Register implements IBaseUseCase<RegisterRequestDTO, Result> {
     return {
       accessToken,
       refreshToken,
-      response: {
-        success: true,
-        message: 'Account created successfully.',
-        user: {
-          id: user.id,
-          fullName: user.fullName,
-          email: user.email,
-        },
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
       },
     };
   }
