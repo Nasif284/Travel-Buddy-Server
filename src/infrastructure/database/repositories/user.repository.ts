@@ -1,5 +1,3 @@
-// prisma.user.repository.ts
-
 import { Prisma, PrismaClient, User as PrismaUser } from '@prisma/client';
 import { BaseRepository } from './base.repository';
 
@@ -15,6 +13,9 @@ import { UserMapper } from '../mappers/user.mapper';
 import { GetAllUsersRequestDTO } from '../../../application/dtos/user-management/request/get-users.dto';
 import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../di/tokens';
+import { email } from 'zod';
+import { ChangeUserStatusRequestDTO } from '../../../application/dtos/user-management/request/change-status.dto';
+import { AccountStatus } from '../../../domain/enums';
 @injectable()
 export class UserRepository
   extends BaseRepository<
@@ -106,16 +107,16 @@ export class UserRepository
     count: number;
   }> {
     const { page, limit, filter } = payload;
-
+    console.log(filter);
     const where: Prisma.UserWhereInput = {
       deletedAt: null,
     };
 
-    if (filter.status) {
+    if (filter.status && filter.status !== 'all') {
       where.accountStatusCode = filter.status;
     }
 
-    if (filter.joined === 'last_7_days') {
+    if (filter.joined === '7d') {
       const date = new Date();
 
       date.setDate(date.getDate() - 7);
@@ -125,7 +126,7 @@ export class UserRepository
       };
     }
 
-    if (filter.joined === 'last_30_days') {
+    if (filter.joined === '30d') {
       const date = new Date();
 
       date.setDate(date.getDate() - 30);
@@ -135,6 +136,39 @@ export class UserRepository
       };
     }
 
+    if (filter.joined === '1y') {
+      const date = new Date();
+
+      date.setFullYear(date.getFullYear() - 1);
+
+      where.createdAt = {
+        gte: date,
+      };
+    }
+
+    if (filter.search?.trim()) {
+      where.OR = [
+        {
+          fullName: {
+            contains: filter.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          email: {
+            contains: filter.search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+    if (filter.verified && filter.verified !== 'any') {
+      if (filter.verified == 'yes') {
+        where.isEmailVerified = true;
+      } else if (filter.verified == 'no') {
+        where.isEmailVerified = false;
+      }
+    }
     const [users, count] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         where,
@@ -157,5 +191,46 @@ export class UserRepository
       users: users.map(UserMapper.toDomain),
       count,
     };
+  }
+  async changeUserStatus(payload: ChangeUserStatusRequestDTO): Promise<void> {
+    const { userId, action, reason } = payload;
+    let accountStatusCode: AccountStatus;
+
+    switch (action) {
+      case 'activate':
+        accountStatusCode = AccountStatus.ACTIVE;
+        break;
+
+      case 'suspend':
+        accountStatusCode = AccountStatus.SUSPENDED;
+        break;
+
+      case 'ban':
+        accountStatusCode = AccountStatus.BANNED;
+        break;
+
+      default:
+        throw new Error('Invalid status');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: {
+          id: userId,
+        },
+
+        data: {
+          accountStatusCode,
+        },
+      });
+      await tx.userStatusHistory.create({
+        data: {
+          userId,
+          reason,
+          statusCode: accountStatusCode,
+          effectiveFrom: new Date(),
+        },
+      });
+    });
   }
 }

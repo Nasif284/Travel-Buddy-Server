@@ -6,7 +6,7 @@ import { TOKENS } from '../../../../infrastructure/di/tokens';
 @injectable()
 export class VerifyOtp implements IVerifyOtp {
   constructor(
-    @inject(TOKENS.ISessionService) private readonly _otpService: IOtpService,
+    @inject(TOKENS.IOtpService) private readonly _otpService: IOtpService,
   ) {}
   async execute(dto: VerifyOtpRequestDTO): Promise<void> {
     const { code, email, purpose } = dto;

@@ -1,6 +1,7 @@
 import { GetAllUsersRequestDTO } from '../../dtos/user-management/request/get-users.dto';
 
 import { User } from '../../../domain/entities/user/user.entity';
+import { ChangeUserStatusRequestDTO } from '../../dtos/user-management/request/change-status.dto';
 
 export interface CreateUserData {
   fullName: string;
@@ -24,4 +25,5 @@ export interface IUserRepository {
     users: User[];
     count: number;
   }>;
+  changeUserStatus(payload: ChangeUserStatusRequestDTO): Promise<void>;
 }

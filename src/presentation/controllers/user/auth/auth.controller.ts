@@ -109,7 +109,7 @@ export class AuthController {
         message: 'Session expired, login again',
       });
     }
-    const decoded = (await jwt.decode(refreshToken)) as {
+    const decoded = jwt.decode(refreshToken) as {
       userId: string;
       email: string;
     } | null;

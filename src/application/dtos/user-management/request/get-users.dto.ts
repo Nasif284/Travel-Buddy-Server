@@ -5,6 +5,7 @@ export interface GetAllUsersRequestDTO {
     status: string | undefined;
     verified: string | undefined;
     joined: string | undefined;
+    search: string | undefined;
   };
   orderBy: string;
 }
