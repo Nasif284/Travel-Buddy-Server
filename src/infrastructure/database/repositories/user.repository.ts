@@ -106,8 +106,16 @@ export class UserRepository
     users: User[];
     count: number;
   }> {
-    const { page, limit, filter } = payload;
-    console.log(filter);
+    const { page, limit, filter, sortBy, sortOrder } = payload;
+    const ALLOWED_SORT_COLUMNS = ['createdAt', 'fullName', 'email'] as const;
+    type AllowedSort = (typeof ALLOWED_SORT_COLUMNS)[number];
+
+    const safeSortBy: AllowedSort = ALLOWED_SORT_COLUMNS.includes(
+      sortBy as AllowedSort,
+    )
+      ? (sortBy as AllowedSort)
+      : 'createdAt';
+
     const where: Prisma.UserWhereInput = {
       deletedAt: null,
     };
@@ -177,9 +185,7 @@ export class UserRepository
 
         take: limit,
 
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { [safeSortBy]: sortBy },
       }),
 
       this.prisma.user.count({

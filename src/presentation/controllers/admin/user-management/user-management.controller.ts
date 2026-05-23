@@ -22,7 +22,8 @@ export class UserManagementController {
         verified: req.query.verified as string,
         search: req.query.search as string,
       },
-      orderBy: req.query.orderBy as string,
+      sortBy: req.query.sortBy as string,
+      sortOrder: req.query.sortOrder as 'desc' | 'asc',
     };
     const result = await this._getAllUsersUseCase.execute(payload);
     return res

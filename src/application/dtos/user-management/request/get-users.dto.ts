@@ -7,5 +7,6 @@ export interface GetAllUsersRequestDTO {
     joined: string | undefined;
     search: string | undefined;
   };
-  orderBy: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
