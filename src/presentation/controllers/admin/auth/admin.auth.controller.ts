@@ -11,16 +11,19 @@ import { ApiResponse } from '../../../responses/common-response';
 import { ADMIN_MESSAGES } from '../../../../shared/constants/messages/success/admin.messages';
 import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.code';
 import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
 @injectable()
 export class AdminAuthController {
   private readonly _accessTtl: number;
   private readonly _refreshTtl: number;
 
   constructor(
-    private readonly _loginUseCase: AdminLogin,
+    @inject(TOKENS.IAdminLogin) private readonly _loginUseCase: AdminLogin,
+    @inject(TOKENS.ICreateAdmin)
     private readonly _createAdminUseCase: CreateAdmin,
-    private readonly _logoutUseCase: Logout,
+    @inject(TOKENS.ILogout) private readonly _logoutUseCase: Logout,
+    @inject(TOKENS.IAdminRefreshToken)
     private readonly _refreshUseCase: AdminRefreshToken,
   ) {
     this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);

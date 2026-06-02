@@ -14,6 +14,9 @@ import {
 } from '../services';
 import { RedisOtpService } from '../services/redisOtp.service';
 import { AdminRepository } from '../database/repositories/admin.respository';
+import { registerUserAuthDependencies } from './user/auth.dependency';
+import { registerAdminAuthDependencies } from './admin/auth.dependency';
+import { registerUsersManagementDependencies } from './admin/user-management.dependency';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -23,12 +26,10 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IHashService,
     BcryptHashService,
   );
-
   container.registerSingleton<JwtTokenService>(
     TOKENS.ITokenService,
     JwtTokenService,
   );
-
   container.registerSingleton<RedisSessionService>(
     TOKENS.ISessionService,
     RedisSessionService,
@@ -38,16 +39,19 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IOtpService,
     RedisOtpService,
   );
-
   container.registerSingleton<EmailService>(TOKENS.IEmailService, EmailService);
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
     UserRepository,
   );
-
   container.registerSingleton<AdminRepository>(
     TOKENS.IAdminRepository,
     AdminRepository,
   );
+
+  //use-cases injection
+  registerUserAuthDependencies();
+  registerAdminAuthDependencies();
+  registerUsersManagementDependencies();
 }

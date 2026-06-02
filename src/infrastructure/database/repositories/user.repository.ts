@@ -180,12 +180,9 @@ export class UserRepository
     const [users, count] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         where,
-
         skip: (page - 1) * limit,
-
         take: limit,
-
-        orderBy: { [safeSortBy]: sortBy },
+        orderBy: { [safeSortBy]: sortOrder },
       }),
 
       this.prisma.user.count({

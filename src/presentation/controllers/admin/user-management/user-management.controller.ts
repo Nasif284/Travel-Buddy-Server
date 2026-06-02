@@ -4,12 +4,15 @@ import { GetAllUsersRequestDTO } from '../../../../application/dtos/user-managem
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
 import { ApiResponse } from '../../../responses/common-response';
 import { USER_MANAGEMENT_MESSAGES } from '../../../../shared/constants/messages/success/user-management';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { ChangeUserStatus } from '../../../../application/use-cases/user-management/change-user-status.usecase';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
 @injectable()
 export class UserManagementController {
   constructor(
+    @inject(TOKENS.IGetAllUsers)
     private readonly _getAllUsersUseCase: GetAllUsers,
+    @inject(TOKENS.IChangeUserStatus)
     private readonly _changeUserStatusUseCase: ChangeUserStatus,
   ) {}
   getAllUsers = async (req: Request, res: Response): Promise<Response> => {

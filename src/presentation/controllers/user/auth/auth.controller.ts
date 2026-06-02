@@ -18,23 +18,45 @@ import { ApiResponse } from '../../../responses/common-response';
 import { USER_MESSAGES } from '../../../../shared/constants/messages/success/user.messages';
 import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.code';
 import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
+import { IRegister } from '../../../../application/interfaces/use-cases/auth/user/register.interface';
+import { IEmailService } from '../../../../application/interfaces/services/email.service.interface';
+import { ILogin } from '../../../../application/interfaces/use-cases/auth/user/login.interface';
+import { IForgotPassword } from '../../../../application/interfaces/use-cases/auth/user/forgot-password.interface';
+import { IResetPassword } from '../../../../application/interfaces/use-cases/auth/user/reset-password.interface';
+import { IRefreshToken } from '../../../../application/interfaces/use-cases/auth/user/refresh-token.interface';
+import { ISendOtp } from '../../../../application/interfaces/use-cases/auth/user/send-otp.interface';
+import { ILogout } from '../../../../application/interfaces/use-cases/auth/user/logout.interface';
+import { IVerifyOtp } from '../../../../application/interfaces/use-cases/auth/user/verify-otp.interface';
+import { IGoogleAuth } from '../../../../application/interfaces/use-cases/auth/user/google-auth.interface';
+import { IVerifyEmail } from '../../../../application/interfaces/use-cases/auth/user/verify-email.interface';
+import { TOKENS } from '../../../../infrastructure/di/tokens';
 @injectable()
 export class AuthController {
   private readonly _accessTtl: number;
   private readonly _refreshTtl: number;
 
   constructor(
-    private readonly _registerUseCase: Register,
-    private readonly _verifyEmailUseCase: EmailVerification,
-    private readonly _loginUseCase: LoginUseCase,
-    private readonly _forgotPasswordUseCase: ForgotPassword,
-    private readonly _resetPasswordUseCase: ResetPassword,
-    private readonly _refreshTokenUseCase: RefreshToken,
-    private readonly _sendOtp: SendOtp,
-    private readonly _logout: Logout,
-    private readonly _verifyOtp: VerifyOtp,
-    private readonly _googleAuth: GoogleAuth,
+    @inject(TOKENS.IRegister)
+    private readonly _registerUseCase: IRegister,
+    @inject(TOKENS.IVerifyEmail)
+    private readonly _verifyEmailUseCase: IVerifyEmail,
+    @inject(TOKENS.ILogin)
+    private readonly _loginUseCase: ILogin,
+    @inject(TOKENS.IForgotPassword)
+    private readonly _forgotPasswordUseCase: IForgotPassword,
+    @inject(TOKENS.IResetPassword)
+    private readonly _resetPasswordUseCase: IResetPassword,
+    @inject(TOKENS.IRefreshToken)
+    private readonly _refreshTokenUseCase: IRefreshToken,
+    @inject(TOKENS.ISendOtp)
+    private readonly _sendOtp: ISendOtp,
+    @inject(TOKENS.ILogout)
+    private readonly _logout: ILogout,
+    @inject(TOKENS.IVerifyOtp)
+    private readonly _verifyOtp: IVerifyOtp,
+    @inject(TOKENS.IGoogleAuth)
+    private readonly _googleAuth: IGoogleAuth,
   ) {
     this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);
     this._refreshTtl = ms(
