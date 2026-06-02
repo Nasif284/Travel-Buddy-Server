@@ -10,7 +10,7 @@ export function authenticate(
 ): void {
   try {
     const token = req.cookies?.accessToken as string | undefined;
-    if (!token) throw new UnauthorizedError('Access token is missing');
+    if (!token) throw new UnauthorizedError();
     const payload = tokenService.verifyAccessToken(token);
     req.user = {
       userId: payload.userId,

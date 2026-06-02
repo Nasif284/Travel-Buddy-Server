@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { buildAdminAuthRoutes } from './auth/auth.route';
-import { AppContainer } from '../../../infrastructure/di/dependency-regestration';
+import { AppContainer } from '../../../infrastructure/di/container';
 import { buildUserManagementRoutes } from './user-management/user-management.route';
 
 export function buildAdminRoutes(container: AppContainer): Router {

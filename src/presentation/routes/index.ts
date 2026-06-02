@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { AppContainer } from '../../infrastructure/di/dependency-regestration';
+import { AppContainer } from '../../infrastructure/di/container';
 import { buildAuthRoutes } from './user/auth/auth.route';
 import { buildAdminRoutes } from './admin';
 
