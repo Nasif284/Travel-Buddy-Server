@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import { AdminRefreshToken } from '../../../../application/use-cases/auth/admin/admin-refresh.usercase';
 import ms, { StringValue } from 'ms';
 import { ApiResponse } from '../../../responses/common-response';
-import { ADMIN_MESSAGES } from '../../../../shared/constants/messages/success/admin.messages';
+import { ADMIN_MESSAGES } from '../../../../shared/constants/messages/success/admin/admin.messages';
 import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.code';
 import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
 import { inject, injectable } from 'tsyringe';

@@ -17,6 +17,13 @@ import { AdminRepository } from '../database/repositories/admin.respository';
 import { registerUserAuthDependencies } from './user/auth.dependency';
 import { registerAdminAuthDependencies } from './admin/auth.dependency';
 import { registerUsersManagementDependencies } from './admin/user-management.dependency';
+import { registerOnboardingDependency } from './user/onbaording.dependency';
+import { StorageService } from '../services/storage.service';
+import { LookupRepository } from '../database/repositories/lookups.repository';
+import { registerLookupDependency } from './lookup/lookup.dependency';
+import { registerLocationDependency } from './user/location.dependency,';
+import { GoogleGeocodingService } from '../services/geocode.service';
+import { registerUserDependency } from './user/user.dependency';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -34,12 +41,19 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.ISessionService,
     RedisSessionService,
   );
-
   container.registerSingleton<RedisOtpService>(
     TOKENS.IOtpService,
     RedisOtpService,
   );
   container.registerSingleton<EmailService>(TOKENS.IEmailService, EmailService);
+  container.registerSingleton<StorageService>(
+    TOKENS.IStorageService,
+    StorageService,
+  );
+  container.registerSingleton<GoogleGeocodingService>(
+    TOKENS.IGeocodeService,
+    GoogleGeocodingService,
+  );
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
@@ -49,9 +63,19 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IAdminRepository,
     AdminRepository,
   );
+  container.registerSingleton<LookupRepository>(
+    TOKENS.ILookupRepository,
+    LookupRepository,
+  );
 
-  //use-cases injection
-  registerUserAuthDependencies();
+  // admin use-cases injection
   registerAdminAuthDependencies();
   registerUsersManagementDependencies();
+  registerLookupDependency();
+
+  // user use-cases injection
+  registerUserAuthDependencies();
+  registerOnboardingDependency();
+  registerLocationDependency();
+  registerUserDependency();
 }

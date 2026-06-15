@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../Errors/app.error';
-import { HttpStatus } from '../../domain/enums/HttpStatusCodes.constants';
-import { ApiResponse } from '../responses/common-response';
-import { GLOBAL_ERROR_CODE } from '../../shared/constants/error-codes/global.code';
-import { GLOBAL_ERROR_MESSAGES } from '../../shared/constants/messages/error/error.messages';
+import { AppError } from '../../Errors/app.error';
+import { HttpStatus } from '../../../domain/enums/HttpStatusCodes.constants';
+import { ApiResponse } from '../../responses/common-response';
+import { GLOBAL_ERROR_CODE } from '../../../shared/constants/error-codes/global.code';
+import { GLOBAL_ERROR_MESSAGES } from '../../../shared/constants/messages/error/error.messages';
 
 export function globalErrorHandler(
   err: Error,

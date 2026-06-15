@@ -1,46 +1,48 @@
 model User {
-  id            String    @id @default(uuid()) @db.Uuid
-  fullName      String    @map("full_name") @db.VarChar(100)
-  email         String    @unique @db.VarChar(255)
-  phone         String?   @unique @db.VarChar(20)
+  id       String  @id @default(uuid()) @db.Uuid
+  fullName String  @map("full_name") @db.VarChar(100)
+  email    String  @unique @db.VarChar(255)
+  phone    String? @unique @db.VarChar(20)
 
-  passwordHash  String?   @map("password_hash") @db.VarChar(255)
+  passwordHash String? @map("password_hash") @db.VarChar(255)
 
-  avatarUrl     String?   @map("avatar_url") @db.VarChar(500)
-  coverUrl      String?   @map("cover_url") @db.VarChar(500)
-  bio           String?
-  dateOfBirth   DateTime? @map("date_of_birth") @db.Date
+  avatarUrl   String?   @map("avatar_url") @db.VarChar(500)
+  coverUrl    String?   @map("cover_url") @db.VarChar(500)
+  bio         String?
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
 
-  isPhoneVerified  Boolean   @default(false) @map("is_phone_verified")
-  isEmailVerified  Boolean   @default(false) @map("is_email_verified")
-  isIdVerified     Boolean   @default(false) @map("is_id_verified")
-  phoneVerifiedAt  DateTime? @map("phone_verified_at") @db.Timestamptz(6)
-  emailVerifiedAt  DateTime? @map("email_verified_at") @db.Timestamptz(6)
-  idVerifiedAt     DateTime? @map("id_verified_at") @db.Timestamptz(6)
+  isPhoneVerified Boolean   @default(false) @map("is_phone_verified")
+  isEmailVerified Boolean   @default(false) @map("is_email_verified")
+  isIdVerified    Boolean   @default(false) @map("is_id_verified")
+  phoneVerifiedAt DateTime? @map("phone_verified_at") @db.Timestamptz(6)
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  idVerifiedAt    DateTime? @map("id_verified_at") @db.Timestamptz(6)
 
-  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  genderCode             String? @map("gender_code") @db.VarChar(30)
-  travelTypeCode         String? @map("travel_type_code") @db.VarChar(20)
-  travelPersonalityCode  String? @map("travel_personality_code") @db.VarChar(20)
-  matchWithCode          String? @default("everyone") @map("match_with_code") @db.VarChar(20)
-  accountStatusCode      String  @default("active") @map("account_status_code") @db.VarChar(20)
+  genderCode            String? @map("gender_code") @db.VarChar(30)
+  travelTypeCode        String? @map("travel_type_code") @db.VarChar(20)
+  travelPersonalityCode String? @map("travel_personality_code") @db.VarChar(20)
+  matchWithCode         String? @default("everyone") @map("match_with_code") @db.VarChar(20)
+  accountStatusCode     String  @default("active") @map("account_status_code") @db.VarChar(20)
 
-  countryCode   String?   @map("country_code") @db.VarChar(10)
+  countryCode  String? @map("country_code") @db.VarChar(10)
+  state String? @map("origin_region") @db.VarChar(100)
+  city   String? @map("origin_city") @db.VarChar(100)
 
-  gender            Gender?           @relation(fields: [genderCode],            references: [code])
-  travelType        TravelType?       @relation(fields: [travelTypeCode],        references: [code])
+  gender            Gender?            @relation(fields: [genderCode], references: [code])
+  travelType        TravelType?        @relation(fields: [travelTypeCode], references: [code])
   travelPersonality TravelPersonality? @relation(fields: [travelPersonalityCode], references: [code])
-  matchPreference   MatchPreference?  @relation(fields: [matchWithCode],         references: [code])
-  accountStatus     AccountStatus     @relation(fields: [accountStatusCode],     references: [code])
-  country           Country?          @relation(fields: [countryCode],           references: [code])
+  matchPreference   MatchPreference?   @relation(fields: [matchWithCode], references: [code])
+  accountStatus     AccountStatus      @relation(fields: [accountStatusCode], references: [code])
+  country           Country?           @relation(fields: [countryCode], references: [code])
 
-  location      UserLocation?
-  onboarding    UserOnboarding?
-  privacy       UserPrivacy?
+  location   UserLocation?
+  onboarding UserOnboarding?
+  privacy    UserPrivacy?
 
   languages     UserLanguage[]
   interests     UserInterest[]
@@ -55,56 +57,62 @@ model User {
   @@index([deletedAt])
   @@map("users")
 }
+
 model UserLocation {
-  userId              String        @id @map("user_id") @db.Uuid
-  lastSeenAt          DateTime?     @map("last_seen_at") @db.Timestamptz(6)
-  currentLat          Decimal?      @map("current_lat") @db.Decimal(10, 8)
-  currentLng          Decimal?      @map("current_lng") @db.Decimal(11, 8)
-  currentCity         String?       @map("current_city") @db.VarChar(100)
-  updatedAt           DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+  userId       String                                @id @map("user_id") @db.Uuid
+  lastSeenAt   DateTime?                             @map("last_seen_at") @db.Timestamptz(6)
+  currentLat   Decimal?                              @map("current_lat") @db.Decimal(10, 8)
+  currentLng   Decimal?                              @map("current_lng") @db.Decimal(11, 8)
+  currentCity  String?                               @map("current_city") @db.VarChar(100)
+  currentState String?                               @map("current_state") @db.VarChar(100)
+  coordinates  Unsupported("geography(Point,4326)")?
+  updatedAt    DateTime                              @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  onlineStatusCode    String        @default("offline") @map("online_status_code") @db.VarChar(20)
-  onlineStatus        OnlineStatus  @relation(fields: [onlineStatusCode], references: [code])
+  onlineStatusCode String       @default("offline") @map("online_status_code") @db.VarChar(20)
+  onlineStatus     OnlineStatus @relation(fields: [onlineStatusCode], references: [code])
 
-  currentCountryCode  String?       @map("current_country_code") @db.VarChar(10)
-  currentCountry      Country?      @relation(fields: [currentCountryCode], references: [code])
+  currentCountryCode String?  @map("current_country_code") @db.VarChar(10)
+  currentCountry     Country? @relation(fields: [currentCountryCode], references: [code])
 
-  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([onlineStatusCode])
   @@index([currentLat, currentLng])
   @@map("user_locations")
 }
+
 model UserOnboarding {
-  userId              String            @id @map("user_id") @db.Uuid
-  onboardingStep      Int               @default(1) @map("onboarding_step") @db.SmallInt
-  onboardingCompleted Boolean           @default(false) @map("onboarding_completed")
-  completedAt         DateTime?         @map("completed_at") @db.Timestamptz(6)
-  updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  userId              String    @id @map("user_id") @db.Uuid
+  onboardingStep      Int       @default(1) @map("onboarding_step") @db.SmallInt
+  onboardingCompleted Boolean   @default(false) @map("onboarding_completed")
+  completedAt         DateTime? @map("completed_at") @db.Timestamptz(6)
+  updatedAt           DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  onboardingSourceCode  String?           @map("onboarding_source_code") @db.VarChar(50)
-  onboardingSource      OnboardingSource? @relation(fields: [onboardingSourceCode], references: [code])
+  onboardingSourceCode String?           @map("onboarding_source_code") @db.VarChar(50)
+  onboardingSource     OnboardingSource? @relation(fields: [onboardingSourceCode], references: [code])
 
-  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_onboarding")
 }
+
 model UserPrivacy {
-  userId              String             @id @map("user_id") @db.Uuid
-  showOnlineStatus    Boolean            @default(true) @map("show_online_status")
-  showTravelingStatus Boolean            @default(false) @map("show_traveling_status")
-  updatedAt           DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+  userId              String   @id @map("user_id") @db.Uuid
+  showOnlineStatus    Boolean  @default(true) @map("show_online_status")
+  showTravelingStatus Boolean  @default(false) @map("show_traveling_status")
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  profileVisibilityCode  String?             @default("everyone") @map("profile_visibility_code") @db.VarChar(30)
-  profileVisibility      ProfileVisibility?  @relation(fields: [profileVisibilityCode], references: [code])
+  profileVisibilityCode String?            @default("everyone") @map("profile_visibility_code") @db.VarChar(30)
+  profileVisibility     ProfileVisibility? @relation(fields: [profileVisibilityCode], references: [code])
 
-  requestsFromCode       String?             @default("everyone") @map("requests_from_code") @db.VarChar(30)
-  requestsFrom           RequestFromOption?  @relation(fields: [requestsFromCode], references: [code])
+  requestsFromCode String?            @default("everyone") @map("requests_from_code") @db.VarChar(30)
+  requestsFrom     RequestFromOption? @relation(fields: [requestsFromCode], references: [code])
 
-  user                   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_privacy_settings")
 }
+
 model UserStatusHistory {
   id             String    @id @default(uuid()) @db.Uuid
   userId         String    @map("user_id") @db.Uuid
@@ -116,23 +124,25 @@ model UserStatusHistory {
   actionedBy     String?   @map("actioned_by") @db.Uuid
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([effectiveFrom])
   @@map("user_status_history")
 }
+
 model UserLanguage {
   id       String @id @default(uuid()) @db.Uuid
   userId   String @map("user_id") @db.Uuid
   language String @db.VarChar(100)
 
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, language])
   @@index([userId])
   @@map("user_languages")
 }
+
 model UserSkill {
   id     String @id @default(uuid()) @db.Uuid
   userId String @map("user_id") @db.Uuid
@@ -149,12 +159,9 @@ model UserInterest {
   userId   String @map("user_id") @db.Uuid
   interest String @db.VarChar(100)
 
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, interest])
   @@index([userId])
   @@map("user_interests")
 }
-
-
-

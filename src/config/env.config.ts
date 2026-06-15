@@ -32,4 +32,13 @@ export const config = {
     password: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM,
   },
+  s3: {
+    accessKey: process.env.S3_ACCESS_KEY,
+    secretKey: process.env.S3_SECRET_KEY,
+    region: process.env.S3_REGION,
+    bucketName: process.env.S3_BUCKET_NAME,
+  },
+  geoCoding: {
+    apiKey: process.env.GEOCODING_API_KEY,
+  },
 };

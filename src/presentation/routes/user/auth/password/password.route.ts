@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { validate } from '../../../../validators/user/auth';
-import { asyncHandler } from '../../../../middleware/asyncHandler';
+import { asyncHandler } from '../../../../middleware/error/asyncHandler';
 import { ForgotPasswordSchema } from '../../../../validators/user/auth/forgot-password.validator';
 import { ResetPasswordSchema } from '../../../../validators/user/auth/reset-password.validator';
 import { AuthController } from '../../../../controllers/user/auth/auth.controller';

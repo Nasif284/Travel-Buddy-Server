@@ -46,11 +46,11 @@ export enum RequestFromOption {
 }
 
 export enum OnboardingSource {
-  FRIENDS = 'friends',
-  SOCIAL_MEDIA = 'social_media',
-  SEARCH_ENGINE = 'search_engine',
-  TRAVEL_BLOG = 'travel_blog',
-  APP_STORE = 'app_store',
+  FRIENDS_OR_FAMILY = 'Friends or Family',
+  SOCIAL_MEDIA = 'Social Media',
+  SEARCH_ENGINE = 'Search Engine',
+  TRAVEL_BLOG_OR_ARTICLE = 'Travel Blog or Article',
+  APP_STORE = 'App Store',
   OTHER = 'other',
 }
 

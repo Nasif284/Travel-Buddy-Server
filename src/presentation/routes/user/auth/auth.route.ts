@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from '../../../controllers/user/auth/auth.controller';
 import { RegisterSchema, validate } from '../../../validators/user/auth';
-import { asyncHandler } from '../../../middleware/asyncHandler';
+import { asyncHandler } from '../../../middleware/error/asyncHandler';
 import { VerifyEmailSchema } from '../../../validators/user/auth/verify-email.validator';
 import { LoginSchema } from '../../../validators/user/auth/login.validator';
 import { buildPasswordRoutes } from './password/password.route';

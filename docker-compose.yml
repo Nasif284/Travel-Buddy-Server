@@ -3,40 +3,30 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-
     ports:
       - '5000:5000'
-
     env_file:
       - .env
-
     command: sh -c "npm run db:push && npm run db:generate && npm run dev"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     depends_on:
       postgres:
         condition: service_healthy
-
       redis:
         condition: service_started
 
   postgres:
-    image: postgres:15-alpine
-
+    image: postgis/postgis:15-3.4
     environment:
       POSTGRES_USER: ${DB_USER:-nasif}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
       POSTGRES_DB: ${DB_NAME:-travelbuddy}
-
     ports:
       - '5433:5432'
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-nasif}']
       interval: 5s
@@ -45,9 +35,11 @@ services:
 
   redis:
     image: redis:alpine
-
     ports:
       - '6379:6379'
+    volumes:
+      - redis_data:/var/lib/redis/data
 
 volumes:
   postgres_data:
+  redis_data:

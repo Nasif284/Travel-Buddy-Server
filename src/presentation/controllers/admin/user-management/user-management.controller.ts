@@ -3,7 +3,7 @@ import { GetAllUsers } from '../../../../application/use-cases/user-management/g
 import { GetAllUsersRequestDTO } from '../../../../application/dtos/user-management/request/get-users.dto';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
 import { ApiResponse } from '../../../responses/common-response';
-import { USER_MANAGEMENT_MESSAGES } from '../../../../shared/constants/messages/success/user-management';
+import { USER_MANAGEMENT_MESSAGES } from '../../../../shared/constants/messages/success/admin/user-management';
 import { inject, injectable } from 'tsyringe';
 import { ChangeUserStatus } from '../../../../application/use-cases/user-management/change-user-status.usecase';
 import { TOKENS } from '../../../../infrastructure/di/tokens';

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AdminAuthController } from '../../../controllers/admin/auth/admin.auth.controller';
-import { asyncHandler } from '../../../middleware/asyncHandler';
+import { asyncHandler } from '../../../middleware/error/asyncHandler';
 
 export function buildAdminAuthRoutes(controller: AdminAuthController): Router {
   const router = Router();

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { asyncHandler } from '../../../middleware/asyncHandler';
+import { asyncHandler } from '../../../middleware/error/asyncHandler';
 import { UserManagementController } from '../../../controllers/admin/user-management/user-management.controller';
 import { validate } from '../../../validators/user/auth';
 import { ChangeStatusSchema } from '../../../validators/user-management/change-status.validator';

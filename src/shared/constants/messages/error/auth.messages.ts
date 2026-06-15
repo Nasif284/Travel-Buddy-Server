@@ -13,4 +13,5 @@ export const AUTH_ERROR_MESSAGES = {
   INCORRECT_PASSWORD: 'The current password you entered is incorrect.',
   USER_NOT_FOUND: 'User not found.',
   ADMIN_NOT_FOUND: 'Admin not found',
+  IMAGE_MISSING: 'Profile image is missing',
 } as const;

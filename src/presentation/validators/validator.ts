@@ -3,6 +3,7 @@ import { ZodSchema, ZodError } from 'zod';
 
 export function validate(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
+    console.log(req.body);
     const result = schema.safeParse(req.body);
 
     if (!result.success) {

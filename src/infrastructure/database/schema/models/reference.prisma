@@ -7,7 +7,7 @@ model Currency {
 
 model Country {
   code        String  @id @db.VarChar(10)
-  name        String  @db.VarChar(100)
+  name        String  @db.VarChar(100) 
   phonePrefix String? @map("phone_prefix") @db.VarChar(10)
   flagEmoji   String? @map("flag_emoji") @db.VarChar(10)
 

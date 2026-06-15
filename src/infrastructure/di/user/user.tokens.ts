@@ -9,4 +9,13 @@ export const USER_TOKENS = {
   ILogout: 'ILogout',
   IVerifyOtp: 'IVerifyOtp',
   IGoogleAuth: 'IGoogleAuth',
+  IOnboardingSource: 'IOnboardingSource',
+  ISetProfile: 'ISetProfile',
+  ISetTravelStyle: 'ISetTravelStyle',
+  IUpdateLocation: 'IUpdateLocation',
+  IGetLocation: 'IGetLocation',
+  IGetUsersForCard: 'IGetUsersForCard',
+  IGetNearbyUsers: 'IGetNearbyUsers',
+  IReverseGeoCode: 'IReverseGeoCode',
+  IGetUserProfile: 'IGetUserProfile',
 } as const;
