@@ -1,5 +1,6 @@
 import { ADMIN_TOKENS } from './admin/admin.tokens';
 import { LOOKUP_TOKENS } from './lookup/lookup.tokens';
+import { TRIP_TOKENS } from './trip/tokens';
 import { USER_TOKENS } from './user/user.tokens';
 
 export const TOKENS = {
@@ -14,6 +15,7 @@ export const TOKENS = {
   IEmailService: 'IEmailService',
   IStorageService: 'IStorageService',
   IGeocodeService: 'IGeocodeService',
+  IImageService: 'IImageService',
 
   PrismaClient: 'PrismaClient',
   RedisClient: 'RedisClient',
@@ -21,4 +23,5 @@ export const TOKENS = {
   ...USER_TOKENS,
   ...ADMIN_TOKENS,
   ...LOOKUP_TOKENS,
+  ...TRIP_TOKENS,
 } as const;

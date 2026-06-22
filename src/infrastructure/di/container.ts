@@ -9,6 +9,9 @@ import { OnboardingController } from '../../presentation/controllers/user/onboar
 import { LookupController } from '../../presentation/controllers/lookup/lookup.controller';
 import { LocationController } from '../../presentation/controllers/user/location/location.controller';
 import { UsersController } from '../../presentation/controllers/user/users/users.controller';
+import { TripController } from '../../presentation/controllers/trip/trip.controller';
+import { ConnectionsController } from '../../presentation/controllers/user/connections/connection.controller';
+import { ProfileController } from '../../presentation/controllers/user/profile/profile.controller';
 export interface AppContainer {
   authController: AuthController;
   adminAuthController: AdminAuthController;
@@ -17,6 +20,9 @@ export interface AppContainer {
   lookupController: LookupController;
   locationController: LocationController;
   usersController: UsersController;
+  tripController: TripController;
+  connectionsController: ConnectionsController;
+  profileController: ProfileController;
 }
 
 export function buildContainer(db: PrismaClient, redis: Redis) {
@@ -28,6 +34,9 @@ export function buildContainer(db: PrismaClient, redis: Redis) {
   const lookupController = container.resolve(LookupController);
   const locationController = container.resolve(LocationController);
   const usersController = container.resolve(UsersController);
+  const tripController = container.resolve(TripController);
+  const connectionsController = container.resolve(ConnectionsController);
+  const profileController = container.resolve(ProfileController);
   return {
     authController,
     adminAuthController,
@@ -36,5 +45,8 @@ export function buildContainer(db: PrismaClient, redis: Redis) {
     lookupController,
     locationController,
     usersController,
+    tripController,
+    connectionsController,
+    profileController,
   };
 }

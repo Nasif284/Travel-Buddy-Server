@@ -6,6 +6,12 @@ import { OnboardingSourceRequestDTO } from '../../dtos/onbaording/request/source
 import { UserCardDetailsResponseDTO } from '../../dtos/users/response/user-card.dto';
 import { NearbyUsersResponseDTO } from '../../dtos/users/response/nearby-users.dto';
 import { GetUserProfileResponseDTO } from '../../dtos/users/response/user-profile.dto';
+import { SendConnectionRequestDTO } from '../../dtos/connections/requests/send-connection-request.dto';
+import { GetIncomingRequestsResponseDTO } from '../../dtos/connections/response/get-requests.dto';
+import { GetConnectionsResponseDTO } from '../../dtos/connections/response/get-connections.dto';
+import { UpdateSettingsRequestDTO } from '../../dtos/profile/request/settings-update.dto';
+import { GetSettingsResponseDTO } from '../../dtos/profile/response/get-settings.dto';
+import { GetAllRequestsResponseDTO } from '../../dtos/connections/response/get-all-requests.dto';
 
 export interface CreateUserData {
   fullName: string;
@@ -52,4 +58,20 @@ export interface IUserRepository {
     radiusKm?: number,
   ): Promise<NearbyUsersResponseDTO>;
   getUserWithDetails(userId: string): Promise<GetUserProfileResponseDTO>;
+  sendConnectionRequest(payload: SendConnectionRequestDTO): Promise<void>;
+  getIncomingConnectionRequests(
+    userId: string,
+  ): Promise<GetIncomingRequestsResponseDTO>;
+  updateRequestStatus(payload: {
+    requestId: string;
+    status: string;
+  }): Promise<void>;
+  getUserConnections(userId: string): Promise<GetConnectionsResponseDTO>;
+  deactivateConnection(connectionId: string): Promise<void>;
+  getSettings(userId: string): Promise<GetSettingsResponseDTO>;
+  updateSettings(
+    userId: string,
+    payload: UpdateSettingsRequestDTO,
+  ): Promise<void>;
+  getUserRequests(userId: string): Promise<GetAllRequestsResponseDTO>;
 }

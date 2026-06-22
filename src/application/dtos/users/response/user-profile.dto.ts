@@ -10,6 +10,7 @@ export interface GetUserProfileResponseDTO {
   country: string | null;
   travelType: string | null;
   travelPersonality: string | null;
+  isTraveling: boolean;
   interests: string[];
   skills: string[];
   languages: string[];

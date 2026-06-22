@@ -16,11 +16,12 @@ export class GetUsersForCard implements IGetUsersForCard {
   async execute(
     dto: GetUsersForCardRequestDTO,
   ): Promise<UserCardDetailsResponseDTO> {
-    const { limit, page, total, users } =
+    const { limit, page, total, users, totalPages } =
       await this._userRepository.getUsersForCard(dto.userId, {
         page: dto.page,
         limit: dto.limit,
       });
+
     return {
       users: await Promise.all(
         users.map(async (user) => ({
@@ -36,6 +37,7 @@ export class GetUsersForCard implements IGetUsersForCard {
       limit,
       page,
       total,
+      totalPages,
     };
   }
 }

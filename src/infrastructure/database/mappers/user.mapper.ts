@@ -2,6 +2,7 @@
 
 import { User, UserProps } from '../../../domain/entities/user/user.entity';
 import {
+  Country,
   User as PrismaUser,
   UserOnboarding,
   UserPrivacy,
@@ -20,6 +21,7 @@ import {
 type UserWithRelations = PrismaUser & {
   onboarding?: UserOnboarding | null;
   privacySettings?: UserPrivacy | null;
+  country?: Country | null;
 };
 
 export class UserMapper {
@@ -35,7 +37,7 @@ export class UserMapper {
       bio: row.bio,
       dateOfBirth: row.dateOfBirth ? new Date(row.dateOfBirth) : null,
       genderCode: (row.genderCode as Gender) ?? null,
-      countryCode: row.countryCode,
+      country: row?.country?.name ?? null,
       travelTypeCode: (row.travelTypeCode as TravelType) ?? null,
       travelPersonalityCode:
         (row.travelPersonalityCode as TravelPersonality) ?? null,
@@ -46,6 +48,7 @@ export class UserMapper {
       isPhoneVerified: row.isPhoneVerified ?? false,
       isEmailVerified: row.isEmailVerified ?? false,
       isIdVerified: row.isIdVerified ?? false,
+      isTraveling: row.isTraveling,
       phoneVerifiedAt: row.phoneVerifiedAt,
       emailVerifiedAt: row.emailVerifiedAt,
       idVerifiedAt: row.idVerifiedAt,

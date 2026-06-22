@@ -33,3 +33,13 @@ export class UserLocationDataMissingError extends AppError {
     );
   }
 }
+
+export class ConnectionAlreadyExistError extends AppError {
+  constructor() {
+    super(
+      HttpStatus.BAD_REQUEST,
+      USER_ERROR_CODES.CONNECTION_ALREADY_EXIST,
+      USER_ERROR_MESSAGES.CONNECTION_ALREADY_EXIST,
+    );
+  }
+}

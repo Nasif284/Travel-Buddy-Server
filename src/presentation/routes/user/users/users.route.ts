@@ -7,6 +7,8 @@ export function buildUsersRoute(controller: UsersController) {
   const router = Router();
   router.get('/cards', authenticate, asyncHandler(controller.getUsersForCard));
   router.get('/nearby', authenticate, asyncHandler(controller.getNearbyUsers));
+  router.get('/me', authenticate, asyncHandler(controller.getMe));
   router.get('/:id', authenticate, asyncHandler(controller.getUserProfile));
+
   return router;
 }

@@ -17,8 +17,10 @@ import { TOKENS } from '../../di/tokens';
 import { ChangeUserStatusRequestDTO } from '../../../application/dtos/user-management/request/change-status.dto';
 import { AccountStatus, OnlineStatus } from '../../../domain/enums';
 import { OnboardingSourceRequestDTO } from '../../../application/dtos/onbaording/request/source.dto';
-import { UpdateLocationRequestDTO } from '../../../application/dtos/location/request/update-location.dto';
-import { UserLocationDataMissingError } from '../../../domain/errors/user.error';
+import {
+  ConnectionAlreadyExistError,
+  UserLocationDataMissingError,
+} from '../../../domain/errors/user.error';
 import {
   UserCardDetailsResponseDTO,
   UserWithDetails,
@@ -27,6 +29,12 @@ import { calculateAge } from '../../../shared/helpers/calculateAge';
 import { NearbyUsersResponseDTO } from '../../../application/dtos/users/response/nearby-users.dto';
 import { GetUserProfileResponseDTO } from '../../../application/dtos/users/response/user-profile.dto';
 import { UserNotFoundError } from '../../../domain/errors/auth.error';
+import { SendConnectionRequestDTO } from '../../../application/dtos/connections/requests/send-connection-request.dto';
+import { GetIncomingRequestsResponseDTO } from '../../../application/dtos/connections/response/get-requests.dto';
+import { GetConnectionsResponseDTO } from '../../../application/dtos/connections/response/get-connections.dto';
+import { UpdateSettingsRequestDTO } from '../../../application/dtos/profile/request/settings-update.dto';
+import { GetSettingsResponseDTO } from '../../../application/dtos/profile/response/get-settings.dto';
+import { GetAllRequestsResponseDTO } from '../../../application/dtos/connections/response/get-all-requests.dto';
 @injectable()
 export class UserRepository
   extends BaseRepository<
@@ -412,6 +420,7 @@ export class UserRepository
       limit: params.limit,
       page: params.page,
       total,
+      totalPages: Math.ceil(total / params.limit),
     };
   }
 
@@ -435,6 +444,7 @@ export class UserRepository
         total: 0,
         page,
         limit,
+        totalPages: 0,
       };
     }
 
@@ -565,6 +575,7 @@ export class UserRepository
       total: Number(totalResult[0]?.count ?? 0),
       page,
       limit,
+      totalPages: Math.ceil(Number(totalResult[0]?.count ?? 0) / limit),
     };
   }
 
@@ -612,6 +623,211 @@ export class UserRepository
       languages: user.languages.map((i) => i.language),
       skills: user.skills.map((i) => i.skill),
       createdAt: user.createdAt,
+      isTraveling: user.isTraveling,
+    };
+  }
+
+  async sendConnectionRequest(
+    payload: SendConnectionRequestDTO,
+  ): Promise<void> {
+    const existing = await this.prisma.connectionRequest.findFirst({
+      where: {
+        OR: [
+          {
+            senderId: payload.senderId,
+            receiverId: payload.receiverId,
+          },
+          {
+            senderId: payload.receiverId,
+            receiverId: payload.senderId,
+          },
+        ],
+      },
+    });
+    if (existing?.id) {
+      throw new ConnectionAlreadyExistError();
+    }
+    await this.prisma.connectionRequest.create({
+      data: {
+        matchId: payload.matchId,
+        receiverId: payload.receiverId,
+        message: payload.message,
+        senderId: payload.senderId,
+      },
+    });
+  }
+  async getIncomingConnectionRequests(
+    userId: string,
+  ): Promise<GetIncomingRequestsResponseDTO> {
+    const requests = await this.prisma.connectionRequest.findMany({
+      where: {
+        receiverId: userId,
+        statusCode: 'pending',
+      },
+      include: {
+        sender: {
+          include: {
+            country: true,
+          },
+        },
+      },
+    });
+    return {
+      requests: requests.map((req) => {
+        return {
+          id: req.id,
+          message: req.message,
+          matchId: req.matchId,
+          sender: {
+            id: req.sender.id,
+            fullName: req.sender.fullName,
+            avatarUrl: req.sender.avatarUrl,
+            country: req.sender.country?.name ?? null,
+            state: req.sender.state,
+          },
+          createdAt: req.createdAt,
+          status: req.statusCode,
+        };
+      }),
+    };
+  }
+
+  async getUserRequests(userId: string): Promise<GetAllRequestsResponseDTO> {
+    const requests = await this.prisma.connectionRequest.findMany({
+      where: {
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+    });
+    return {
+      requests: requests.map((req) => ({
+        id: req.id,
+        receiverId: req.receiverId,
+        senderId: req.senderId,
+      })),
+    };
+  }
+
+  async updateRequestStatus(payload: {
+    requestId: string;
+    status: string;
+  }): Promise<void> {
+    if (payload.status == 'accepted') {
+      await this.prisma.$transaction(async (tx) => {
+        const request = await tx.connectionRequest.update({
+          where: {
+            id: payload.requestId,
+          },
+          data: {
+            statusCode: 'accepted',
+            respondedAt: new Date(),
+          },
+        });
+
+        await tx.connection.create({
+          data: {
+            userAId: request.senderId,
+            userBId: request.receiverId,
+            requestId: request.id,
+          },
+        });
+      });
+    } else if (payload.status == 'rejected') {
+      await this.prisma.connectionRequest.update({
+        where: {
+          id: payload.requestId,
+        },
+        data: {
+          statusCode: 'rejected',
+          respondedAt: new Date(),
+        },
+      });
+    }
+  }
+  async getUserConnections(userId: string): Promise<GetConnectionsResponseDTO> {
+    const connections = await this.prisma.connection.findMany({
+      where: {
+        isActive: true,
+        OR: [{ userAId: userId }, { userBId: userId }],
+      },
+      include: {
+        userA: {
+          select: {
+            fullName: true,
+            avatarUrl: true,
+            state: true,
+            country: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        userB: {
+          select: {
+            fullName: true,
+            avatarUrl: true,
+            state: true,
+            country: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      connections: connections.map((connection) => {
+        const otherUser =
+          connection.userAId === userId ? connection.userB : connection.userA;
+        return {
+          id: connection.id,
+          fullName: otherUser.fullName,
+          avatarUrl: otherUser.avatarUrl,
+          country: otherUser.country?.name ?? null,
+          state: otherUser.state,
+        };
+      }),
+    };
+  }
+
+  async deactivateConnection(connectionId: string): Promise<void> {
+    await this.prisma.connection.update({
+      where: {
+        id: connectionId,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+  }
+
+  async updateSettings(
+    userId: string,
+    payload: UpdateSettingsRequestDTO,
+  ): Promise<void> {
+    await this.prisma.userPrivacy.update({
+      where: {
+        userId,
+      },
+      data: payload,
+    });
+  }
+
+  async getSettings(userId: string): Promise<GetSettingsResponseDTO> {
+    const result = await this.prisma.userPrivacy.findFirst({
+      where: {
+        userId,
+      },
+    });
+    if (!result) {
+      throw new Error('Settings not found');
+    }
+    return {
+      profileVisibilityCode: result.profileVisibilityCode!,
+      requestsFromCode: result.requestsFromCode!,
+      showOnlineStatus: result.showOnlineStatus,
+      showTravelingStatus: result.showTravelingStatus,
     };
   }
 }

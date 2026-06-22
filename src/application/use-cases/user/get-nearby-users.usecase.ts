@@ -16,13 +16,14 @@ export class GetNearbyUsers implements IGetNearbyUsers {
   async execute(
     dto: GetNearbyUsersRequestDTO,
   ): Promise<NearbyUsersResponseDTO> {
-    const { limit, page, total, users } =
+    const { limit, page, total, users, totalPages } =
       await this._userRepository.getNearbyUsers(
         dto.userId,
         dto.page,
         dto.limit,
         dto.radiusKm ?? 50,
       );
+
     return {
       users: await Promise.all(
         users.map(async (user) => ({
@@ -38,6 +39,7 @@ export class GetNearbyUsers implements IGetNearbyUsers {
       limit,
       page,
       total,
+      totalPages,
     };
   }
 }

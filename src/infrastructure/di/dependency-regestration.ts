@@ -24,6 +24,11 @@ import { registerLookupDependency } from './lookup/lookup.dependency';
 import { registerLocationDependency } from './user/location.dependency,';
 import { GoogleGeocodingService } from '../services/geocode.service';
 import { registerUserDependency } from './user/user.dependency';
+import { TripRepository } from '../database/repositories/trip.repository';
+import { ImageService } from '../services/image.service';
+import { registerTripDependency } from './trip/trip.dependency';
+import { registerConnectionDependency } from './user/connection.dependency';
+import { registerProfileDependency } from './user/porfile.dependency';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -54,6 +59,7 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IGeocodeService,
     GoogleGeocodingService,
   );
+  container.registerSingleton<ImageService>(TOKENS.IImageService, ImageService);
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
@@ -67,6 +73,10 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.ILookupRepository,
     LookupRepository,
   );
+  container.registerSingleton<TripRepository>(
+    TOKENS.ITripRepository,
+    TripRepository,
+  );
 
   // admin use-cases injection
   registerAdminAuthDependencies();
@@ -78,4 +88,7 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
   registerOnboardingDependency();
   registerLocationDependency();
   registerUserDependency();
+  registerTripDependency();
+  registerConnectionDependency();
+  registerProfileDependency();
 }

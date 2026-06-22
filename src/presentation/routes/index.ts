@@ -6,6 +6,9 @@ import { buildOnboardingRoutes } from './user/onboarding/onboarding.route';
 import { buildLookupRoutes } from './lookups/lookup.route';
 import { buildLocationRoutes } from './user/location/location.route';
 import { buildUsersRoute } from './user/users/users.route';
+import { buildTripRoutes } from './trip/trip.route';
+import { buildConnectionRoutes } from './user/connection/connection.route';
+import { buildProfileRoutes } from './user/profile/profile.route';
 
 export function buildRoutes(container: AppContainer): Router {
   const router = Router();
@@ -18,5 +21,11 @@ export function buildRoutes(container: AppContainer): Router {
   router.use('/lookup', buildLookupRoutes(container.lookupController));
   router.use('/location', buildLocationRoutes(container.locationController));
   router.use('/users', buildUsersRoute(container.usersController));
+  router.use('/trip', buildTripRoutes(container.tripController));
+  router.use(
+    '/connection',
+    buildConnectionRoutes(container.connectionsController),
+  );
+  router.use('/profile', buildProfileRoutes(container.profileController));
   return router;
 }

@@ -30,7 +30,7 @@ export class GoogleGeocodingService implements IGeocodingService {
       components.find((c: AddressComponent) => c.types.includes('locality'))
         ?.long_name ??
       components.find((c: AddressComponent) =>
-        c.types.includes('administrative_area_level_2'),
+        c.types.includes('administrative_area_level_3'),
       )?.long_name ??
       null;
 

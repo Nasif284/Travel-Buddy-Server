@@ -8,6 +8,7 @@ import { ApiResponse } from '../../../responses/common-response';
 import { USER_MESSAGES } from '../../../../shared/constants/messages/success/user/user.messages';
 import { IGetNearbyUsers } from '../../../../application/interfaces/use-cases/users/nearby-users.interface';
 import { IGetUserProfile } from '../../../../application/interfaces/use-cases/users/get-user-profile.interface';
+import { IGetMe } from '../../../../application/interfaces/use-cases/users/get-me.usecase';
 
 @injectable()
 export class UsersController {
@@ -18,6 +19,8 @@ export class UsersController {
     private readonly _getNearbyUsersUseCase: IGetNearbyUsers,
     @inject(TOKENS.IGetUserProfile)
     private readonly _getUserProfileUseCase: IGetUserProfile,
+    @inject(TOKENS.IGetMe)
+    private readonly _getMe: IGetMe,
   ) {}
 
   getUsersForCard = async (req: Request, res: Response): Promise<Response> => {
@@ -53,9 +56,19 @@ export class UsersController {
 
   getUserProfile = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    console.log(id);
     const data = await this._getUserProfileUseCase.execute({
       userId: id as string,
+    });
+
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.FETCHED_USER_PROFILE, data));
+  };
+
+  getMe = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user?.userId;
+    const data = await this._getMe.execute({
+      userId: userId!,
     });
 
     return res

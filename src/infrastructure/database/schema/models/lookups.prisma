@@ -1,8 +1,8 @@
-model Gender{
-    code String @id @db.VarChar(30)
-    users User[]
+model Gender {
+  code  String @id @db.VarChar(30)
+  users User[]
 
-    @@map("genders")
+  @@map("genders")
 }
 
 model TravelType {
@@ -42,14 +42,14 @@ model OnlineStatus {
 }
 
 model ProfileVisibility {
-  code          String       @id @db.VarChar(30)
+  code          String        @id @db.VarChar(30)
   userPrivacies UserPrivacy[]
 
   @@map("profile_visibilities")
 }
 
 model RequestFromOption {
-  code          String       @id @db.VarChar(30)
+  code          String        @id @db.VarChar(30)
   userPrivacies UserPrivacy[]
 
   @@map("request_from_options")
@@ -60,4 +60,49 @@ model OnboardingSource {
   userOnboardings UserOnboarding[]
 
   @@map("onboarding_sources")
+}
+
+model TripStatus {
+  code  String @id @db.VarChar(20)
+  label String @db.VarChar(50)
+
+  trips Trip[]
+
+  @@map("trip_statuses")
+}
+
+model TripMemberRole {
+  code  String @id @db.VarChar(20)
+  label String @db.VarChar(50)
+
+  members TripMember[]
+
+  @@map("trip_member_roles")
+}
+
+model TripInviteStatus {
+  code  String @id @db.VarChar(20)
+  label String @db.VarChar(50)
+
+  invites TripInvite[]
+
+  @@map("trip_invite_statuses")
+}
+
+model TripStyle {
+  code  String @id @db.VarChar(20)
+  label String @db.VarChar(50)
+
+  trips Trip[]
+
+  @@map("trip_style")
+}
+
+model BudgetStyle {
+  code  String @id @db.VarChar(20)
+  label String @db.VarChar(50)
+
+  trips Trip[]
+
+  @@map("budget_style")
 }

@@ -13,7 +13,7 @@ export function buildPasswordRoutes(controller: AuthController): Router {
     asyncHandler(controller.forgotPassword),
   );
   router.post(
-    '/forgot/reset',
+    '/reset',
     validate(ResetPasswordSchema),
     asyncHandler(controller.resetPassword),
   );

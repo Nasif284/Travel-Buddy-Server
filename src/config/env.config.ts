@@ -41,4 +41,8 @@ export const config = {
   geoCoding: {
     apiKey: process.env.GEOCODING_API_KEY,
   },
+  unsplash: {
+    accessKey: process.env.UNSPLASH_ACCESS_KEY,
+    secretKey: process.env.UNSPLASH_SECRETE_KEY,
+  },
 };

@@ -3,6 +3,7 @@ import { GetUsersForCard } from '../../../application/use-cases/user/get-users-f
 import { TOKENS } from '../tokens';
 import { GetNearbyUsers } from '../../../application/use-cases/user/get-nearby-users.usecase';
 import { GetUserProfile } from '../../../application/use-cases/user/get-user-profile.usecase';
+import { GetMe } from '../../../application/use-cases/user/get-me.usecase';
 
 export function registerUserDependency() {
   container.registerSingleton<GetUsersForCard>(
@@ -17,4 +18,5 @@ export function registerUserDependency() {
     TOKENS.IGetUserProfile,
     GetUserProfile,
   );
+  container.registerSingleton<GetMe>(TOKENS.IGetMe, GetMe);
 }

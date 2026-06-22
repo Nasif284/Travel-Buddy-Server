@@ -1,0 +1,122 @@
+model Trip {
+    id               String    @id @default(uuid()) @db.Uuid
+    name             String    @db.VarChar(255)
+    destinationId    String    @map("destination_id") @db.Uuid
+    dateFrom         DateTime  @map("date_from") @db.Date
+    dateTo           DateTime  @map("date_to") @db.Date
+    budgetStyleCode  String    @map("budget_style_code") @db.VarChar(20)
+    travelStyleCode  String    @map("travel_style_code") @db.VarChar(20)
+    preferredMembers Int       @default(10) @map("preferred_members")
+    inviteCode       String?   @unique @map("invite_code") @db.VarChar(20)
+    statusCode       String    @default("upcoming") @map("status_code") @db.VarChar(20)
+    createdBy        String    @map("created_by") @db.Uuid
+    createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt        DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+    deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+    destination Destination  @relation(fields: [destinationId], references: [id])
+    creator     User         @relation("TripCreator", fields: [createdBy], references: [id])
+    travelStyle TripStyle?   @relation(fields: [travelStyleCode], references: [code])
+    budgetStyle BudgetStyle? @relation(fields: [budgetStyleCode], references: [code])
+    status      TripStatus   @relation(fields: [statusCode], references: [code])
+    members     TripMember[]
+    invites     TripInvite[]
+    sourceTrip  TripMatch[]  @relation("TripMatchA")
+    targetTrip  TripMatch[]  @relation("TripMatchB")
+
+    @@index([destinationId])
+    @@index([createdBy])
+    @@index([statusCode])
+    @@index([deletedAt])
+    @@map("trips")
+}
+
+model Destination {
+    id          String   @id @default(uuid()) @db.Uuid
+    placeId     String   @unique @map("place_id") @db.VarChar(255)
+    name        String   @db.VarChar(255)
+    city        String?  @db.VarChar(255)
+    state       String?  @db.VarChar(255)
+    countryCode String   @map("country_code") @db.VarChar(10)
+    latitude    Decimal  @db.Decimal(10, 8)
+    longitude   Decimal  @db.Decimal(11, 8)
+    createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    country     Country  @relation(fields: [countryCode], references: [code])
+    trips       Trip[]
+    coverUrl    String?  @map("cover_url") @db.VarChar(500)
+
+    @@index([placeId])
+    @@index([countryCode])
+    @@index([state])
+    @@map("destinations")
+}
+
+model TripMember {
+    id       String    @id @default(uuid()) @db.Uuid
+    tripId   String    @map("trip_id") @db.Uuid
+    userId   String    @map("user_id") @db.Uuid
+    roleCode String    @default("member") @map("role_code") @db.VarChar(20)
+    joinedAt DateTime  @default(now()) @map("joined_at") @db.Timestamptz(6)
+    leftAt   DateTime? @map("left_at") @db.Timestamptz(6)
+    isActive Boolean   @default(true) @map("is_active")
+
+    trip Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+    user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role TripMemberRole @relation(fields: [roleCode], references: [code])
+
+    @@unique([tripId, userId])
+    @@index([tripId])
+    @@index([userId])
+    @@map("trip_members")
+}
+
+model TripInvite {
+    id            String    @id @default(uuid()) @db.Uuid
+    tripId        String    @map("trip_id") @db.Uuid
+    invitedBy     String    @map("invited_by") @db.Uuid
+    invitedUserId String?   @map("invited_user_id") @db.Uuid
+    message       String?
+    statusCode    String    @default("pending") @map("status_code") @db.VarChar(20)
+    expiresAt     DateTime? @map("expires_at") @db.Timestamptz(6)
+    respondedAt   DateTime? @map("responded_at") @db.Timestamptz(6)
+    createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    trip        Trip             @relation(fields: [tripId], references: [id], onDelete: Cascade)
+    inviter     User             @relation("TripInviter", fields: [invitedBy], references: [id])
+    invitedUser User?            @relation("TripInvitedUser", fields: [invitedUserId], references: [id])
+    status      TripInviteStatus @relation(fields: [statusCode], references: [code])
+
+    @@index([tripId])
+    @@index([invitedUserId])
+    @@index([statusCode])
+    @@map("trip_invites")
+}
+
+model TripMatch {
+    id String @id @default(uuid())  
+
+    tripAId String @map("tripA_id") @db.Uuid
+    tripBId String @map("tripB_id") @db.Uuid
+
+    totalScore Int @map("total_score")
+
+    destinationScore Int @map("destination_score")
+    dateScore        Int @map("date_score")
+    travelStyleScore Int @map("travel_style_score")
+    budgetScore      Int @map("budget_score")
+    personalityScore Int @map("personality_score")
+    languageScore    Int @map("language_score")
+    interestScore    Int @map("interest_score")
+
+    explanation Json?
+
+    calculatedAt DateTime @default(now())
+
+    tripA Trip @relation("TripMatchA", fields: [tripAId], references: [id])
+    tripB Trip @relation("TripMatchB", fields: [tripBId], references: [id])
+
+    connectionRequest ConnectionRequest[]
+
+    @@unique([tripAId, tripBId])
+    @@map("trip_matches")
+}
