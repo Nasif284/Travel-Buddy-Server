@@ -5,4 +5,6 @@ export const CONNECTIONS_MESSAGES = {
   REJECTED_REQUEST: 'Rejected connection request',
   FETCHED_CONNECTIONS: 'Fetched all connections',
   DISCONNECTED: 'Disconnected connections',
+  FETCHED_SENT_REQUESTS: 'Fetched sent requests',
+  REQUEST_WITHDREW: 'Request had withdrawn',
 };

@@ -39,7 +39,7 @@ export class SetUserProfile implements ISetUserProfile {
     await this._userRepository.createSkills(dto.userId, dto.travelSkills);
     await this._userRepository.createLanguages(dto.userId, dto.languages);
     await this._userRepository.updateOnboarding(dto.userId, {
-      onboardingStep: 2,
+      onboardingStep: 3,
     });
   }
 }

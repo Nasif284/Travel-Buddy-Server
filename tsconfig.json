@@ -15,5 +15,8 @@
     "src/**/*.ts",
     "src/infrastructure/database/schema/schema.prisma"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "swc": true
+  }
 }

@@ -1,3 +1,3 @@
 export interface ICalculateMatch {
-  execute(dto: { tripId: string }): Promise<void>;
+  execute(dto: { tripId: string; userId: string }): Promise<void>;
 }

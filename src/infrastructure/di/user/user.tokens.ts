@@ -31,4 +31,9 @@ export const USER_TOKENS = {
   IUpdateSettings: 'IUpdateSettings',
   IGetSettings: 'IGetSettings',
   IGetAllRequests: 'IGetAllRequests',
+  IGetSentRequests: 'IGetSentRequests',
+  IAuthMe: 'IAuthMe',
+  IEditOnboardingProfile: 'IEditOnboardingProfile',
+  IEditOnboardingTravelStyle: 'IEditOnboardingTravelStyle',
+  IWithdrawRequest: 'IWithdrawRequest',
 } as const;

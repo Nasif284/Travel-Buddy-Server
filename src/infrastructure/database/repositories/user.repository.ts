@@ -18,6 +18,7 @@ import { ChangeUserStatusRequestDTO } from '../../../application/dtos/user-manag
 import { AccountStatus, OnlineStatus } from '../../../domain/enums';
 import { OnboardingSourceRequestDTO } from '../../../application/dtos/onbaording/request/source.dto';
 import {
+  AlreadyRequestSentError,
   ConnectionAlreadyExistError,
   UserLocationDataMissingError,
 } from '../../../domain/errors/user.error';
@@ -35,6 +36,7 @@ import { GetConnectionsResponseDTO } from '../../../application/dtos/connections
 import { UpdateSettingsRequestDTO } from '../../../application/dtos/profile/request/settings-update.dto';
 import { GetSettingsResponseDTO } from '../../../application/dtos/profile/response/get-settings.dto';
 import { GetAllRequestsResponseDTO } from '../../../application/dtos/connections/response/get-all-requests.dto';
+import { GetSentRequestsResponseDTO } from '../../../application/dtos/connections/response/get-sent-requests.dto';
 @injectable()
 export class UserRepository
   extends BaseRepository<
@@ -48,26 +50,38 @@ export class UserRepository
     super(prisma, prisma.user);
   }
 
-  private async findUser(where: Prisma.UserWhereInput): Promise<User | null> {
-    const result = await this.findFirst({
-      ...where,
-      deletedAt: null,
-    });
+  private async findUser(
+    where: Prisma.UserWhereInput,
+    include?: object,
+  ): Promise<User | null> {
+    const result = await this.findFirst(
+      {
+        ...where,
+        deletedAt: null,
+      },
+      include,
+    );
     if (!result) return null;
 
     return UserMapper.toDomain(result);
   }
 
-  async findUserById(id: string): Promise<User | null> {
-    return this.findUser({
-      id,
-    });
+  async findUserById(id: string, include?: object): Promise<User | null> {
+    return this.findUser(
+      {
+        id,
+      },
+      include,
+    );
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.findUser({
-      email,
-    });
+  async findByEmail(email: string, include?: object): Promise<User | null> {
+    return this.findUser(
+      {
+        email,
+      },
+      include,
+    );
   }
 
   async createUser(data: CreateUserData): Promise<User> {
@@ -80,9 +94,7 @@ export class UserRepository
 
           passwordHash: data.passwordHash,
 
-          ...(data.avatarUrl && {
-            avatarUrl: data.avatarUrl,
-
+          ...(data.isEmailVerified && {
             isEmailVerified: true,
           }),
         },
@@ -584,9 +596,6 @@ export class UserRepository
       where: {
         deletedAt: null,
         id: userId,
-        onboarding: {
-          onboardingCompleted: true,
-        },
         accountStatusCode: AccountStatus.ACTIVE,
       },
       include: {
@@ -602,6 +611,7 @@ export class UserRepository
         interests: true,
         languages: true,
         skills: true,
+        onboarding: true,
       },
     });
     if (!user) {
@@ -610,12 +620,14 @@ export class UserRepository
     return {
       id: user.id,
       fullName: user.fullName,
+      gender: user.genderCode,
       bio: user.bio,
       avatarUrl: user.avatarUrl,
       coverUrl: user.coverUrl,
       age: user.dateOfBirth ? calculateAge(user.dateOfBirth) : null,
       city: user.city ?? null,
       state: user.state ?? null,
+      isEmailVerified: user.isEmailVerified,
       country: user.country?.name ?? null,
       travelType: user.travelType?.code ?? null,
       travelPersonality: user.travelPersonality?.code ?? null,
@@ -624,6 +636,11 @@ export class UserRepository
       skills: user.skills.map((i) => i.skill),
       createdAt: user.createdAt,
       isTraveling: user.isTraveling,
+      dob: user.dateOfBirth!,
+      onboardingCompleted: user.onboarding!.onboardingCompleted,
+      onboardingSource: user.onboarding!.onboardingSourceCode,
+      onboardingStep: user.onboarding!.onboardingStep,
+      matchWith: user.matchWithCode!,
     };
   }
 
@@ -644,7 +661,46 @@ export class UserRepository
         ],
       },
     });
+    const connection = await this.prisma.connection.findFirst({
+      where: {
+        isActive: true,
+        OR: [
+          {
+            userAId: payload.senderId,
+            userBId: payload.receiverId,
+          },
+          {
+            userAId: payload.receiverId,
+            userBId: payload.senderId,
+          },
+        ],
+      },
+    });
+    console.log(existing);
     if (existing?.id) {
+      if (existing.statusCode == 'pending') {
+        throw new AlreadyRequestSentError();
+      } else if (
+        existing.statusCode == 'cancelled' ||
+        existing.statusCode == 'rejected'
+      )
+        await this.prisma.connectionRequest.update({
+          where: {
+            id: existing.id,
+          },
+          data: {
+            senderId: payload.senderId,
+            receiverId: payload.receiverId,
+            matchId: payload.matchId,
+            message: payload.message,
+            statusCode: 'pending',
+            respondedAt: null,
+            createdAt: new Date(),
+          },
+        });
+      return;
+    }
+    if (connection?.id) {
       throw new ConnectionAlreadyExistError();
     }
     await this.prisma.connectionRequest.create({
@@ -696,6 +752,7 @@ export class UserRepository
     const requests = await this.prisma.connectionRequest.findMany({
       where: {
         OR: [{ senderId: userId }, { receiverId: userId }],
+        statusCode: 'pending',
       },
     });
     return {
@@ -704,6 +761,40 @@ export class UserRepository
         receiverId: req.receiverId,
         senderId: req.senderId,
       })),
+    };
+  }
+
+  async getSentRequests(userId: string): Promise<GetSentRequestsResponseDTO> {
+    const requests = await this.prisma.connectionRequest.findMany({
+      where: {
+        senderId: userId,
+        statusCode: 'pending',
+      },
+      include: {
+        sender: {
+          include: {
+            country: true,
+          },
+        },
+      },
+    });
+    return {
+      requests: requests.map((req) => {
+        return {
+          id: req.id,
+          message: req.message,
+          matchId: req.matchId,
+          receiver: {
+            id: req.sender.id,
+            fullName: req.sender.fullName,
+            avatarUrl: req.sender.avatarUrl,
+            country: req.sender.country?.name ?? null,
+            state: req.sender.state,
+          },
+          createdAt: req.createdAt,
+          status: req.statusCode,
+        };
+      }),
     };
   }
 
@@ -731,13 +822,13 @@ export class UserRepository
           },
         });
       });
-    } else if (payload.status == 'rejected') {
+    } else {
       await this.prisma.connectionRequest.update({
         where: {
           id: payload.requestId,
         },
         data: {
-          statusCode: 'rejected',
+          statusCode: payload.status,
           respondedAt: new Date(),
         },
       });
@@ -752,6 +843,7 @@ export class UserRepository
       include: {
         userA: {
           select: {
+            id: true,
             fullName: true,
             avatarUrl: true,
             state: true,
@@ -764,6 +856,7 @@ export class UserRepository
         },
         userB: {
           select: {
+            id: true,
             fullName: true,
             avatarUrl: true,
             state: true,
@@ -782,6 +875,7 @@ export class UserRepository
           connection.userAId === userId ? connection.userB : connection.userA;
         return {
           id: connection.id,
+          userId: otherUser.id,
           fullName: otherUser.fullName,
           avatarUrl: otherUser.avatarUrl,
           country: otherUser.country?.name ?? null,
@@ -829,5 +923,29 @@ export class UserRepository
       showOnlineStatus: result.showOnlineStatus,
       showTravelingStatus: result.showTravelingStatus,
     };
+  }
+
+  async deleteInterests(userId: string): Promise<void> {
+    await this.prisma.userInterest.deleteMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async deleteLanguages(userId: string): Promise<void> {
+    await this.prisma.userLanguage.deleteMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async deleteSkills(userId: string): Promise<void> {
+    await this.prisma.userSkill.deleteMany({
+      where: {
+        userId,
+      },
+    });
   }
 }

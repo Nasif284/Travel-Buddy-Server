@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import 'dotenv/config';
+console.log('=== server.ts starting execution ===');
 import { DbManager, getRedisClient } from './config';
 import { buildContainer } from './infrastructure/di/container';
 import { App } from './presentation/express/app';
@@ -7,10 +8,12 @@ import { App } from './presentation/express/app';
 const PORT = parseInt(process.env.PORT ?? '3000');
 
 async function bootstrap(): Promise<void> {
+  console.log('[Server] Getting DB and Redis client instances...');
   const db = DbManager.getInstance();
   const redis = getRedisClient();
 
   try {
+    console.log('[Server] Connecting to PostgreSQL database...');
     await db.$connect();
     console.log('[PostgreSQL] Connection verified');
   } catch (err) {
@@ -19,6 +22,7 @@ async function bootstrap(): Promise<void> {
   }
 
   try {
+    console.log('[Server] Pinging Redis...');
     await redis.ping();
     console.log('Redis Connection verified');
   } catch (err) {

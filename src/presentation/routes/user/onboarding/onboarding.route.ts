@@ -38,5 +38,16 @@ export function buildOnboardingRoutes(
     validate(TravelStyleSchema),
     asyncHandler(controller.setTravelStyle),
   );
+  router.patch(
+    '/profile',
+    authenticate,
+    asyncHandler(controller.editOnboardingProfile),
+  );
+  router.patch(
+    '/travel-style',
+    authenticate,
+    validate(TravelStyleSchema),
+    asyncHandler(controller.editTravelStyle),
+  );
   return router;
 }

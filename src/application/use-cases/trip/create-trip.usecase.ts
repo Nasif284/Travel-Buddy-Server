@@ -50,12 +50,12 @@ export class CreateTrip implements ICreateTrip {
       dateTo: dto.dateTo,
       budgetStyle: dto.budgetStyle,
       travelStyleCode: dto.travelStyleCode,
-      preferredMembers: dto.preferredMembers,
       createdBy: dto.userId,
-      inviteCode: await generateInviteCode(),
     });
     setImmediate(() => {
-      this._calculateMatch.execute({ tripId }).catch(logger.error);
+      this._calculateMatch
+        .execute({ tripId, userId: dto.userId })
+        .catch(logger.error);
     });
   }
 }

@@ -12,4 +12,5 @@ export const USER_MESSAGES = {
   FETCHED_USERS_FOR_CARD: 'Fetched users data for cards',
   FETCHED_NEARBY_USERS: 'Fetched nearby users',
   FETCHED_USER_PROFILE: 'Fetched user profile',
+  USER_AUTHENTICATED: 'User authenticated',
 } as const;

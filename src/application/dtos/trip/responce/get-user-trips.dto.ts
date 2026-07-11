@@ -8,6 +8,7 @@ export interface Trip {
   budgetStyleCode: string;
   travelStyleCode: string;
   destination: MatchDestinationDTO;
+  group: { id: string } | null;
 }
 export interface GetUserTripsResponseDTO {
   trips: Trip[];

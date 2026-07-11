@@ -36,7 +36,9 @@ export class LoginUseCase implements ILogin {
   }
   async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
     const { email, password } = dto;
-    const user = await this._userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email, {
+      onboarding: true,
+    });
 
     if (!user || !user.passwordHash) throw new UserNotFoundError();
 
@@ -44,9 +46,6 @@ export class LoginUseCase implements ILogin {
     if (!valid) throw new IncorrectPasswordError();
     if (user.accountStatusCode == AccountStatus.BANNED) {
       throw new AccountBannedError();
-    }
-    if (!user.isEmailVerified) {
-      throw new UserNotVerifiedError();
     }
     if (user.accountStatusCode == AccountStatus.SUSPENDED) {
       throw new AccountSuspendedError();
@@ -68,12 +67,16 @@ export class LoginUseCase implements ILogin {
     return {
       accessToken,
       refreshToken,
-
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        avatarUrl: user.avatarUrl,
+      response: {
+        isVerified: user.isEmailVerified,
+        onboardingCompleted: user.onboarding.onboardingCompleted,
+        onboardingStep: user.onboarding.onboardingStep,
+        user: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          avatarUrl: user.avatarUrl,
+        },
       },
     };
   }

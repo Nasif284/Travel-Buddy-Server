@@ -12,7 +12,6 @@ export interface CreateTripRequestDTO {
   dateTo: Date;
   budgetStyle: string;
   travelStyleCode: string;
-  preferredMembers: number;
 }
 
 export interface CreateTripDataDTO {
@@ -22,7 +21,5 @@ export interface CreateTripDataDTO {
   dateTo: Date;
   budgetStyle: string;
   travelStyleCode: string;
-  preferredMembers: number;
   createdBy: string;
-  inviteCode: string;
 }

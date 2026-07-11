@@ -8,12 +8,13 @@ export class CalculateMatch implements ICalculateMatch {
     @inject(TOKENS.ITripRepository)
     private readonly _tripRepository: ITripRepository,
   ) {}
-  async execute(dto: { tripId: string }): Promise<void> {
+  async execute(dto: { tripId: string; userId: string }): Promise<void> {
     const sourceTrip = await this._tripRepository.getTripForMatching(
       dto.tripId,
     );
     const candidateTrips = await this._tripRepository.getCandidateTrips(
       dto.tripId,
+      dto.userId,
     );
     if (!candidateTrips) {
       return;
@@ -231,22 +232,23 @@ export class CalculateMatch implements ICalculateMatch {
         budgetScore +
         personalityScore +
         interestScore;
-
-      await this._tripRepository.saveTripMatch({
-        budgetScore,
-        dateScore,
-        destinationScore,
-        explanation: {
-          reasons,
-        },
-        interestScore,
-        languageScore,
-        personalityScore,
-        totalScore,
-        travelStyleScore,
-        sourceTripId: sourceTrip.id,
-        targetTripId: targetTrip.id,
-      });
+      if (totalScore >= 70) {
+        await this._tripRepository.saveTripMatch({
+          budgetScore,
+          dateScore,
+          destinationScore,
+          explanation: {
+            reasons,
+          },
+          interestScore,
+          languageScore,
+          personalityScore,
+          totalScore,
+          travelStyleScore,
+          sourceTripId: sourceTrip.id,
+          targetTripId: targetTrip.id,
+        });
+      }
     }
   }
 }

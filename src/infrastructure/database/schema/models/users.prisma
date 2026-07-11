@@ -42,12 +42,7 @@ model User {
   country           Country?           @relation(fields: [countryCode], references: [code])
 
   createdTrips        Trip[]       @relation("TripCreator")
-  tripMemberships     TripMember[]
-  sentTripInvites     TripInvite[] @relation("TripInviter")
-  receivedTripInvites TripInvite[] @relation("TripInvitedUser")
-
   sentRequests ConnectionRequest[] @relation("ConnectionSender")
-
   receivedRequests ConnectionRequest[] @relation("ConnectionReceiver")
 
   location         UserLocation?
@@ -59,6 +54,12 @@ model User {
   statusHistory    UserStatusHistory[]
   userAConnections Connection[]        @relation("ConnectionUserA")
   userBConnections Connection[]        @relation("ConnectionUserB")
+  tripGroupsOwned  TripGroup[]         @relation("TripGroupOwner")
+
+  groupMemberships TripGroupMember[]
+
+
+  groupInvitesSent TripGroupInvite[] @relation("TripGroupInviter")
 
   @@index([email])
   @@index([phone])

@@ -20,6 +20,7 @@ import { IVerifyOtp } from '../../../../application/interfaces/use-cases/auth/us
 import { IGoogleAuth } from '../../../../application/interfaces/use-cases/auth/user/google-auth.interface';
 import { IVerifyEmail } from '../../../../application/interfaces/use-cases/auth/user/verify-email.interface';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
+import { IAuthMe } from '../../../../application/interfaces/use-cases/auth/user/auth-me.interface';
 @injectable()
 export class AuthController {
   private readonly _accessTtl: number;
@@ -46,6 +47,8 @@ export class AuthController {
     private readonly _verifyOtp: IVerifyOtp,
     @inject(TOKENS.IGoogleAuth)
     private readonly _googleAuth: IGoogleAuth,
+    @inject(TOKENS.IAuthMe)
+    private readonly _authMe: IAuthMe,
   ) {
     this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);
     this._refreshTtl = ms(
@@ -109,7 +112,7 @@ export class AuthController {
     );
     return res
       .status(HttpStatus.OK)
-      .json(ApiResponse.success(USER_MESSAGES.LOGIN_SUCCESS, result.user));
+      .json(ApiResponse.success(USER_MESSAGES.LOGIN_SUCCESS, result.response));
   };
 
   refreshToken = async (req: Request, res: Response): Promise<Response> => {
@@ -213,10 +216,20 @@ export class AuthController {
       this.getCookieOptions(this._refreshTtl),
     );
 
+    return res.status(HttpStatus.OK).json(
+      ApiResponse.success(USER_MESSAGES.GOOGLE_AUTH_SUCCESS, {
+        ...result.response,
+        isNew: result.isNew,
+      }),
+    );
+  };
+  authMe = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user?.userId;
+    const data = await this._authMe.execute({ userId: userId! });
     return res
       .status(HttpStatus.OK)
       .json(
-        ApiResponse.success(USER_MESSAGES.GOOGLE_AUTH_SUCCESS, result.user),
+        ApiResponse.success(USER_MESSAGES.USER_AUTHENTICATED, data.response),
       );
   };
 }

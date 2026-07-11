@@ -11,6 +11,8 @@ import { IRejectRequest } from '../../../../application/interfaces/use-cases/con
 import { IGetConnections } from '../../../../application/interfaces/use-cases/connections/get-connections.interface';
 import { IDeactivateConnection } from '../../../../application/interfaces/use-cases/connections/deactivate-connections.interface';
 import { IGetAllRequests } from '../../../../application/interfaces/use-cases/connections/get-all-requests.interface';
+import { IGetSentRequests } from '../../../../application/interfaces/use-cases/connections/get-sent-requestes.interface';
+import { IWithdrawRequest } from '../../../../application/interfaces/use-cases/connections/withdraw-request.interface';
 
 @injectable()
 export class ConnectionsController {
@@ -29,6 +31,10 @@ export class ConnectionsController {
     private readonly _deactivateConnection: IDeactivateConnection,
     @inject(TOKENS.IGetAllRequests)
     private readonly _getAllRequests: IGetAllRequests,
+    @inject(TOKENS.IGetSentRequests)
+    private readonly _getSentRequests: IGetSentRequests,
+    @inject(TOKENS.IWithdrawRequest)
+    private readonly _withdrawRequest: IWithdrawRequest,
   ) {}
   sendConnectionRequest = async (
     req: Request,
@@ -104,5 +110,21 @@ export class ConnectionsController {
           data,
         ),
       );
+  };
+  getSentRequests = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user?.userId;
+    const data = await this._getSentRequests.execute({ userId: userId! });
+    return res
+      .status(HttpStatus.OK)
+      .json(
+        ApiResponse.success(CONNECTIONS_MESSAGES.FETCHED_SENT_REQUESTS, data),
+      );
+  };
+  withdrawRequest = async (req: Request, res: Response): Promise<Response> => {
+    const requestId = req.params.id;
+    await this._withdrawRequest.execute({ requestId: requestId as string });
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(CONNECTIONS_MESSAGES.REQUEST_WITHDREW));
   };
 }

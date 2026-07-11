@@ -1,5 +1,5 @@
-import { LoginResponseDTO } from '../../../../dtos/auth/user/responce/login.dto';
+import { GoogleAuthResponseDTO } from '../../../../dtos/auth/user/responce/google-auth.dto';
 
 export interface IGoogleAuth {
-  execute(dto: { token: string }): Promise<LoginResponseDTO>;
+  execute(dto: { token: string }): Promise<GoogleAuthResponseDTO>;
 }

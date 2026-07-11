@@ -33,6 +33,15 @@ export class UserLocationDataMissingError extends AppError {
     );
   }
 }
+export class AlreadyRequestSentError extends AppError {
+  constructor() {
+    super(
+      HttpStatus.BAD_REQUEST,
+      USER_ERROR_CODES.REQUEST_ALREADY_SENT,
+      USER_ERROR_MESSAGES.REQUEST_ALREADY_SENT,
+    );
+  }
+}
 
 export class ConnectionAlreadyExistError extends AppError {
   constructor() {

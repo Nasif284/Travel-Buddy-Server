@@ -75,7 +75,7 @@ model TripMemberRole {
   code  String @id @db.VarChar(20)
   label String @db.VarChar(50)
 
-  members TripMember[]
+  members TripGroupMember[]
 
   @@map("trip_member_roles")
 }
@@ -84,7 +84,7 @@ model TripInviteStatus {
   code  String @id @db.VarChar(20)
   label String @db.VarChar(50)
 
-  invites TripInvite[]
+  invites TripGroupInvite[]
 
   @@map("trip_invite_statuses")
 }

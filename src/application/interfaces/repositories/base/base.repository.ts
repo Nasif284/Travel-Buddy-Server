@@ -3,7 +3,7 @@ export interface IBaseRepository<TModel, TCreateInput, TUpdateInput> {
 
   update(where: object, data: TUpdateInput): Promise<TModel>;
 
-  findFirst(where: object): Promise<TModel | null>;
+  findFirst(where: object, include: object): Promise<TModel | null>;
 
   findById(id: string): Promise<TModel | null>;
 

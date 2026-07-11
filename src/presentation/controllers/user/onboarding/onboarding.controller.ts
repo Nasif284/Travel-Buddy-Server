@@ -11,6 +11,8 @@ import { OnboardingProfileRequestDTO } from '../../../../application/dtos/onbaor
 import { ImageMissingError } from '../../../../domain/errors/user.error';
 import { ISetTravelStyle } from '../../../../application/interfaces/use-cases/onboarding/travel-style.interface';
 import { capitalizeFirstLetter } from '../../../../shared/helpers/capitalizseFirstLetter';
+import { IEditOnboardingProfile } from '../../../../application/interfaces/use-cases/onboarding/edit-profile.interface';
+import { IEditTravelStyle } from '../../../../application/interfaces/use-cases/onboarding/edit-travel-style.interface';
 
 @injectable()
 export class OnboardingController {
@@ -21,6 +23,10 @@ export class OnboardingController {
     private readonly _setUserProfile: ISetUserProfile,
     @inject(TOKENS.ISetTravelStyle)
     private readonly _setTravelStyle: ISetTravelStyle,
+    @inject(TOKENS.IEditOnboardingProfile)
+    private readonly _editOnboardingProfile: IEditOnboardingProfile,
+    @inject(TOKENS.IEditOnboardingTravelStyle)
+    private readonly _editTravelStyle: IEditTravelStyle,
   ) {}
   addOnboardingSource = async (
     req: Request,
@@ -93,6 +99,23 @@ export class OnboardingController {
     await this._setTravelStyle.execute({ userId, ...req.body });
     return res
       .status(HttpStatus.CREATED)
+      .json(ApiResponse.success(ONBOARDING_MESSAGES.USER_PROFILE_UPDATED));
+  };
+  editOnboardingProfile = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    const userId = req.user?.userId;
+    await this._editOnboardingProfile.execute({ userId, ...req.body });
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(ONBOARDING_MESSAGES.USER_PROFILE_UPDATED));
+  };
+  editTravelStyle = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user?.userId;
+    await this._editTravelStyle.execute({ userId, ...req.body });
+    return res
+      .status(HttpStatus.OK)
       .json(ApiResponse.success(ONBOARDING_MESSAGES.USER_PROFILE_UPDATED));
   };
 }

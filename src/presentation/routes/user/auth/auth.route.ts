@@ -26,5 +26,6 @@ export function buildAuthRoutes(controller: AuthController): Router {
   router.post('/google', asyncHandler(controller.googleAuth));
   router.post('/refresh', asyncHandler(controller.refreshToken));
   router.post('/logout', authenticate, asyncHandler(controller.logout));
+  router.get('/me', authenticate, asyncHandler(controller.authMe));
   return router;
 }

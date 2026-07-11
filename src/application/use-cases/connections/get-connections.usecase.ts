@@ -14,7 +14,6 @@ export class GetConnections implements IGetConnections {
   ) {}
   async execute(dto: { userId: string }): Promise<GetConnectionsResponseDTO> {
     const result = await this._userRepository.getUserConnections(dto.userId);
-    console.log(result);
     return {
       connections: await Promise.all(
         result.connections.map(async (connection) => {

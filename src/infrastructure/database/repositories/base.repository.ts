@@ -19,9 +19,10 @@ export abstract class BaseRepository<
     });
   }
 
-  async findFirst(where: object): Promise<TModel | null> {
+  async findFirst(where: object, include?: object): Promise<TModel | null> {
     return this.model.findFirst({
       where,
+      include,
     });
   }
 

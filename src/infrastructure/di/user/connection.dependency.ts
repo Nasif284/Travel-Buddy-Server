@@ -8,6 +8,8 @@ import { RejectRequest } from '../../../application/use-cases/connections/reject
 import { GetConnections } from '../../../application/use-cases/connections/get-connections.usecase';
 import { DeactivateConnection } from '../../../application/use-cases/connections/deactivate-connections.usecase';
 import { GetAllRequests } from '../../../application/use-cases/connections/get-all-requestes.usecase';
+import { GetSentRequests } from '../../../application/use-cases/connections/get-sent-requests.usecase';
+import { WithdrawRequest } from '../../../application/use-cases/connections/withdraw-request.usecase';
 
 export function registerConnectionDependency() {
   container.registerSingleton<SendConnectionRequest>(
@@ -37,5 +39,13 @@ export function registerConnectionDependency() {
   container.registerSingleton<GetAllRequests>(
     TOKENS.IGetAllRequests,
     GetAllRequests,
+  );
+  container.registerSingleton<GetSentRequests>(
+    TOKENS.IGetSentRequests,
+    GetSentRequests,
+  );
+  container.registerSingleton<WithdrawRequest>(
+    TOKENS.IWithdrawRequest,
+    WithdrawRequest,
   );
 }

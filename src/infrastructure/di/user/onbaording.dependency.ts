@@ -3,6 +3,8 @@ import { OnboardingSource } from '../../../application/use-cases/onboarding/onbo
 import { TOKENS } from '../tokens';
 import { SetUserProfile } from '../../../application/use-cases/onboarding/profile.usecase';
 import { SetTravelStyle } from '../../../application/use-cases/onboarding/travel-style.usecase';
+import { EditOnboardingProfile } from '../../../application/use-cases/onboarding/edit-profile.usecase';
+import { EditTravelStyle } from '../../../application/use-cases/onboarding/edit-travel-style.usecase';
 
 export function registerOnboardingDependency() {
   container.registerSingleton<OnboardingSource>(
@@ -16,5 +18,13 @@ export function registerOnboardingDependency() {
   container.registerSingleton<SetTravelStyle>(
     TOKENS.ISetTravelStyle,
     SetTravelStyle,
+  );
+  container.registerSingleton<EditOnboardingProfile>(
+    TOKENS.IEditOnboardingProfile,
+    EditOnboardingProfile,
+  );
+  container.registerSingleton<EditTravelStyle>(
+    TOKENS.IEditOnboardingTravelStyle,
+    EditTravelStyle,
   );
 }

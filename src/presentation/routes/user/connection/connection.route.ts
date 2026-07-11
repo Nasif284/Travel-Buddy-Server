@@ -19,6 +19,11 @@ export function buildConnectionRoutes(
     asyncHandler(controller.getIncomingRequests),
   );
   router.get(
+    '/requests/sent',
+    authenticate,
+    asyncHandler(controller.getSentRequests),
+  );
+  router.get(
     '/requests',
     authenticate,
     asyncHandler(controller.getAllRequests),
@@ -32,6 +37,11 @@ export function buildConnectionRoutes(
     '/reject/:id',
     authenticate,
     asyncHandler(controller.rejectRequest),
+  );
+  router.patch(
+    '/withdraw/:id',
+    authenticate,
+    asyncHandler(controller.withdrawRequest),
   );
   router.patch(
     '/disconnect/:id',

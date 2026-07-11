@@ -12,12 +12,13 @@ import { GetConnectionsResponseDTO } from '../../dtos/connections/response/get-c
 import { UpdateSettingsRequestDTO } from '../../dtos/profile/request/settings-update.dto';
 import { GetSettingsResponseDTO } from '../../dtos/profile/response/get-settings.dto';
 import { GetAllRequestsResponseDTO } from '../../dtos/connections/response/get-all-requests.dto';
+import { GetSentRequestsResponseDTO } from '../../dtos/connections/response/get-sent-requests.dto';
 
 export interface CreateUserData {
   fullName: string;
   email: string;
   passwordHash?: string;
-  avatarUrl?: string;
+  isEmailVerified?: boolean;
 }
 
 export interface UpdateLocationData {
@@ -29,8 +30,8 @@ export interface UpdateLocationData {
 }
 
 export interface IUserRepository {
-  findUserById(id: string): Promise<User | null>;
-  findByEmail(email: string): Promise<User | null>;
+  findUserById(id: string, include?: object): Promise<User | null>;
+  findByEmail(email: string, include?: object): Promise<User | null>;
   createUser(data: CreateUserData): Promise<User>;
   updateEmailVerified(email: string): Promise<void>;
   updatePassword(id: string, password: string): Promise<void>;
@@ -44,6 +45,9 @@ export interface IUserRepository {
   createSkills(userId: string, skills: string[]): Promise<void>;
   createLanguages(userId: string, languages: string[]): Promise<void>;
   createTravelInterests(userId: string, interests: string[]): Promise<void>;
+  deleteSkills(userId: string): Promise<void>;
+  deleteInterests(userId: string): Promise<void>;
+  deleteLanguages(userId: string): Promise<void>;
   updateOnboarding(userId: string, payload: object): Promise<void>;
   updateUserLocation(payload: UpdateLocationData): Promise<void>;
   getUserLocation(userId: string): Promise<{ lat: number; lang: number }>;
@@ -68,6 +72,7 @@ export interface IUserRepository {
   }): Promise<void>;
   getUserConnections(userId: string): Promise<GetConnectionsResponseDTO>;
   deactivateConnection(connectionId: string): Promise<void>;
+  getSentRequests(userId: string): Promise<GetSentRequestsResponseDTO>;
   getSettings(userId: string): Promise<GetSettingsResponseDTO>;
   updateSettings(
     userId: string,

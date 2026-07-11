@@ -24,6 +24,19 @@ import {
   GetMatchProfileResponseDTO,
   MatchExplanation,
 } from '../../../application/dtos/trip/responce/get-match-profile.dto';
+import { EditTripData } from '../../../application/dtos/trip/request/edit-trip.dto';
+import { GroupData } from '../../../application/dtos/trip/responce/get-groups.dto';
+import { GetMembersResponseDTO } from '../../../application/dtos/trip/responce/get-members.dto';
+import {
+  GroupNotFound,
+  OnlyAdminCanRemoveError,
+  UserAlreadyExistInTheGroupError,
+} from '../../../domain/errors/trip.error';
+import {
+  GetGroupInvitesResponse,
+  GroupInvite,
+} from '../../../application/dtos/trip/responce/get-invites.dto';
+import { id } from 'zod/v4/locales';
 
 @injectable()
 export class TripRepository
@@ -49,46 +62,34 @@ export class TripRepository
     };
   }
   async createTrip(payload: CreateTripDataDTO): Promise<{ tripId: string }> {
-    const trip = await this.prisma.$transaction(async (tx) => {
-      const trip = await tx.trip.create({
-        data: {
-          name: payload.name,
-          dateFrom: payload.dateFrom,
-          dateTo: payload.dateTo,
-          preferredMembers: payload.preferredMembers,
-          inviteCode: payload.inviteCode,
-          destination: {
-            connect: {
-              id: payload.destinationId,
-            },
-          },
-          creator: {
-            connect: {
-              id: payload.createdBy,
-            },
-          },
-          budgetStyle: {
-            connect: {
-              code: payload.budgetStyle,
-            },
-          },
-          travelStyle: {
-            connect: {
-              code: payload.travelStyleCode,
-            },
+    const trip = await this.prisma.trip.create({
+      data: {
+        name: payload.name,
+        dateFrom: payload.dateFrom,
+        dateTo: payload.dateTo,
+        destination: {
+          connect: {
+            id: payload.destinationId,
           },
         },
-      });
-
-      await tx.tripMember.create({
-        data: {
-          userId: trip.createdBy,
-          tripId: trip.id,
-          roleCode: TripMemberRole.ADMIN,
+        creator: {
+          connect: {
+            id: payload.createdBy,
+          },
         },
-      });
-      return trip;
+        budgetStyle: {
+          connect: {
+            code: payload.budgetStyle,
+          },
+        },
+        travelStyle: {
+          connect: {
+            code: payload.travelStyleCode,
+          },
+        },
+      },
     });
+
     return { tripId: trip.id };
   }
   async createDestination(
@@ -106,11 +107,17 @@ export class TripRepository
     };
   }
 
-  async getCandidateTrips(tripId: string): Promise<TripForMatchingDTO[]> {
+  async getCandidateTrips(
+    tripId: string,
+    userId: string,
+  ): Promise<TripForMatchingDTO[]> {
     const trips = await this.prisma.trip.findMany({
       where: {
         id: {
           not: tripId,
+        },
+        createdBy: {
+          not: userId,
         },
         statusCode: TripStatus.UPCOMING,
       },
@@ -274,18 +281,37 @@ export class TripRepository
     limit: number,
   ): Promise<TripMatchResponseDTO> {
     const skip = (page - 1) * limit;
-    console.log(tripId, page, limit);
-
-    const [matches, total] = await Promise.all([
-      this.prisma.tripMatch.findMany({
-        where: {
-          OR: [{ tripAId: tripId }, { tripBId: tripId }],
-          connectionRequest: {
-            none: {
-              statusCode: 'accepted',
+    const where = {
+      OR: [
+        {
+          tripAId: tripId,
+          tripB: {
+            statusCode: TripStatus.UPCOMING,
+            dateTo: {
+              gte: new Date(),
             },
           },
         },
+        {
+          tripBId: tripId,
+          tripA: {
+            statusCode: TripStatus.UPCOMING,
+            dateTo: {
+              gte: new Date(),
+            },
+          },
+        },
+      ],
+
+      connectionRequest: {
+        none: {
+          statusCode: 'accepted',
+        },
+      },
+    };
+    const [matches, total] = await Promise.all([
+      this.prisma.tripMatch.findMany({
+        where,
 
         orderBy: {
           totalScore: 'desc',
@@ -328,12 +354,9 @@ export class TripRepository
       }),
 
       this.prisma.tripMatch.count({
-        where: {
-          OR: [{ tripAId: tripId }, { tripBId: tripId }],
-        },
+        where,
       }),
     ]);
-
     return {
       matches: matches.map((match) => {
         const matchedTrip =
@@ -377,6 +400,9 @@ export class TripRepository
       where: {
         createdBy: payload.userId,
         statusCode: TripStatus.UPCOMING,
+        dateTo: {
+          gte: new Date(),
+        },
       },
       orderBy: {
         dateFrom: 'asc',
@@ -419,12 +445,20 @@ export class TripRepository
     const trips = await this.prisma.trip.findMany({
       where: {
         createdBy: payload.userId,
-        statusCode: TripStatus.UPCOMING,
+        dateTo: {
+          gte: new Date(),
+        },
+        statusCode: { not: TripStatus.CANCELLED },
       },
       include: {
         destination: {
           include: {
             country: true,
+          },
+        },
+        group: {
+          select: {
+            id: true,
           },
         },
       },
@@ -449,6 +483,7 @@ export class TripRepository
           budgetStyleCode: trip.budgetStyleCode,
           destinationId: trip.destinationId,
           travelStyleCode: trip.travelStyleCode,
+          group: trip.group ? { id: trip.group.id } : null,
         };
       }),
     };
@@ -550,5 +585,452 @@ export class TripRepository
         skills: matchedTrip.creator.skills.map((skill) => skill.skill),
       },
     };
+  }
+  async getUserPastTrips(payload: {
+    userId: string;
+  }): Promise<GetUserTripsResponseDTO> {
+    const trips = await this.prisma.trip.findMany({
+      where: {
+        createdBy: payload.userId,
+        statusCode: { not: TripStatus.CANCELLED },
+        dateTo: {
+          lt: new Date(),
+        },
+      },
+      include: {
+        destination: {
+          include: {
+            country: true,
+          },
+        },
+        group: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    return {
+      trips: trips.map((trip) => {
+        return {
+          id: trip.id,
+          name: trip.name,
+          dateFrom: trip.dateFrom,
+          dateTo: trip.dateTo,
+          destination: {
+            id: trip.destination.id,
+            city: trip.destination.city,
+            country: trip.destination.country.name,
+            latitude: Number(trip.destination.latitude),
+            longitude: Number(trip.destination.longitude),
+            name: trip.destination.name,
+            state: trip.destination.state,
+            coverUrl: trip.destination.coverUrl,
+          },
+          budgetStyleCode: trip.budgetStyleCode,
+          destinationId: trip.destinationId,
+          travelStyleCode: trip.travelStyleCode,
+          group: trip.group ? { id: trip.group.id } : null,
+        };
+      }),
+    };
+  }
+  async editTrip(tripId: string, payload: EditTripData): Promise<void> {
+    await this.prisma.trip.update({
+      where: {
+        id: tripId,
+      },
+      data: payload,
+    });
+  }
+  async createGroup(
+    tripId: string,
+    userId: string,
+    inviteCode: string,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const group = await tx.tripGroup.create({
+        data: {
+          tripId,
+          createdBy: userId,
+          inviteCode,
+        },
+      });
+      await tx.tripGroupMember.create({
+        data: {
+          groupId: group.id,
+          userId,
+          roleCode: TripMemberRole.ADMIN,
+        },
+      });
+    });
+  }
+  async getActiveGroups(userId: string): Promise<GroupData[]> {
+    const groups = await this.prisma.tripGroup.findMany({
+      where: {
+        members: {
+          some: {
+            userId,
+            isActive: true,
+          },
+        },
+        trip: {
+          dateTo: { gte: new Date() },
+        },
+      },
+      orderBy: {
+        trip: {
+          dateFrom: 'asc',
+        },
+      },
+      include: {
+        trip: {
+          include: {
+            destination: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                avatarUrl: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return groups.map((group) => {
+      return {
+        id: group.id,
+        name: group.trip.name,
+        dateFrom: group.trip.dateFrom,
+        dateTo: group.trip.dateTo,
+        destination: group.trip.destination.name,
+        coverUrl: group.trip.destination.coverUrl!,
+        members: group.members.map((m) => ({
+          id: m.user.id,
+          name: m.user.fullName,
+          avatarUrl: m.user.avatarUrl!,
+        })),
+      };
+    });
+  }
+  async addMember(
+    userId: string,
+    groupId: string,
+    addedBy: string,
+  ): Promise<void> {
+    const isExist = await this.prisma.tripGroupMember.findUnique({
+      where: {
+        groupId_userId: {
+          groupId,
+          userId,
+        },
+      },
+    });
+    if (isExist) {
+      if (isExist?.isActive) {
+        throw new UserAlreadyExistInTheGroupError();
+      }
+      if (!isExist?.isActive) {
+        await this.prisma.tripGroupMember.update({
+          where: {
+            groupId_userId: {
+              groupId,
+              userId,
+            },
+          },
+          data: {
+            isActive: true,
+          },
+        });
+        return;
+      }
+    }
+
+    await this.prisma.tripGroupMember.create({
+      data: {
+        userId,
+        groupId,
+        addedBy,
+      },
+    });
+  }
+  async getMembers(groupId: string): Promise<GetMembersResponseDTO> {
+    const members = await this.prisma.tripGroupMember.findMany({
+      where: {
+        groupId,
+        isActive: true,
+      },
+      include: {
+        user: true,
+      },
+    });
+    return {
+      members: members.map((m) => ({
+        id: m.id,
+        name: m.user.fullName,
+        userId: m.user.id,
+        avatarUrl: m.user.avatarUrl!,
+        joinedAt: m.joinedAt,
+        role: m.roleCode,
+      })),
+    };
+  }
+  async getInviteCode(groupId: string): Promise<{ inviteCode: string }> {
+    const group = await this.prisma.tripGroup.findFirst({
+      where: {
+        id: groupId,
+      },
+    });
+    if (!group) {
+      throw new GroupNotFound();
+    }
+    return { inviteCode: group.inviteCode };
+  }
+  async getGroupWithTrip(groupId: string): Promise<{
+    inviteCode: string;
+    groupName: string;
+    destination: string;
+  }> {
+    const group = await this.prisma.tripGroup.findFirst({
+      where: {
+        id: groupId,
+      },
+      include: {
+        trip: {
+          include: {
+            destination: true,
+          },
+        },
+      },
+    });
+    if (!group) {
+      throw new GroupNotFound();
+    }
+    return {
+      inviteCode: group.inviteCode,
+      groupName: group.trip.name,
+      destination: group.trip.destination.name,
+    };
+  }
+  async joinGroupByInviteCode(payload: {
+    inviteCode: string;
+    userId: string;
+  }): Promise<{ groupId: string; alreadyMember: boolean }> {
+    const group = await this.prisma.tripGroup.findUnique({
+      where: {
+        inviteCode: payload.inviteCode,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (!group) {
+      throw new Error('invalid invite link');
+    }
+
+    const existingMember = await this.prisma.tripGroupMember.findUnique({
+      where: {
+        groupId_userId: {
+          groupId: group.id,
+          userId: payload.userId,
+        },
+      },
+    });
+    if (!existingMember) {
+      await this.prisma.tripGroupMember.create({
+        data: {
+          groupId: group.id,
+          userId: payload.userId,
+          roleCode: TripMemberRole.MEMBER,
+        },
+      });
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: payload.userId,
+        },
+        select: {
+          email: true,
+        },
+      });
+
+      if (user?.email) {
+        await this.prisma.tripGroupInvite.updateMany({
+          where: {
+            groupId: group.id,
+            invitedUserEmail: user.email,
+            statusCode: 'pending',
+          },
+          data: {
+            statusCode: 'accepted',
+            respondedAt: new Date(),
+          },
+        });
+      }
+    }
+
+    return { groupId: group.id, alreadyMember: false };
+  }
+  async GetGroupWithDetails(groupId: string): Promise<GroupData> {
+    const group = await this.prisma.tripGroup.findFirst({
+      where: {
+        id: groupId,
+      },
+      include: {
+        trip: {
+          include: {
+            destination: true,
+          },
+        },
+        members: {
+          where: {
+            isActive: true,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                avatarUrl: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!group) {
+      throw new GroupNotFound();
+    }
+    return {
+      id: group.id,
+      name: group.trip.name,
+      dateFrom: group.trip.dateFrom,
+      dateTo: group.trip.dateTo,
+      destination: group.trip.destination.name,
+      coverUrl: group.trip.destination.coverUrl!,
+      members: group.members.map((m) => ({
+        id: m.user.id,
+        name: m.user.fullName,
+        avatarUrl: m.user.avatarUrl!,
+      })),
+    };
+  }
+  async createGroupInvite(payload: {
+    groupId: string;
+    invitedBy: string;
+    invitedUserEmail: string;
+  }): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: payload.invitedUserEmail,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (user?.id) {
+      const existingMember = await this.prisma.tripGroupMember.findUnique({
+        where: {
+          groupId_userId: {
+            groupId: payload.groupId,
+            userId: user.id,
+          },
+          isActive: true,
+        },
+      });
+      if (existingMember) {
+        throw new UserAlreadyExistInTheGroupError();
+      }
+    }
+
+    const invite = await this.prisma.tripGroupInvite.findFirst({
+      where: {
+        invitedUserEmail: payload.invitedUserEmail,
+        groupId: payload.groupId,
+      },
+    });
+    if (invite?.id) {
+      await this.prisma.tripGroupInvite.update({
+        where: {
+          id: invite.id,
+        },
+        data: {
+          createdAt: new Date(),
+        },
+      });
+    } else {
+      await this.prisma.tripGroupInvite.create({
+        data: {
+          ...payload,
+        },
+      });
+    }
+  }
+  async getGroupInvites(groupId: string): Promise<GetGroupInvitesResponse> {
+    const invites = await this.prisma.tripGroupInvite.findMany({
+      where: {
+        groupId,
+      },
+    });
+    return {
+      invites: invites.map((i) => {
+        return {
+          id: i.id,
+          groupId: i.groupId,
+          invitedUserEmail: i.invitedUserEmail!,
+          invitedBy: i.invitedBy,
+          statusCode: i.statusCode,
+          createdAt: i.createdAt,
+        };
+      }),
+    };
+  }
+  async changeMemberRole(groupId: string, memberId: string): Promise<void> {
+    await this.prisma.tripGroupMember.update({
+      where: {
+        groupId_userId: {
+          groupId,
+          userId: memberId,
+        },
+      },
+      data: {
+        roleCode: TripMemberRole.ADMIN,
+      },
+    });
+  }
+
+  async removeFromGroup(
+    groupId: string,
+    memberId: string,
+    userId: string,
+  ): Promise<void> {
+    if (userId) {
+      const user = await this.prisma.tripGroupMember.findFirst({
+        where: {
+          groupId,
+          userId,
+          isActive: true,
+        },
+      });
+      if (user?.roleCode !== TripMemberRole.ADMIN) {
+        throw new OnlyAdminCanRemoveError();
+      }
+    }
+    await this.prisma.tripGroupMember.update({
+      where: {
+        groupId_userId: {
+          groupId,
+          userId: memberId,
+        },
+      },
+      data: {
+        isActive: false,
+        leftAt: new Date(),
+      },
+    });
   }
 }
