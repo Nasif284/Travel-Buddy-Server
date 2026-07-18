@@ -29,6 +29,9 @@ import { ImageService } from '../services/image.service';
 import { registerTripDependency } from './trip/trip.dependency';
 import { registerConnectionDependency } from './user/connection.dependency';
 import { registerProfileDependency } from './user/porfile.dependency';
+import { ChecklistRepository } from '../database/repositories/checklist.repository';
+import { registerChecklistDependency } from './checklsit/checklist.dependency';
+import { ExpenseRepository } from '../database/repositories/expense.repository';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -77,6 +80,14 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.ITripRepository,
     TripRepository,
   );
+  container.registerSingleton<ChecklistRepository>(
+    TOKENS.IChecklistRepository,
+    ChecklistRepository,
+  );
+  container.registerSingleton<ExpenseRepository>(
+    TOKENS.IExpenseRepository,
+    ExpenseRepository,
+  );
 
   // admin use-cases injection
   registerAdminAuthDependencies();
@@ -91,4 +102,5 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
   registerTripDependency();
   registerConnectionDependency();
   registerProfileDependency();
+  registerChecklistDependency();
 }

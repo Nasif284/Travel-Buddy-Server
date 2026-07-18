@@ -27,9 +27,8 @@ export class Register implements IRegister {
     @inject(TOKENS.IOtpService)
     private readonly _otpService: IOtpService,
   ) {
-    this._refreshTtl = ms(
-      (config.jwt.refreshExpiration ?? '7d') as StringValue,
-    );
+    this._refreshTtl =
+      ms((config.jwt.refreshExpiration ?? '7d') as StringValue) / 1000;
   }
 
   async execute(dto: RegisterRequestDTO): Promise<RegisterResponseDTO> {

@@ -30,9 +30,8 @@ export class LoginUseCase implements ILogin {
     @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
   ) {
-    this._refreshTtl = ms(
-      (config.jwt.refreshExpiration ?? '7d') as StringValue,
-    );
+    this._refreshTtl =
+      ms((config.jwt.refreshExpiration ?? '7d') as StringValue) / 1000;
   }
   async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
     const { email, password } = dto;

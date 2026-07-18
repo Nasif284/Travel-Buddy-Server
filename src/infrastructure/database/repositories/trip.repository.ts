@@ -829,6 +829,7 @@ export class TripRepository
         id: true,
       },
     });
+
     if (!group) {
       throw new Error('invalid invite link');
     }
@@ -841,25 +842,39 @@ export class TripRepository
         },
       },
     });
-    if (!existingMember) {
-      await this.prisma.tripGroupMember.create({
-        data: {
-          groupId: group.id,
-          userId: payload.userId,
-          roleCode: TripMemberRole.MEMBER,
-        },
-      });
-      const user = await this.prisma.user.findUnique({
-        where: {
-          id: payload.userId,
-        },
-        select: {
-          email: true,
-        },
+
+    await this.prisma.$transaction(async (tx) => {
+      if (!existingMember) {
+        await tx.tripGroupMember.create({
+          data: {
+            groupId: group.id,
+            userId: payload.userId,
+            roleCode: TripMemberRole.MEMBER,
+          },
+        });
+      } else {
+        await tx.tripGroupMember.update({
+          where: {
+            groupId_userId: {
+              groupId: group.id,
+              userId: payload.userId,
+            },
+          },
+          data: {
+            isActive: true,
+            leftAt: null,
+            roleCode: TripMemberRole.MEMBER,
+          },
+        });
+      }
+
+      const user = await tx.user.findUnique({
+        where: { id: payload.userId },
+        select: { email: true },
       });
 
       if (user?.email) {
-        await this.prisma.tripGroupInvite.updateMany({
+        await tx.tripGroupInvite.updateMany({
           where: {
             groupId: group.id,
             invitedUserEmail: user.email,
@@ -871,7 +886,7 @@ export class TripRepository
           },
         });
       }
-    }
+    });
 
     return { groupId: group.id, alreadyMember: false };
   }

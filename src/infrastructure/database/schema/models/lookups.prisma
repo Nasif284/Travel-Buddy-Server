@@ -106,3 +106,31 @@ model BudgetStyle {
 
   @@map("budget_style")
 }
+
+model ChecklistCategory {
+  code         String @id
+  name         String
+  displayOrder Int    @map("display_order")
+
+  items ChecklistItem[]
+
+  @@map("checklist_category")
+}
+
+model ChecklistPriority {
+  code String @id
+  name String
+
+  items ChecklistItem[]
+
+  @@map("checklist_priority")
+}
+
+model ChecklistActivityType {
+  code String @id
+  name String
+
+  logs ChecklistActivity[]
+
+  @@map("checklist_activity_type")
+}

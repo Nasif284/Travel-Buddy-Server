@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { TripController } from '../../controllers/trip/trip.controller';
 import { authenticate } from '../../middleware/user/auth/userAuth.middleware';
 import { asyncHandler } from '../../middleware/error/asyncHandler';
 import { buildTripGroupRoutes } from './group/group.route';
+import { TripControllers } from '../../../infrastructure/di/container';
 
-export function buildTripRoutes(controller: TripController): Router {
+export function buildTripRoutes(controllers: TripControllers): Router {
   const router = Router();
-
-  router.use('/group', buildTripGroupRoutes(controller));
+  const controller = controllers.tripController;
+  router.use('/group', buildTripGroupRoutes(controllers));
 
   router.post('/', authenticate, asyncHandler(controller.createTrip));
   router.patch('/:id', authenticate, asyncHandler(controller.editTrip));

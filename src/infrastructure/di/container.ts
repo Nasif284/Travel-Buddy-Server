@@ -12,6 +12,8 @@ import { UsersController } from '../../presentation/controllers/user/users/users
 import { TripController } from '../../presentation/controllers/trip/trip.controller';
 import { ConnectionsController } from '../../presentation/controllers/user/connections/connection.controller';
 import { ProfileController } from '../../presentation/controllers/user/profile/profile.controller';
+import { ChecklistController } from '../../presentation/controllers/trip/checklist/checklist.controller';
+import { ExpenseController } from '../../presentation/controllers/trip/expense/expense.controller';
 export interface AppContainer {
   authController: AuthController;
   adminAuthController: AdminAuthController;
@@ -20,9 +22,15 @@ export interface AppContainer {
   lookupController: LookupController;
   locationController: LocationController;
   usersController: UsersController;
-  tripController: TripController;
+  tripControllers: TripControllers;
   connectionsController: ConnectionsController;
   profileController: ProfileController;
+}
+
+export interface TripControllers {
+  tripController: TripController;
+  checklistController: ChecklistController;
+  expenseController: ExpenseController;
 }
 
 export function buildContainer(db: PrismaClient, redis: Redis) {
@@ -37,6 +45,8 @@ export function buildContainer(db: PrismaClient, redis: Redis) {
   const tripController = container.resolve(TripController);
   const connectionsController = container.resolve(ConnectionsController);
   const profileController = container.resolve(ProfileController);
+  const checklistController = container.resolve(ChecklistController);
+  const expenseController = container.resolve(ExpenseController);
   return {
     authController,
     adminAuthController,
@@ -45,7 +55,11 @@ export function buildContainer(db: PrismaClient, redis: Redis) {
     lookupController,
     locationController,
     usersController,
-    tripController,
+    tripControllers: {
+      tripController,
+      checklistController,
+      expenseController,
+    },
     connectionsController,
     profileController,
   };

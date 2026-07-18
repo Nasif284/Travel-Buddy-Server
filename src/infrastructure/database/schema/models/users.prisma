@@ -41,8 +41,8 @@ model User {
   accountStatus     AccountStatus      @relation(fields: [accountStatusCode], references: [code])
   country           Country?           @relation(fields: [countryCode], references: [code])
 
-  createdTrips        Trip[]       @relation("TripCreator")
-  sentRequests ConnectionRequest[] @relation("ConnectionSender")
+  createdTrips     Trip[]              @relation("TripCreator")
+  sentRequests     ConnectionRequest[] @relation("ConnectionSender")
   receivedRequests ConnectionRequest[] @relation("ConnectionReceiver")
 
   location         UserLocation?
@@ -55,11 +55,12 @@ model User {
   userAConnections Connection[]        @relation("ConnectionUserA")
   userBConnections Connection[]        @relation("ConnectionUserB")
   tripGroupsOwned  TripGroup[]         @relation("TripGroupOwner")
-
+  createdTasks     ChecklistItem[]     @relation("ChecklistCreator")
   groupMemberships TripGroupMember[]
-
-
-  groupInvitesSent TripGroupInvite[] @relation("TripGroupInviter")
+  createdExpenses  Expense[]           @relation("ExpenseCreator")
+  expenseActivities   ExpenseActivity[]
+  groupInvitesSent    TripGroupInvite[]   @relation("TripGroupInviter")
+  checklistActivities ChecklistActivity[]
 
   @@index([email])
   @@index([phone])

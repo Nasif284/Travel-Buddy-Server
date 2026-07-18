@@ -1,12 +1,22 @@
 import { Router } from 'express';
-import { TripController } from '../../../controllers/trip/trip.controller';
 import { authenticate } from '../../../middleware/user/auth/userAuth.middleware';
 import { asyncHandler } from '../../../middleware/error/asyncHandler';
 import buildGroupMembersRoutes from './members/members.route';
+import { buildChecklistRoutes } from './checklist/checklist.route';
+import { TripControllers } from '../../../../infrastructure/di/container';
+import { buildExpenseRoutes } from './expense/expense.route';
 
-export function buildTripGroupRoutes(controller: TripController): Router {
+export function buildTripGroupRoutes(controllers: TripControllers): Router {
   const router = Router();
+  const controller = controllers.tripController;
+
   router.use('/:id/members', buildGroupMembersRoutes(controller));
+  router.use(
+    '/:id/checklist',
+    buildChecklistRoutes(controllers.checklistController),
+  );
+  router.use('/:id/expense', buildExpenseRoutes(controllers.expenseController));
+
   router.get('/:id/invites', authenticate, asyncHandler(controller.getInvites));
   router.post(
     '/join/:inviteCode',

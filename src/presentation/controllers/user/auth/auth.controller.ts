@@ -116,47 +116,53 @@ export class AuthController {
   };
 
   refreshToken = async (req: Request, res: Response): Promise<Response> => {
-    const refreshToken = req.cookies?.refreshToken as string;
-    if (!refreshToken) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        success: false,
-        message: 'Session expired, login again',
+    try {
+      const refreshToken = req.cookies?.refreshToken as string;
+      if (!refreshToken) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: 'Session expired, login again',
+        });
+      }
+      const decoded = jwt.decode(refreshToken) as {
+        userId: string;
+        email: string;
+      } | null;
+      const userId: string | undefined = decoded?.userId;
+      if (!userId) {
+        return res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json(
+            ApiResponse.error(
+              AUTH_ERROR_CODES.USER_NOT_FOUND,
+              AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
+            ),
+          );
+      }
+
+      const result = await this._refreshTokenUseCase.execute({
+        token: refreshToken,
+        userId,
       });
-    }
-    const decoded = jwt.decode(refreshToken) as {
-      userId: string;
-      email: string;
-    } | null;
-    const userId: string | undefined = decoded?.userId;
-    if (!userId) {
+      res.cookie(
+        'accessToken',
+        result.accessToken,
+        this.getCookieOptions(this._accessTtl),
+      );
+      res.cookie(
+        'refreshToken',
+        result.refreshToken,
+        this.getCookieOptions(this._refreshTtl),
+      );
+
       return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json(
-          ApiResponse.error(
-            AUTH_ERROR_CODES.USER_NOT_FOUND,
-            AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
-          ),
-        );
+        .status(HttpStatus.OK)
+        .json(ApiResponse.success(USER_MESSAGES.TOKEN_REFRESHED, result.user));
+    } catch (err) {
+      res.clearCookie('accessToken', this.getClearCookieOptions());
+      res.clearCookie('refreshToken', this.getClearCookieOptions());
+      throw err;
     }
-
-    const result = await this._refreshTokenUseCase.execute({
-      token: refreshToken,
-      userId,
-    });
-    res.cookie(
-      'accessToken',
-      result.accessToken,
-      this.getCookieOptions(this._accessTtl),
-    );
-    res.cookie(
-      'refreshToken',
-      result.refreshToken,
-      this.getCookieOptions(this._refreshTtl),
-    );
-
-    return res
-      .status(HttpStatus.OK)
-      .json(ApiResponse.success(USER_MESSAGES.TOKEN_REFRESHED, result.user));
   };
 
   forgotPassword = async (req: Request, res: Response): Promise<Response> => {

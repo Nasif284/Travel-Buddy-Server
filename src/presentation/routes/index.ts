@@ -21,7 +21,7 @@ export function buildRoutes(container: AppContainer): Router {
   router.use('/lookup', buildLookupRoutes(container.lookupController));
   router.use('/location', buildLocationRoutes(container.locationController));
   router.use('/users', buildUsersRoute(container.usersController));
-  router.use('/trip', buildTripRoutes(container.tripController));
+  router.use('/trip', buildTripRoutes(container.tripControllers));
   router.use(
     '/connection',
     buildConnectionRoutes(container.connectionsController),
