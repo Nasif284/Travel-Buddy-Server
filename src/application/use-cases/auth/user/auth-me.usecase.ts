@@ -2,7 +2,10 @@ import { inject, injectable } from 'tsyringe';
 import { IAuthMe } from '../../../interfaces/use-cases/auth/user/auth-me.interface';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
-import { UserNotFoundError } from '../../../../domain/errors/auth.error';
+import {
+  UnauthorizedError,
+  UserNotFoundError,
+} from '../../../../domain/errors/auth.error';
 import { IStorageService } from '../../../interfaces/services/storage.service.interface';
 import { AuthResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 @injectable()
@@ -17,7 +20,7 @@ export class AuthMe implements IAuthMe {
     const user = await this._userRepository.findUserById(dto.userId, {
       onboarding: true,
     });
-    if (!user) throw new UserNotFoundError();
+    if (!user) throw new UnauthorizedError();
     return {
       response: {
         isVerified: user.isEmailVerified,

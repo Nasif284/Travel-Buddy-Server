@@ -4,6 +4,8 @@ export interface GetUserProfileResponseDTO {
   bio: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
+  phone: string | null;
+  isPhoneVerified: boolean;
   dob: Date;
   age: number | null;
   city: string | null;

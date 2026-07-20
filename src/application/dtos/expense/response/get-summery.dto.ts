@@ -3,6 +3,7 @@ export interface GetExpenseSummaryResponseDTO {
   expenseCount: number;
   youPaid: number;
   youOwe: number;
+  yourShare: number;
   youAreOwed: number;
   netBalance: number;
 }

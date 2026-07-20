@@ -21,6 +21,8 @@ import { IGoogleAuth } from '../../../../application/interfaces/use-cases/auth/u
 import { IVerifyEmail } from '../../../../application/interfaces/use-cases/auth/user/verify-email.interface';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
 import { IAuthMe } from '../../../../application/interfaces/use-cases/auth/user/auth-me.interface';
+import { IVerifyPhoneOtp } from '../../../../application/interfaces/use-cases/auth/user/verify-phone-otp.interface';
+import { ISendPhoneOtp } from '../../../../application/interfaces/use-cases/auth/user/send-otp-sms.interface';
 @injectable()
 export class AuthController {
   private readonly _accessTtl: number;
@@ -49,6 +51,10 @@ export class AuthController {
     private readonly _googleAuth: IGoogleAuth,
     @inject(TOKENS.IAuthMe)
     private readonly _authMe: IAuthMe,
+    @inject(TOKENS.IVerifyPhoneOtp)
+    private readonly _verifyPhoneOtp: IVerifyPhoneOtp,
+    @inject(TOKENS.ISendPhoneOtp)
+    private readonly _sendPhoneOtp: ISendPhoneOtp,
   ) {
     this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);
     this._refreshTtl = ms(
@@ -237,5 +243,27 @@ export class AuthController {
       .json(
         ApiResponse.success(USER_MESSAGES.USER_AUTHENTICATED, data.response),
       );
+  };
+  sendPhoneOtp = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user?.userId;
+    await this._sendPhoneOtp.execute({
+      userId: userId!,
+      phone: req.body.phone,
+    });
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.OTP_SENT));
+  };
+  verifyPhoneOtp = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user?.userId;
+    const { otp, phone } = req.body;
+    await this._verifyPhoneOtp.execute({
+      userId: userId!,
+      otp,
+      phone,
+    });
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.OTP_VERIFIED));
   };
 }

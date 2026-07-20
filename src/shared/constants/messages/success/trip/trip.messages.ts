@@ -18,4 +18,5 @@ export const TRIP_MESSAGES = {
   CHANGE_ROLE: 'Role changed successfully',
   REMOVE_MEMBER: 'Member remove successfully',
   LEFT_GROUP: 'Left from group successfully',
+  GET_WEATHER: 'Fetched weather',
 };

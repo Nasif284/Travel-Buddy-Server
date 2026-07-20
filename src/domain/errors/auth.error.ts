@@ -159,3 +159,32 @@ export class UserNotFoundError extends AppError {
     );
   }
 }
+
+export class InvalidPhoneNumberError extends AppError {
+  constructor() {
+    super(
+      HttpStatus.BAD_REQUEST,
+      AUTH_ERROR_CODES.INVALID_PHONE_NUMBER,
+      AUTH_ERROR_MESSAGES.INVALID_PHONE_NUMBER,
+    );
+  }
+}
+export class PhoneAlreadyInUseError extends AppError {
+  constructor() {
+    super(
+      HttpStatus.BAD_REQUEST,
+      AUTH_ERROR_CODES.PHONE_ALREADY_EXISTS,
+      AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS,
+    );
+  }
+}
+
+export class PhoneOtpSendFailedError extends AppError {
+  constructor() {
+    super(
+      HttpStatus.BAD_REQUEST,
+      AUTH_ERROR_CODES.OTP_SENDING_FILED,
+      AUTH_ERROR_MESSAGES.OTP_SENDING_FILED,
+    );
+  }
+}

@@ -63,13 +63,14 @@ model TripGroupMember {
     leftAt   DateTime? @map("left_at") @db.Timestamptz(6)
     isActive Boolean   @default(true) @map("is_active")
 
-    group           TripGroup           @relation(fields: [groupId], references: [id], onDelete: Cascade)
-    user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-    role            TripMemberRole      @relation(fields: [roleCode], references: [code])
-    assignedTasks   ChecklistItem[]     @relation("ChecklistAssignedMember")
-    paidExpenses    Expense[]           @relation("ExpensePaidBy")
-    expenseShares   ExpenseShare[]
-    settlementsPaid ExpenseSettlement[] @relation("SettlementPayer")
+    group               TripGroup           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role                TripMemberRole      @relation(fields: [roleCode], references: [code])
+    assignedTasks       ChecklistItem[]     @relation("ChecklistAssignedMember")
+    paidExpenses        Expense[]           @relation("ExpensePaidBy")
+    expenseShares       ExpenseShare[]
+    paidShares          ExpenseShare[]      @relation("SharePaidBy")
+    settlementsPaid     ExpenseSettlement[] @relation("SettlementPayer")
     settlementsReceived ExpenseSettlement[] @relation("SettlementReceiver")
 
     @@unique([groupId, userId])

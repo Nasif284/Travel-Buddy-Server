@@ -23,7 +23,7 @@ export class GetNearbyUsers implements IGetNearbyUsers {
         dto.limit,
         dto.radiusKm ?? 50,
       );
-
+    console.log(users, total, page);
     return {
       users: await Promise.all(
         users.map(async (user) => ({

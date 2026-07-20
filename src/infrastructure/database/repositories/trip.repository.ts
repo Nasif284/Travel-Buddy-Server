@@ -37,6 +37,7 @@ import {
   GroupInvite,
 } from '../../../application/dtos/trip/responce/get-invites.dto';
 import { id } from 'zod/v4/locales';
+import { TripDestination } from '../../../application/dtos/trip/responce/get-weather.dto';
 
 @injectable()
 export class TripRepository
@@ -710,6 +711,7 @@ export class TripRepository
         dateTo: group.trip.dateTo,
         destination: group.trip.destination.name,
         coverUrl: group.trip.destination.coverUrl!,
+        budgetStyle: group.trip.budgetStyleCode,
         members: group.members.map((m) => ({
           id: m.user.id,
           name: m.user.fullName,
@@ -927,6 +929,7 @@ export class TripRepository
       dateTo: group.trip.dateTo,
       destination: group.trip.destination.name,
       coverUrl: group.trip.destination.coverUrl!,
+      budgetStyle: group.trip.budgetStyleCode,
       members: group.members.map((m) => ({
         id: m.user.id,
         name: m.user.fullName,
@@ -1047,5 +1050,86 @@ export class TripRepository
         leftAt: new Date(),
       },
     });
+  }
+  async getTripDestination(
+    tripGroupId: string,
+  ): Promise<TripDestination | null> {
+    const tripGroup = await this.prisma.tripGroup.findUnique({
+      where: {
+        id: tripGroupId,
+      },
+      select: {
+        trip: {
+          select: {
+            destination: {
+              select: {
+                id: true,
+                latitude: true,
+                longitude: true,
+                city: true,
+                state: true,
+                country: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!tripGroup) {
+      return null;
+    }
+
+    const destination = tripGroup.trip.destination;
+
+    return {
+      destinationId: destination.id,
+      latitude: Number(destination.latitude),
+      longitude: Number(destination.longitude),
+      city: destination.city ?? '',
+      state: destination.state,
+      country: destination.country.name,
+    };
+  }
+  async getAllTripGroups(): Promise<GroupData[]> {
+    const groups = await this.prisma.tripGroup.findMany({
+      include: {
+        trip: {
+          include: {
+            destination: true,
+          },
+        },
+        members: {
+          where: {
+            isActive: true,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return groups.map((group) => ({
+      id: group.id,
+      name: group.trip.name,
+      dateFrom: group.trip.dateFrom,
+      dateTo: group.trip.dateTo,
+      destination: group.trip.destination.name,
+      coverUrl: group.trip.destination.coverUrl!,
+      budgetStyle: group.trip.budgetStyleCode,
+      members: group.members.map((m) => ({
+        id: m.user.id,
+        name: m.user.fullName,
+      })),
+    }));
   }
 }

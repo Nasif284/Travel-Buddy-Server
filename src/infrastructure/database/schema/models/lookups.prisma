@@ -134,3 +134,22 @@ model ChecklistActivityType {
 
   @@map("checklist_activity_type")
 }
+
+
+model ExpenseCategory {
+  code String @id @db.VarChar(100)
+  name String @unique @db.VarChar(100)
+  displayOrder Int @default(0) @map("display_order")
+
+  expenses Expense[]
+
+  @@map("expense_categories")
+}
+
+model ExpenseSplitMethod {
+  code String @id @db.VarChar(30)
+  name String @unique @db.VarChar(50)
+  expenses Expense[]
+
+  @@map("expense_split_methods")
+}

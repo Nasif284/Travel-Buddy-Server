@@ -44,7 +44,7 @@ export class ExpenseRepository
           title: payload.title,
           description: payload.description,
           amount: payload.amount,
-          expenseDate: payload.expenseDate,
+          expenseDate: payload.expenseDate!,
           categoryCode: payload.categoryCode,
           splitMethodCode: payload.splitMethodCode,
           paidById: payload.paidById,
@@ -57,6 +57,7 @@ export class ExpenseRepository
         data: shares.map((share) => ({
           ...share,
           expenseId: expense.id,
+          paidById: payload.paidById,
         })),
       });
 
@@ -154,7 +155,6 @@ export class ExpenseRepository
         },
         data: {
           title: payload.title,
-          description: payload.description,
           amount: payload.amount,
           expenseDate: payload.expenseDate,
           categoryCode: payload.categoryCode,
@@ -174,6 +174,7 @@ export class ExpenseRepository
       await tx.expenseShare.createMany({
         data: shares.map((share) => ({
           expenseId: payload.expenseId,
+          paidById: payload.paidById,
           ...share,
         })),
       });
@@ -202,7 +203,7 @@ export class ExpenseRepository
       where: {
         groupId,
         userId,
-        status: 'ACTIVE',
+        isActive: true,
       },
       select: {
         id: true,
@@ -213,7 +214,7 @@ export class ExpenseRepository
       throw new Error('Group member not found');
     }
 
-    const [expenseAggregate, paidAggregate, oweAggregate] =
+    const [expenseAggregate, paidAggregate, shareAggregate, oweAggregate] =
       await this.prisma.$transaction([
         this.prisma.expense.aggregate({
           where: {
@@ -243,6 +244,19 @@ export class ExpenseRepository
               groupId,
             },
             memberId: member.id,
+            paidById: { not: member.id },
+          },
+          _sum: {
+            amount: true,
+          },
+        }),
+
+        this.prisma.expenseShare.aggregate({
+          where: {
+            expense: {
+              groupId,
+            },
+            memberId: member.id,
           },
           _sum: {
             amount: true,
@@ -255,6 +269,7 @@ export class ExpenseRepository
 
     const youPaid = Number(paidAggregate._sum.amount ?? 0);
     const youOwe = Number(oweAggregate._sum.amount ?? 0);
+    const yourShare = Number(shareAggregate._sum.amount ?? 0);
 
     const netBalance = youPaid - youOwe;
 
@@ -263,6 +278,7 @@ export class ExpenseRepository
       expenseCount,
       youPaid,
       youOwe,
+      yourShare,
       youAreOwed: Math.max(netBalance, 0),
       netBalance,
     };

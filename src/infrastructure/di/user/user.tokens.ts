@@ -36,4 +36,6 @@ export const USER_TOKENS = {
   IEditOnboardingProfile: 'IEditOnboardingProfile',
   IEditOnboardingTravelStyle: 'IEditOnboardingTravelStyle',
   IWithdrawRequest: 'IWithdrawRequest',
+  ISendPhoneOtp: 'ISendPhoneOtp',
+  IVerifyPhoneOtp: 'IVerifyPhoneOtp',
 } as const;

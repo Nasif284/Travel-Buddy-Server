@@ -1,7 +1,7 @@
 interface GroupMembers {
   id: string;
   name: string;
-  avatarUrl: string;
+  avatarUrl?: string;
 }
 export interface GroupData {
   id: string;
@@ -10,6 +10,7 @@ export interface GroupData {
   dateFrom: Date;
   coverUrl: string;
   destination: string;
+  budgetStyle: string;
   members: GroupMembers[];
 }
 export interface GetGroupsResponseDTO {

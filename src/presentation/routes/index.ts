@@ -17,7 +17,7 @@ export function buildRoutes(container: AppContainer): Router {
     '/onboarding',
     buildOnboardingRoutes(container.onboardingController),
   );
-  router.use('/admin', buildAdminRoutes(container));
+  router.use('/admin', buildAdminRoutes(container.adminControllers));
   router.use('/lookup', buildLookupRoutes(container.lookupController));
   router.use('/location', buildLocationRoutes(container.locationController));
   router.use('/users', buildUsersRoute(container.usersController));

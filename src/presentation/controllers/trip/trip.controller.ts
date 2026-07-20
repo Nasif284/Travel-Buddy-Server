@@ -23,6 +23,7 @@ import { IJoinWithLink } from '../../../application/interfaces/use-cases/trip/jo
 import { IGetInvites } from '../../../application/interfaces/use-cases/trip/get-invites.interface';
 import { IRemoveMember } from '../../../application/interfaces/use-cases/trip/remove-member.inteface';
 import { IChangeMemberRole } from '../../../application/interfaces/use-cases/trip/change-member-role.interface';
+import { IGetWeather } from '../../../application/interfaces/use-cases/trip/get-weather.interface';
 
 @injectable()
 export class TripController {
@@ -65,6 +66,8 @@ export class TripController {
     private readonly _removeMember: IRemoveMember,
     @inject(TOKENS.IChangeRole)
     private readonly _changeRole: IChangeMemberRole,
+    @inject(TOKENS.IGetWeather)
+    private readonly _getTripWeather: IGetWeather,
   ) {}
   createTrip = async (req: Request, res: Response): Promise<Response> => {
     const userId = req.user?.userId;
@@ -275,5 +278,14 @@ export class TripController {
     return res
       .status(HttpStatus.OK)
       .json(ApiResponse.success(TRIP_MESSAGES.CHANGE_ROLE));
+  };
+  getTripWeather = async (req: Request, res: Response): Promise<Response> => {
+    const groupId = req.params.id;
+    const data = await this._getTripWeather.execute({
+      tripGroupId: groupId as string,
+    });
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(TRIP_MESSAGES.GET_WEATHER, data));
   };
 }

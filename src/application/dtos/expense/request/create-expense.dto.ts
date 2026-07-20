@@ -10,7 +10,7 @@ export interface CreateExpenseRequestDTO {
   title: string;
   description?: string;
   amount: number;
-  expenseDate: Date;
+  expenseDate?: Date;
   categoryCode: string;
   splitMethodCode: string;
   paidById: string;

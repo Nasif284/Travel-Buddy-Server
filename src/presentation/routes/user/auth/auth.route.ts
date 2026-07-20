@@ -22,6 +22,16 @@ export function buildAuthRoutes(controller: AuthController): Router {
   );
   router.post('/send-otp', asyncHandler(controller.sendOtp));
   router.post('/verify-otp', asyncHandler(controller.verifyOtp));
+  router.post(
+    '/send-otp/phone',
+    authenticate,
+    asyncHandler(controller.sendPhoneOtp),
+  );
+  router.post(
+    '/verify/phone',
+    authenticate,
+    asyncHandler(controller.verifyPhoneOtp),
+  );
   router.post('/login', validate(LoginSchema), asyncHandler(controller.login));
   router.post('/google', asyncHandler(controller.googleAuth));
   router.post('/refresh', asyncHandler(controller.refreshToken));

@@ -15,7 +15,10 @@ export function buildTripGroupRoutes(controllers: TripControllers): Router {
     '/:id/checklist',
     buildChecklistRoutes(controllers.checklistController),
   );
-  router.use('/:id/expense', buildExpenseRoutes(controllers.expenseController));
+  router.use(
+    '/:id/expenses',
+    buildExpenseRoutes(controllers.expenseController),
+  );
 
   router.get('/:id/invites', authenticate, asyncHandler(controller.getInvites));
   router.post(
@@ -35,6 +38,11 @@ export function buildTripGroupRoutes(controllers: TripControllers): Router {
     '/:id/invite/code',
     authenticate,
     asyncHandler(controller.getInviteCode),
+  );
+  router.get(
+    '/:id/weather',
+    authenticate,
+    asyncHandler(controller.getTripWeather),
   );
   return router;
 }

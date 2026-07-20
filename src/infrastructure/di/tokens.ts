@@ -20,6 +20,9 @@ export const TOKENS = {
   IStorageService: 'IStorageService',
   IGeocodeService: 'IGeocodeService',
   IImageService: 'IImageService',
+  IWeatherService: 'IWeatherService',
+  IPhoneOtpService: 'IPhoneOtpService',
+  ISmsService: 'ISmsService',
 
   PrismaClient: 'PrismaClient',
   RedisClient: 'RedisClient',

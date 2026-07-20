@@ -69,8 +69,8 @@ export class User {
   readonly email: string;
   readonly phone: string | null;
   readonly passwordHash: string | null;
-  readonly avatarUrl: string | null;
-  readonly coverUrl: string | null;
+  avatarUrl: string | null;
+  coverUrl: string | null;
   readonly bio: string | null;
   readonly dateOfBirth: Date | null;
   readonly genderCode: Gender;

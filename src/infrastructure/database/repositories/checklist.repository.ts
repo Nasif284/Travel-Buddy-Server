@@ -27,7 +27,7 @@ export class ChecklistRepository
         },
       }),
 
-      await this.prisma.checklistItem.findMany({
+      this.prisma.checklistItem.findMany({
         where: {
           groupId,
         },

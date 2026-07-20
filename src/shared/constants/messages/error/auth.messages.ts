@@ -14,4 +14,7 @@ export const AUTH_ERROR_MESSAGES = {
   USER_NOT_FOUND: 'User not found.',
   ADMIN_NOT_FOUND: 'Admin not found',
   IMAGE_MISSING: 'Profile image is missing',
+  INVALID_PHONE_NUMBER: 'Invalid phone number',
+  PHONE_NUMBER_ALREADY_EXIST: 'Phone number already exist',
+  OTP_SENDING_FILED: 'OTP sending filed',
 } as const;

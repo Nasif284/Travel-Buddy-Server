@@ -3,4 +3,6 @@ export interface GetSettingsResponseDTO {
   showTravelingStatus: boolean;
   profileVisibilityCode: string;
   requestsFromCode: string;
+  phone: string | null;
+  isPhoneVerified: boolean;
 }

@@ -1,4 +1,4 @@
-import { inject } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
 import { ICreateExpense } from '../../../../application/interfaces/use-cases/expense/create-expense.interface';
 import { Request, Response } from 'express';
@@ -13,7 +13,7 @@ import { IGetExpenseBalances } from '../../../../application/interfaces/use-case
 import { ExpenseBalanceMode } from '../../../../application/dtos/expense/request/get-balances.dot';
 import { IGetExpenseReport } from '../../../../application/interfaces/use-cases/expense/get-report.interface';
 import { ICreateSettlement } from '../../../../application/interfaces/use-cases/expense/settlement.interface';
-
+@injectable()
 export class ExpenseController {
   constructor(
     @inject(TOKENS.ICreateExpense)
@@ -35,10 +35,12 @@ export class ExpenseController {
   createExpense = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
     const userId = req.user?.userId;
+    console.log(req.body);
     const data = await this._createExpense.execute({
       ...req.body,
       groupId: id,
       createdBy: userId,
+      expenseDate: new Date(),
     });
     return res
       .status(HttpStatus.CREATED)

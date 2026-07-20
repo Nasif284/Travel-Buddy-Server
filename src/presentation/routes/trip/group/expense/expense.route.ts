@@ -8,7 +8,7 @@ export function buildExpenseRoutes(controller: ExpenseController): Router {
   router.get('/', authenticate, controller.getExpenses);
   router.patch('/:expenseId', authenticate, controller.updateExpense);
   router.delete('/:expenseId', authenticate, controller.deleteExpense);
-  router.post('/summery', authenticate, controller.getExpenseSummary);
+  router.get('/summery', authenticate, controller.getExpenseSummary);
   router.get('/balances', authenticate, controller.getExpenseBalances);
   router.get('/report', authenticate, controller.getReport);
   router.post('/settle', authenticate, controller.createSettlement);

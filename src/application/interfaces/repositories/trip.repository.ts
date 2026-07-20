@@ -9,7 +9,10 @@ import {
   TripForMatchingDTO,
 } from '../../dtos/trip/responce/calculate-mathc.dto';
 import { GetActiveTripResponseDTO } from '../../dtos/trip/responce/get-active-trip.dto';
-import { GroupData } from '../../dtos/trip/responce/get-groups.dto';
+import {
+  GetGroupsResponseDTO,
+  GroupData,
+} from '../../dtos/trip/responce/get-groups.dto';
 import {
   GetGroupInvitesResponse,
   GroupInvite,
@@ -18,6 +21,7 @@ import { GetMatchProfileResponseDTO } from '../../dtos/trip/responce/get-match-p
 import { TripMatchResponseDTO } from '../../dtos/trip/responce/get-matches.dto';
 import { GetMembersResponseDTO } from '../../dtos/trip/responce/get-members.dto';
 import { GetUserTripsResponseDTO } from '../../dtos/trip/responce/get-user-trips.dto';
+import { TripDestination } from '../../dtos/trip/responce/get-weather.dto';
 
 export interface ITripRepository {
   findDestinationByPlaceId(placeId: string): Promise<Destination | null>;
@@ -80,4 +84,6 @@ export interface ITripRepository {
     memberId: string,
     userId?: string,
   ): Promise<void>;
+  getTripDestination(tripGroupId: string): Promise<TripDestination | null>;
+  getAllTripGroups(): Promise<GroupData[]>;
 }

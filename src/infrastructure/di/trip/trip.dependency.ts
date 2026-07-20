@@ -20,6 +20,8 @@ import { JoinWithLink } from '../../../application/use-cases/trip/join-with-link
 import { GetInvites } from '../../../application/use-cases/trip/get-invites.usecase';
 import { RemoveMember } from '../../../application/use-cases/trip/remove-member.usecase';
 import { ChangeMemberRole } from '../../../application/use-cases/trip/change-member-role.usecase';
+import { GetTripWeather } from '../../../application/use-cases/trip/trip-weather.usecase';
+import { GetAllTripGroups } from '../../../application/use-cases/trip/get-all-groups.usecase';
 
 export function registerTripDependency() {
   container.registerSingleton<CreateTrip>(TOKENS.ICreateTrip, CreateTrip);
@@ -65,5 +67,13 @@ export function registerTripDependency() {
   container.registerSingleton<ChangeMemberRole>(
     TOKENS.IChangeRole,
     ChangeMemberRole,
+  );
+  container.registerSingleton<GetTripWeather>(
+    TOKENS.IGetWeather,
+    GetTripWeather,
+  );
+  container.registerSingleton<GetAllTripGroups>(
+    TOKENS.IGetAllTripGroups,
+    GetAllTripGroups,
   );
 }

@@ -462,7 +462,6 @@ export class UserRepository
 
     const latitude = Number(currentUserLocation.currentLat);
     const longitude = Number(currentUserLocation.currentLng);
-
     const users = await this.prisma.$queryRaw<UserWithDetails[]>`
       SELECT
         u.id,
@@ -555,6 +554,7 @@ export class UserRepository
       LIMIT ${limit}
       OFFSET ${offset}
     `;
+    console.log(users, limit, offset);
 
     const totalResult = await this.prisma.$queryRaw<{ count: bigint }[]>`
       SELECT COUNT(*)::bigint AS count
@@ -620,6 +620,8 @@ export class UserRepository
     return {
       id: user.id,
       fullName: user.fullName,
+      phone: user.phone,
+      isPhoneVerified: user.isPhoneVerified,
       gender: user.genderCode,
       bio: user.bio,
       avatarUrl: user.avatarUrl,
@@ -771,7 +773,7 @@ export class UserRepository
         statusCode: 'pending',
       },
       include: {
-        sender: {
+        receiver: {
           include: {
             country: true,
           },
@@ -785,11 +787,11 @@ export class UserRepository
           message: req.message,
           matchId: req.matchId,
           receiver: {
-            id: req.sender.id,
-            fullName: req.sender.fullName,
-            avatarUrl: req.sender.avatarUrl,
-            country: req.sender.country?.name ?? null,
-            state: req.sender.state,
+            id: req.receiver.id,
+            fullName: req.receiver.fullName,
+            avatarUrl: req.receiver.avatarUrl,
+            country: req.receiver.country?.name ?? null,
+            state: req.receiver.state,
           },
           createdAt: req.createdAt,
           status: req.statusCode,
@@ -909,6 +911,15 @@ export class UserRepository
   }
 
   async getSettings(userId: string): Promise<GetSettingsResponseDTO> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+      select: {
+        phone: true,
+        isPhoneVerified: true,
+      },
+    });
     const result = await this.prisma.userPrivacy.findFirst({
       where: {
         userId,
@@ -922,6 +933,8 @@ export class UserRepository
       requestsFromCode: result.requestsFromCode!,
       showOnlineStatus: result.showOnlineStatus,
       showTravelingStatus: result.showTravelingStatus,
+      phone: user!.phone,
+      isPhoneVerified: user!.isPhoneVerified,
     };
   }
 
@@ -945,6 +958,32 @@ export class UserRepository
     await this.prisma.userSkill.deleteMany({
       where: {
         userId,
+      },
+    });
+  }
+
+  async verifyPhone(userId: string, phone: string): Promise<void> {
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        phone,
+        isPhoneVerified: true,
+        phoneVerifiedAt: new Date(),
+      },
+    });
+  }
+  async findUserByPhone(
+    phone: string,
+  ): Promise<{ id: string; isPhoneVerified: boolean } | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        phone,
+      },
+      select: {
+        id: true,
+        isPhoneVerified: true,
       },
     });
   }

@@ -32,6 +32,10 @@ import { registerProfileDependency } from './user/porfile.dependency';
 import { ChecklistRepository } from '../database/repositories/checklist.repository';
 import { registerChecklistDependency } from './checklsit/checklist.dependency';
 import { ExpenseRepository } from '../database/repositories/expense.repository';
+import { registerExpenseDependency } from './expense/dependency';
+import { OpenMeteoWeatherService } from '../services/open-mateo-weather.service';
+import { TwilioSmsService } from '../services/sms-service.service';
+import { RedisPhoneOtpService } from '../services/redis-phone-otp.service';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -63,6 +67,18 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     GoogleGeocodingService,
   );
   container.registerSingleton<ImageService>(TOKENS.IImageService, ImageService);
+  container.registerSingleton<OpenMeteoWeatherService>(
+    TOKENS.IWeatherService,
+    OpenMeteoWeatherService,
+  );
+  container.registerSingleton<TwilioSmsService>(
+    TOKENS.ISmsService,
+    TwilioSmsService,
+  );
+  container.registerSingleton<RedisPhoneOtpService>(
+    TOKENS.IPhoneOtpService,
+    RedisPhoneOtpService,
+  );
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
@@ -103,4 +119,5 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
   registerConnectionDependency();
   registerProfileDependency();
   registerChecklistDependency();
+  registerExpenseDependency();
 }

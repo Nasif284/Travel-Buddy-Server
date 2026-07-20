@@ -14,10 +14,10 @@ import { ConnectionsController } from '../../presentation/controllers/user/conne
 import { ProfileController } from '../../presentation/controllers/user/profile/profile.controller';
 import { ChecklistController } from '../../presentation/controllers/trip/checklist/checklist.controller';
 import { ExpenseController } from '../../presentation/controllers/trip/expense/expense.controller';
+import { TripManagementController } from '../../presentation/controllers/admin/trip-management/trips-management.controller';
 export interface AppContainer {
+  adminControllers: AdminControllers;
   authController: AuthController;
-  adminAuthController: AdminAuthController;
-  userManagementController: UserManagementController;
   onboardingController: OnboardingController;
   lookupController: LookupController;
   locationController: LocationController;
@@ -33,7 +33,13 @@ export interface TripControllers {
   expenseController: ExpenseController;
 }
 
-export function buildContainer(db: PrismaClient, redis: Redis) {
+export interface AdminControllers {
+  adminAuthController: AdminAuthController;
+  userManagementController: UserManagementController;
+  tripManagementController: TripManagementController;
+}
+
+export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
   registerDependencies(db, redis);
   const authController = container.resolve(AuthController);
   const adminAuthController = container.resolve(AdminAuthController);
@@ -47,10 +53,14 @@ export function buildContainer(db: PrismaClient, redis: Redis) {
   const profileController = container.resolve(ProfileController);
   const checklistController = container.resolve(ChecklistController);
   const expenseController = container.resolve(ExpenseController);
+  const tripManagementController = container.resolve(TripManagementController);
   return {
     authController,
-    adminAuthController,
-    userManagementController,
+    adminControllers: {
+      adminAuthController,
+      tripManagementController,
+      userManagementController,
+    },
     onboardingController,
     lookupController,
     locationController,

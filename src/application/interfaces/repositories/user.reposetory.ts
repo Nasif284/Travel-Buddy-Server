@@ -79,4 +79,8 @@ export interface IUserRepository {
     payload: UpdateSettingsRequestDTO,
   ): Promise<void>;
   getUserRequests(userId: string): Promise<GetAllRequestsResponseDTO>;
+  findUserByPhone(
+    phone: string,
+  ): Promise<{ id: string; isPhoneVerified: boolean } | null>;
+  verifyPhone(userId: string, phone: string): Promise<void>;
 }

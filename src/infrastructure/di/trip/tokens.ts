@@ -20,4 +20,6 @@ export const TRIP_TOKENS = {
   IGetInvites: 'IGetInvites',
   IRemoveMember: 'IRemoveMember',
   IChangeRole: 'IChangeRole',
+  IGetWeather: 'IGetWeather',
+  IGetAllTripGroups: 'IGetAllTripGroups',
 };

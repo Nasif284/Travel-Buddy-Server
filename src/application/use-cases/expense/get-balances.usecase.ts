@@ -42,7 +42,7 @@ export class GetExpenseBalances implements IGetExpenseBalances {
     } else {
       await this.buildSimplifiedDebtGraph(balanceMap);
     }
-
+    console.log([...balanceMap.values()]);
     return {
       members: [...balanceMap.values()],
     };
@@ -177,18 +177,18 @@ export class GetExpenseBalances implements IGetExpenseBalances {
   private async buildSimplifiedDebtGraph(
     balanceMap: Map<string, ExpenseBalanceMemberDTO>,
   ): Promise<void> {
-    const creditors: ExpenseBalanceMemberDTO[] = [];
-    const debtors: ExpenseBalanceMemberDTO[] = [];
-
-    for (const member of balanceMap.values()) {
-      member.transactions = [];
-
-      if (member.balance > 0) {
-        creditors.push(member);
-      } else if (member.balance < 0) {
-        debtors.push(member);
-      }
-    }
+    const creditors = [...balanceMap.values()]
+      .filter((m) => m.balance > 0)
+      .map((member) => ({
+        member,
+        remaining: member.balance,
+      }));
+    const debtors = [...balanceMap.values()]
+      .filter((m) => m.balance < 0)
+      .map((member) => ({
+        member,
+        remaining: Math.abs(member.balance),
+      }));
 
     let creditorIndex = 0;
     let debtorIndex = 0;
@@ -197,43 +197,43 @@ export class GetExpenseBalances implements IGetExpenseBalances {
       const creditor = creditors[creditorIndex];
       const debtor = debtors[debtorIndex];
 
-      const creditorAmount = creditor.balance;
-      const debtorAmount = Math.abs(debtor.balance);
+      const creditorAmount = creditor.remaining;
+      const debtorAmount = Math.abs(debtor.remaining);
 
       const settledAmount = Math.min(creditorAmount, debtorAmount);
       const creditorAvatarUrl = await this._storageService.getSignedUrl(
-        creditor.avatarUrl!,
+        creditor.member.avatarUrl!,
       );
       const debtorAvatarUrl = await this._storageService.getSignedUrl(
-        debtor.avatarUrl!,
+        debtor.member.avatarUrl!,
       );
 
-      debtor.transactions.push({
-        memberId: creditor.memberId,
-        fullName: creditor.fullName,
+      debtor.member.transactions.push({
+        memberId: creditor.member.memberId,
+        fullName: creditor.member.fullName,
         avatarUrl: creditorAvatarUrl,
         amount: settledAmount,
         type: 'PAY',
       });
 
-      creditor.transactions.push({
-        memberId: debtor.memberId,
-        fullName: debtor.fullName,
+      creditor.member.transactions.push({
+        memberId: debtor.member.memberId,
+        fullName: debtor.member.fullName,
         avatarUrl: debtorAvatarUrl,
         amount: settledAmount,
         type: 'RECEIVE',
       });
 
-      creditor.balance -= settledAmount;
-      debtor.balance += settledAmount;
+      creditor.remaining -= settledAmount;
+      debtor.remaining += settledAmount;
 
-      if (Math.abs(creditor.balance) < 0.01) {
-        creditor.balance = 0;
+      if (Math.abs(creditor.remaining) < 0.01) {
+        creditor.remaining = 0;
         creditorIndex++;
       }
 
-      if (Math.abs(debtor.balance) < 0.01) {
-        debtor.balance = 0;
+      if (Math.abs(debtor.remaining) < 0.01) {
+        debtor.remaining = 0;
         debtorIndex++;
       }
     }

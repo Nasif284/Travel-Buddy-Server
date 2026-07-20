@@ -12,6 +12,8 @@ import { Logout } from '../../../application/use-cases/auth/user/logout.usecase'
 import { VerifyOtp } from '../../../application/use-cases/auth/user/otp-verify.usecase';
 import { GoogleAuth } from '../../../application/use-cases/auth/user/google-auth.usecase';
 import { AuthMe } from '../../../application/use-cases/auth/user/auth-me.usecase';
+import { SendPhoneOtp } from '../../../application/use-cases/auth/user/send-phone-otp.usecase';
+import { VerifyPhoneOtp } from '../../../application/use-cases/auth/user/verify-phone-otp.usecase';
 
 export function registerUserAuthDependencies(): void {
   container.registerSingleton<Register>(TOKENS.IRegister, Register);
@@ -34,4 +36,9 @@ export function registerUserAuthDependencies(): void {
   container.registerSingleton<VerifyOtp>(TOKENS.IVerifyOtp, VerifyOtp);
   container.registerSingleton<GoogleAuth>(TOKENS.IGoogleAuth, GoogleAuth);
   container.registerSingleton<AuthMe>(TOKENS.IAuthMe, AuthMe);
+  container.registerSingleton<SendPhoneOtp>(TOKENS.ISendPhoneOtp, SendPhoneOtp);
+  container.registerSingleton<VerifyPhoneOtp>(
+    TOKENS.IVerifyPhoneOtp,
+    VerifyPhoneOtp,
+  );
 }
