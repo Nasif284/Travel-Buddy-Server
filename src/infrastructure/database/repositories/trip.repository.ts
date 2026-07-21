@@ -25,7 +25,10 @@ import {
   MatchExplanation,
 } from '../../../application/dtos/trip/responce/get-match-profile.dto';
 import { EditTripData } from '../../../application/dtos/trip/request/edit-trip.dto';
-import { GroupData } from '../../../application/dtos/trip/responce/get-groups.dto';
+import {
+  GetGroupsResponseDTO,
+  GroupData,
+} from '../../../application/dtos/trip/responce/get-groups.dto';
 import { GetMembersResponseDTO } from '../../../application/dtos/trip/responce/get-members.dto';
 import {
   GroupNotFound,
@@ -38,6 +41,8 @@ import {
 } from '../../../application/dtos/trip/responce/get-invites.dto';
 import { id } from 'zod/v4/locales';
 import { TripDestination } from '../../../application/dtos/trip/responce/get-weather.dto';
+import { GetGroupsRequestDTO } from '../../../application/dtos/trip/request/get-all-groups.dto';
+import { GetAllGroupsResponseDTO } from '../../../application/dtos/trip/responce/get-all-groups.dto';
 
 @injectable()
 export class TripRepository
@@ -716,6 +721,7 @@ export class TripRepository
           id: m.user.id,
           name: m.user.fullName,
           avatarUrl: m.user.avatarUrl!,
+          role: m.roleCode,
         })),
       };
     });
@@ -934,6 +940,8 @@ export class TripRepository
         id: m.user.id,
         name: m.user.fullName,
         avatarUrl: m.user.avatarUrl!,
+        role: m.roleCode,
+        joinedAt: m.joinedAt,
       })),
     };
   }
@@ -977,6 +985,7 @@ export class TripRepository
           id: invite.id,
         },
         data: {
+          statusCode: 'pending',
           createdAt: new Date(),
         },
       });
@@ -992,6 +1001,7 @@ export class TripRepository
     const invites = await this.prisma.tripGroupInvite.findMany({
       where: {
         groupId,
+        statusCode: 'pending',
       },
     });
     return {
@@ -1095,8 +1105,156 @@ export class TripRepository
       country: destination.country.name,
     };
   }
-  async getAllTripGroups(): Promise<GroupData[]> {
+  async getAllTripGroups(
+    payload: GetGroupsRequestDTO,
+  ): Promise<GetAllGroupsResponseDTO> {
+    const {
+      page = 1,
+      limit = 10,
+      tripStatus,
+      search,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      budgetStyle,
+    } = payload;
+
+    const tripWhere: Prisma.TripWhereInput = {};
+
+    if (budgetStyle) {
+      tripWhere.budgetStyleCode = budgetStyle;
+    }
+
+    if (search) {
+      tripWhere.OR = [
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          destination: {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
+
+    const now = new Date();
+
+    switch (tripStatus) {
+      case 'upcoming':
+        tripWhere.dateFrom = {
+          gt: now,
+        };
+        break;
+
+      case 'active':
+        tripWhere.AND = [
+          {
+            dateFrom: {
+              lte: now,
+            },
+          },
+          {
+            dateTo: {
+              gte: now,
+            },
+          },
+        ];
+        break;
+
+      case 'completed':
+        tripWhere.dateTo = {
+          lt: now,
+        };
+        break;
+    }
+
+    const where: Prisma.TripGroupWhereInput = {
+      trip: tripWhere,
+    };
+
+    const [groups, total] = await this.prisma.$transaction([
+      this.prisma.tripGroup.findMany({
+        where,
+        include: {
+          trip: {
+            include: {
+              destination: true,
+            },
+          },
+          members: {
+            where: {
+              isActive: true,
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  fullName: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy:
+          sortBy === 'dateFrom'
+            ? {
+                trip: {
+                  dateFrom: sortOrder,
+                },
+              }
+            : {
+                createdAt: sortOrder,
+              },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.tripGroup.count({
+        where,
+      }),
+    ]);
+
+    return {
+      groups: groups.map((group) => ({
+        id: group.id,
+        name: group.trip.name,
+        dateFrom: group.trip.dateFrom,
+        dateTo: group.trip.dateTo,
+        destination: group.trip.destination.name,
+        coverUrl: group.trip.destination.coverUrl!,
+        budgetStyle: group.trip.budgetStyleCode,
+        members: group.members.map((m) => ({
+          id: m.user.id,
+          name: m.user.fullName,
+          role: m.roleCode,
+        })),
+      })),
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+  async getUserTripGroups(userId: string): Promise<GetGroupsResponseDTO> {
     const groups = await this.prisma.tripGroup.findMany({
+      where: {
+        members: {
+          some: {
+            userId,
+            isActive: true,
+          },
+        },
+      },
+      orderBy: {
+        trip: {
+          dateFrom: 'asc',
+        },
+      },
       include: {
         trip: {
           include: {
@@ -1104,13 +1262,11 @@ export class TripRepository
           },
         },
         members: {
-          where: {
-            isActive: true,
-          },
           include: {
             user: {
               select: {
                 id: true,
+                avatarUrl: true,
                 fullName: true,
               },
             },
@@ -1118,18 +1274,24 @@ export class TripRepository
         },
       },
     });
-    return groups.map((group) => ({
-      id: group.id,
-      name: group.trip.name,
-      dateFrom: group.trip.dateFrom,
-      dateTo: group.trip.dateTo,
-      destination: group.trip.destination.name,
-      coverUrl: group.trip.destination.coverUrl!,
-      budgetStyle: group.trip.budgetStyleCode,
-      members: group.members.map((m) => ({
-        id: m.user.id,
-        name: m.user.fullName,
-      })),
-    }));
+    return {
+      groups: groups.map((group) => {
+        return {
+          id: group.id,
+          name: group.trip.name,
+          dateFrom: group.trip.dateFrom,
+          dateTo: group.trip.dateTo,
+          destination: group.trip.destination.name,
+          coverUrl: group.trip.destination.coverUrl!,
+          budgetStyle: group.trip.budgetStyleCode,
+          members: group.members.map((m) => ({
+            id: m.user.id,
+            name: m.user.fullName,
+            avatarUrl: m.user.avatarUrl!,
+            role: m.roleCode,
+          })),
+        };
+      }),
+    };
   }
 }

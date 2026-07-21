@@ -6,9 +6,9 @@ export interface AuthResponseDTO {
       email: string;
       avatarUrl?: string | null;
     };
-    isVerified: boolean;
-    onboardingCompleted: boolean;
-    onboardingStep: number;
+    isVerified?: boolean;
+    onboardingCompleted?: boolean;
+    onboardingStep?: number;
   };
 }
 export interface LoginResponseDTO extends AuthResponseDTO {

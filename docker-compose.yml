@@ -5,9 +5,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - '5000:5000'
+      - '9229:9229'
     env_file:
       - .env
-    command: sh -c "npm run db:push && npm run db:generate && npm run dev"
+    command: sh -c "npm run db:push && npm run db:generate && npm run debug"
     volumes:
       - .:/app
       - /app/node_modules

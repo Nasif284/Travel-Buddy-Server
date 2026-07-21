@@ -22,4 +22,5 @@ export const TRIP_TOKENS = {
   IChangeRole: 'IChangeRole',
   IGetWeather: 'IGetWeather',
   IGetAllTripGroups: 'IGetAllTripGroups',
+  IGetUserGroups: 'IGetUserGroups',
 };

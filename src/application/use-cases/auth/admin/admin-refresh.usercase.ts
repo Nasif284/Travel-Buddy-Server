@@ -33,8 +33,12 @@ export class AdminRefreshToken implements IAdminRefreshToken {
   async execute(dto: RefreshTokenRequestDTO): Promise<RefreshTokenResponseDTO> {
     const { token, userId } = dto;
     const tokenHash = this._tokenService.hashToken(token);
+    console.log(token, 'tokens');
+    console.log(tokenHash, 'hashed');
     const isValid = await this._sessionService.isValid(userId, tokenHash);
-    if (!isValid) throw new InvalidRefreshTokenError();
+    if (!isValid) {
+      throw new InvalidRefreshTokenError();
+    }
 
     const user = await this._adminRepository.findAdminById(userId);
     if (!user) {
@@ -63,6 +67,7 @@ export class AdminRefreshToken implements IAdminRefreshToken {
       newRefreshTokenHash,
       this._refreshTtl,
     );
+
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,

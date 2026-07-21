@@ -596,7 +596,6 @@ export class UserRepository
       where: {
         deletedAt: null,
         id: userId,
-        accountStatusCode: AccountStatus.ACTIVE,
       },
       include: {
         location: {
@@ -614,11 +613,27 @@ export class UserRepository
         onboarding: true,
       },
     });
+    const tripCount = await this.prisma.tripGroup.count({
+      where: {
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
+    });
+    const connectionsCount = await this.prisma.connection.count({
+      where: {
+        isActive: true,
+        OR: [{ userAId: userId }, { userBId: userId }],
+      },
+    });
     if (!user) {
       throw new UserNotFoundError();
     }
     return {
       id: user.id,
+      status: user.accountStatusCode,
       fullName: user.fullName,
       phone: user.phone,
       isPhoneVerified: user.isPhoneVerified,
@@ -643,6 +658,8 @@ export class UserRepository
       onboardingSource: user.onboarding!.onboardingSourceCode,
       onboardingStep: user.onboarding!.onboardingStep,
       matchWith: user.matchWithCode!,
+      tripCount,
+      connectionsCount,
     };
   }
 

@@ -4,11 +4,13 @@ import {
   Destination,
 } from '../../dtos/trip/request/destination.dto';
 import { EditTripData } from '../../dtos/trip/request/edit-trip.dto';
+import { GetGroupsRequestDTO } from '../../dtos/trip/request/get-all-groups.dto';
 import {
   SaveTripMatchDTO,
   TripForMatchingDTO,
 } from '../../dtos/trip/responce/calculate-mathc.dto';
 import { GetActiveTripResponseDTO } from '../../dtos/trip/responce/get-active-trip.dto';
+import { GetAllGroupsResponseDTO } from '../../dtos/trip/responce/get-all-groups.dto';
 import {
   GetGroupsResponseDTO,
   GroupData,
@@ -85,5 +87,8 @@ export interface ITripRepository {
     userId?: string,
   ): Promise<void>;
   getTripDestination(tripGroupId: string): Promise<TripDestination | null>;
-  getAllTripGroups(): Promise<GroupData[]>;
+  getAllTripGroups(
+    payload: GetGroupsRequestDTO,
+  ): Promise<GetAllGroupsResponseDTO>;
+  getUserTripGroups(userId: string): Promise<GetGroupsResponseDTO>;
 }

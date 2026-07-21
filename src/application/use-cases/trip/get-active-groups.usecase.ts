@@ -24,7 +24,6 @@ export class GetActiveGroups implements IGetActiveGroups {
         }
       }
     }
-    console.log(groups);
     return {
       groups,
     };

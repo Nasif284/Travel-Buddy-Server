@@ -12,6 +12,7 @@ import { Admin } from '../../../domain/entities/admin/admin.entity';
 import { AdminMapper } from '../mappers/admin.mapper';
 import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../di/tokens';
+import { GetAdminsResponseDTO } from '../../../application/dtos/admins/response/get-admins.dto';
 
 @injectable()
 export class AdminRepository
@@ -102,5 +103,22 @@ export class AdminRepository
     }
 
     return AdminMapper.toDomain(adminWithRole);
+  }
+
+  async getAdmins(): Promise<GetAdminsResponseDTO> {
+    const admins = await this.prisma.admin.findMany({
+      include: {
+        role: true,
+      },
+    });
+    return {
+      admins: admins.map((a) => ({
+        id: a.id,
+        email: a.email,
+        name: a.fullName,
+        role: a.role.name,
+        status: a.accountStatusCode,
+      })),
+    };
   }
 }

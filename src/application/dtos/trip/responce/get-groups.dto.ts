@@ -1,7 +1,11 @@
 interface GroupMembers {
   id: string;
   name: string;
+  role: string;
   avatarUrl?: string;
+  joinedAt?: Date;
+  tripCount?: number;
+  reportCount?: number;
 }
 export interface GroupData {
   id: string;

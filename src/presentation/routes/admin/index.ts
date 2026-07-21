@@ -3,6 +3,7 @@ import { buildAdminAuthRoutes } from './auth/auth.route';
 import { AdminControllers } from '../../../infrastructure/di/container';
 import { buildUserManagementRoutes } from './user-management/user-management.route';
 import { buildTripsManagementRoutes } from './trip-management/trip-management.route';
+import { buildAdminsRoutes } from './admins/admins.route';
 
 export function buildAdminRoutes(container: AdminControllers): Router {
   const router = Router();
@@ -15,5 +16,7 @@ export function buildAdminRoutes(container: AdminControllers): Router {
     '/trips',
     buildTripsManagementRoutes(container.tripManagementController),
   );
+  router.use('/admins', buildAdminsRoutes(container.adminsController));
+
   return router;
 }

@@ -7,6 +7,9 @@ import { USER_MANAGEMENT_MESSAGES } from '../../../../shared/constants/messages/
 import { inject, injectable } from 'tsyringe';
 import { ChangeUserStatus } from '../../../../application/use-cases/user-management/change-user-status.usecase';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
+import { USER_MESSAGES } from '../../../../shared/constants/messages/success/user/user.messages';
+import { IGetUserProfile } from '../../../../application/interfaces/use-cases/users/get-user-profile.interface';
+import { IGetUserGroups } from '../../../../application/interfaces/use-cases/trip/get-user-groups.interface';
 @injectable()
 export class UserManagementController {
   constructor(
@@ -14,6 +17,10 @@ export class UserManagementController {
     private readonly _getAllUsersUseCase: GetAllUsers,
     @inject(TOKENS.IChangeUserStatus)
     private readonly _changeUserStatusUseCase: ChangeUserStatus,
+    @inject(TOKENS.IGetUserProfile)
+    private readonly _getUserProfileUseCase: IGetUserProfile,
+    @inject(TOKENS.IGetUserGroups)
+    private readonly _getUserGroups: IGetUserGroups,
   ) {}
   getAllUsers = async (req: Request, res: Response): Promise<Response> => {
     const payload: GetAllUsersRequestDTO = {
@@ -40,5 +47,27 @@ export class UserManagementController {
     return res
       .status(HttpStatus.OK)
       .json(ApiResponse.success(USER_MANAGEMENT_MESSAGES.USER_STATUS_CHANGE));
+  };
+  getUserProfile = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+    const data = await this._getUserProfileUseCase.execute({
+      userId: id as string,
+    });
+
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(USER_MESSAGES.FETCHED_USER_PROFILE, data));
+  };
+  getUserGroups = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+    const data = await this._getUserGroups.execute({
+      userId: id as string,
+    });
+
+    return res
+      .status(HttpStatus.OK)
+      .json(
+        ApiResponse.success(USER_MANAGEMENT_MESSAGES.GET_USER_GROUPS, data),
+      );
   };
 }

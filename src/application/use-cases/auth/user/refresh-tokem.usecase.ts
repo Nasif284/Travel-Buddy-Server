@@ -32,6 +32,7 @@ export class RefreshToken implements IRefreshToken {
   async execute(dto: RefreshTokenRequestDTO): Promise<RefreshTokenResponseDTO> {
     const { token, userId } = dto;
     const tokenHash = this._tokenService.hashToken(token);
+    console.log(tokenHash);
     const isValid = await this._sessionService.isValid(userId, tokenHash);
     if (!isValid) throw new InvalidRefreshTokenError();
 

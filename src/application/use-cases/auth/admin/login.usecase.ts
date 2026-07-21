@@ -24,9 +24,8 @@ export class AdminLogin implements IAdminLogin {
     @inject(TOKENS.IHashService)
     private readonly _hashService: IHashService,
   ) {
-    this._refreshTtl = ms(
-      (config.jwt.refreshExpiration ?? '7d') as StringValue,
-    );
+    this._refreshTtl =
+      ms((config.jwt.refreshExpiration ?? '7d') as StringValue) / 1000;
   }
   async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
     const { email, password } = dto;
@@ -48,16 +47,18 @@ export class AdminLogin implements IAdminLogin {
       email: admin.email,
     });
 
-    const tokenHash = await this._hashService.hash(refreshToken);
+    const tokenHash = this._tokenService.hashToken(refreshToken);
     await this._sessionService.store(admin.id, tokenHash, this._refreshTtl);
 
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: admin.id,
-        email: admin.email,
-        fullName: admin.fullName,
+      response: {
+        user: {
+          id: admin.id,
+          email: admin.email,
+          fullName: admin.fullName,
+        },
       },
     };
   }

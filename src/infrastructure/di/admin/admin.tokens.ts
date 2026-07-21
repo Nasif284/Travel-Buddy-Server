@@ -4,4 +4,5 @@ export const ADMIN_TOKENS = {
   IAdminRefreshToken: 'IAdminRefreshToken',
   IGetAllUsers: 'IGetAllUsers',
   IChangeUserStatus: 'IChangeUserStatus',
+  IGetAdmins: 'IGetAdmins',
 } as const;

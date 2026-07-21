@@ -15,6 +15,7 @@ import { ProfileController } from '../../presentation/controllers/user/profile/p
 import { ChecklistController } from '../../presentation/controllers/trip/checklist/checklist.controller';
 import { ExpenseController } from '../../presentation/controllers/trip/expense/expense.controller';
 import { TripManagementController } from '../../presentation/controllers/admin/trip-management/trips-management.controller';
+import { AdminsController } from '../../presentation/controllers/admin/adimins/admins.controller';
 export interface AppContainer {
   adminControllers: AdminControllers;
   authController: AuthController;
@@ -37,6 +38,7 @@ export interface AdminControllers {
   adminAuthController: AdminAuthController;
   userManagementController: UserManagementController;
   tripManagementController: TripManagementController;
+  adminsController: AdminsController;
 }
 
 export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
@@ -54,12 +56,14 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
   const checklistController = container.resolve(ChecklistController);
   const expenseController = container.resolve(ExpenseController);
   const tripManagementController = container.resolve(TripManagementController);
+  const adminsController = container.resolve(AdminsController);
   return {
     authController,
     adminControllers: {
       adminAuthController,
       tripManagementController,
       userManagementController,
+      adminsController,
     },
     onboardingController,
     lookupController,

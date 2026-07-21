@@ -1,6 +1,7 @@
 export interface GetUserProfileResponseDTO {
   id: string;
   fullName: string;
+  status: string;
   bio: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
@@ -24,4 +25,6 @@ export interface GetUserProfileResponseDTO {
   onboardingStep: number;
   onboardingSource: string | null;
   matchWith: string;
+  tripCount: number;
+  connectionsCount: number;
 }
