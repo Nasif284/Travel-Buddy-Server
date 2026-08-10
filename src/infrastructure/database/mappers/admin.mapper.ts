@@ -1,7 +1,6 @@
 // admin.mapper.ts
 
 import { Admin as PrismaAdmin, Role as PrismaRole } from '@prisma/client';
-
 import { Admin, AdminRole } from '../../../domain/entities/admin/admin.entity';
 
 type AdminWithRole = PrismaAdmin & {
@@ -12,9 +11,7 @@ export class AdminMapper {
   static toDomain(admin: AdminWithRole): Admin {
     const role: AdminRole = {
       roleId: admin.role.id,
-
       name: admin.role.name,
-
       description: admin.role.description,
     };
 

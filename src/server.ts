@@ -4,6 +4,17 @@ console.log('=== server.ts starting execution ===');
 import { DbManager, getRedisClient } from './config';
 import { buildContainer } from './infrastructure/di/container';
 import { App } from './presentation/express/app';
+import './infrastructure/jobs';
+import { OpenRouterAIModelService } from './infrastructure/services/open-router-ai-model.service';
+import { AiItineraryService } from './infrastructure/services/ai-itinerary.service';
+import { context, dummyContext } from './tests/ai-itenery.test';
+import { GooglePlacesService } from './infrastructure/services/google-places.service';
+import { GooglePlacesClient } from './infrastructure/services/google-places-client.service';
+import { buildPlacesContextNode } from './infrastructure/ai/ai-itinerary/nodes/place-context.node';
+import { PlaceContextBuilder } from './infrastructure/ai/ai-itinerary/builder/ai-places.context.builder';
+import { PlaceCategory } from './application/interfaces/services/places.service.interface';
+import { ItineraryState } from './infrastructure/ai/ai-itinerary/itinerary.states';
+import { AssistantService } from './infrastructure/services/ai-assistant.service';
 
 const PORT = parseInt(process.env.PORT ?? '3000');
 
@@ -11,6 +22,16 @@ async function bootstrap(): Promise<void> {
   console.log('[Server] Getting DB and Redis client instances...');
   const db = DbManager.getInstance();
   const redis = getRedisClient();
+
+  // const aiItineraryService = new AiItineraryService(new OpenRouterAIModelService(),new GooglePlacesService(new GooglePlacesClient))
+  // const itinerary = await aiItineraryService.generate(context);
+
+  // console.dir(itinerary, {
+  //   depth: null,
+  // });
+  // const ai = new AssistantService(new OpenRouterAIModelService())
+  //   const chat = await ai.chat(dummyContext,"hi , i am bored")
+  //   console.log(chat)
 
   try {
     console.log('[Server] Connecting to PostgreSQL database...');

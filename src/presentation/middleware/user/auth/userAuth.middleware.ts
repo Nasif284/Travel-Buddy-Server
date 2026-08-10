@@ -1,29 +1,47 @@
+import { inject, injectable } from 'tsyringe';
 import { NextFunction, Request, Response } from 'express';
-import { UnauthorizedError } from '../../../../domain/errors/auth.error';
-import { JwtTokenService } from '../../../../infrastructure/services';
+
+import { TOKENS } from '../../../../infrastructure/di/tokens';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
-const tokenService = new JwtTokenService();
-export function authenticate(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  try {
-    const token = req.cookies?.accessToken as string | undefined;
-    if (!token) throw new UnauthorizedError();
-    const payload = tokenService.verifyAccessToken(token);
-    req.user = {
-      userId: payload.userId,
-      email: payload.email,
-    };
-    next();
-  } catch (err) {
-    res.status(HttpStatus.UNAUTHORIZED).json({
-      success: false,
-      error: {
-        code: 'UNAUTHORIZED',
-        message: err instanceof Error ? err.message : 'Unauthorized.',
-      },
-    });
-  }
+import { UnauthorizedError } from '../../../../domain/errors/auth.error';
+
+import { ITokenService } from '../../../../application/interfaces/services/token.service.interface';
+
+@injectable()
+export class UserAuthMiddleware {
+  constructor(
+    @inject(TOKENS.ITokenService)
+    private readonly tokenService: ITokenService,
+  ) {}
+
+  authenticate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const token = req.cookies?.accessToken;
+
+      if (!token) {
+        throw new UnauthorizedError();
+      }
+
+      const payload = this.tokenService.verifyAccessToken(token);
+
+      req.user = {
+        userId: payload.userId,
+        email: payload.email,
+      };
+
+      next();
+    } catch (err) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: err instanceof Error ? err.message : 'Unauthorized.',
+        },
+      });
+    }
+  };
 }

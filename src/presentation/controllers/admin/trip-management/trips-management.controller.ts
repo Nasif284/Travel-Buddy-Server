@@ -25,6 +25,7 @@ export class TripManagementController {
       sortOrder: req.query.sortOrder as 'desc' | 'asc',
       budgetStyle: req.query.budgetStyle as string,
     };
+
     const data = await this._getAllTripGroups.execute(payload);
     return res
       .status(HttpStatus.OK)

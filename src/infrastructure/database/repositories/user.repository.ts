@@ -9,8 +9,6 @@ import {
 
 import { User } from '../../../domain/entities/user/user.entity';
 
-import { UserMapper } from '../mappers/user.mapper';
-
 import { GetAllUsersRequestDTO } from '../../../application/dtos/user-management/request/get-users.dto';
 import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../di/tokens';
@@ -37,6 +35,7 @@ import { UpdateSettingsRequestDTO } from '../../../application/dtos/profile/requ
 import { GetSettingsResponseDTO } from '../../../application/dtos/profile/response/get-settings.dto';
 import { GetAllRequestsResponseDTO } from '../../../application/dtos/connections/response/get-all-requests.dto';
 import { GetSentRequestsResponseDTO } from '../../../application/dtos/connections/response/get-sent-requests.dto';
+import { UserMapper } from '../mappers/user.mapper';
 @injectable()
 export class UserRepository
   extends BaseRepository<

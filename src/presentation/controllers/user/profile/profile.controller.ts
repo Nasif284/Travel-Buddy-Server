@@ -9,6 +9,9 @@ import { ApiResponse } from '../../../responses/common-response';
 import { PROFILE_MESSAGES } from '../../../../shared/constants/messages/success/user/profile.messages';
 import { IUpdateSettings } from '../../../../application/interfaces/use-cases/profile/settings-update.interface';
 import { IGetSettings } from '../../../../application/interfaces/use-cases/profile/get-settings.interface';
+import { ISubmitVerificationUseCase } from '../../../../application/interfaces/use-cases/profile/doc-verification.interface';
+import { SubmitVerificationRequestDTO } from '../../../../application/dtos/profile/request/doc-verification.dto';
+import { IGetDocVerification } from '../../../../application/interfaces/use-cases/profile/get-doc-verification.interface';
 
 @injectable()
 export class ProfileController {
@@ -21,6 +24,10 @@ export class ProfileController {
     private readonly _updateSettings: IUpdateSettings,
     @inject(TOKENS.IGetSettings)
     private readonly _getSettings: IGetSettings,
+    @inject(TOKENS.ISubmitVerificationUseCase)
+    private readonly _submitVerification: ISubmitVerificationUseCase,
+    @inject(TOKENS.IGetDocVerification)
+    private readonly _getDocVerification: IGetDocVerification,
   ) {}
   updateProfile = async (req: Request, res: Response): Promise<Response> => {
     const userId = req.user?.userId;
@@ -73,5 +80,59 @@ export class ProfileController {
     return res
       .status(HttpStatus.OK)
       .json(ApiResponse.success(PROFILE_MESSAGES.FETCHED_SETTINGS, data));
+  };
+  submitVerification = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    const userid = req.user?.userId;
+    const files = req.files as {
+      front?: Express.Multer.File[];
+      back?: Express.Multer.File[];
+    };
+    const uploadedDocuments = [];
+    if (files.front?.length) {
+      const file = files.front[0];
+      uploadedDocuments.push({
+        sideCode: 'front',
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        buffer: file.buffer,
+      });
+    }
+    if (files.back?.length) {
+      const file = files.back[0];
+      uploadedDocuments.push({
+        sideCode: 'back',
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        buffer: file.buffer,
+      });
+    }
+    const dto: SubmitVerificationRequestDTO = {
+      userId: userid!,
+      documentTypeCode: req.body.documentTypeCode,
+      uploadedDocuments,
+    };
+
+    const data = await this._submitVerification.execute(dto);
+    return res
+      .status(HttpStatus.CREATED)
+      .json(ApiResponse.success(PROFILE_MESSAGES.DOCUMENTS_SUBMITTER, data));
+  };
+
+  getDocVerification = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    const userId = req.user?.userId;
+    const result = await this._getDocVerification.execute({
+      userId: userId!,
+    });
+    return res
+      .status(HttpStatus.OK)
+      .json(ApiResponse.success(PROFILE_MESSAGES.GET_DOC_VERIFICATION, result));
   };
 }

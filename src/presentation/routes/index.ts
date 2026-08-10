@@ -9,23 +9,39 @@ import { buildUsersRoute } from './user/users/users.route';
 import { buildTripRoutes } from './trip/trip.route';
 import { buildConnectionRoutes } from './user/connection/connection.route';
 import { buildProfileRoutes } from './user/profile/profile.route';
+import { buildAssistantRoute } from './user/ai-assistant/assistant.route';
 
 export function buildRoutes(container: AppContainer): Router {
   const router = Router();
-  router.use('/auth', buildAuthRoutes(container.authController));
+
+  const userAuth = container.authMiddlewares.userAuthMiddleware;
+  const adminAuth = container.authMiddlewares.adminAuthMiddleware;
+
+  router.use('/auth', buildAuthRoutes(container.authController, userAuth));
   router.use(
     '/onboarding',
-    buildOnboardingRoutes(container.onboardingController),
+    buildOnboardingRoutes(container.onboardingController, userAuth),
   );
-  router.use('/admin', buildAdminRoutes(container.adminControllers));
+  router.use('/admin', buildAdminRoutes(container.adminControllers, adminAuth));
+
   router.use('/lookup', buildLookupRoutes(container.lookupController));
-  router.use('/location', buildLocationRoutes(container.locationController));
-  router.use('/users', buildUsersRoute(container.usersController));
-  router.use('/trip', buildTripRoutes(container.tripControllers));
+  router.use(
+    '/location',
+    buildLocationRoutes(container.locationController, userAuth),
+  );
+  router.use('/users', buildUsersRoute(container.usersController, userAuth));
+  router.use('/trip', buildTripRoutes(container.tripControllers, userAuth));
   router.use(
     '/connection',
-    buildConnectionRoutes(container.connectionsController),
+    buildConnectionRoutes(container.connectionsController, userAuth),
   );
-  router.use('/profile', buildProfileRoutes(container.profileController));
+  router.use(
+    '/profile',
+    buildProfileRoutes(container.profileController, userAuth),
+  );
+  router.use(
+    '/ai/assistant',
+    buildAssistantRoute(container.assistantController, userAuth),
+  );
   return router;
 }

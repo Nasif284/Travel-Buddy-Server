@@ -45,22 +45,27 @@ model User {
   sentRequests     ConnectionRequest[] @relation("ConnectionSender")
   receivedRequests ConnectionRequest[] @relation("ConnectionReceiver")
 
-  location         UserLocation?
-  onboarding       UserOnboarding?
-  privacy          UserPrivacy?
-  languages        UserLanguage[]
-  interests        UserInterest[]
-  skills           UserSkill[]
-  statusHistory    UserStatusHistory[]
-  userAConnections Connection[]        @relation("ConnectionUserA")
-  userBConnections Connection[]        @relation("ConnectionUserB")
-  tripGroupsOwned  TripGroup[]         @relation("TripGroupOwner")
-  createdTasks     ChecklistItem[]     @relation("ChecklistCreator")
-  groupMemberships TripGroupMember[]
-  createdExpenses  Expense[]           @relation("ExpenseCreator")
-  expenseActivities   ExpenseActivity[]
-  groupInvitesSent    TripGroupInvite[]   @relation("TripGroupInviter")
-  checklistActivities ChecklistActivity[]
+  location                 UserLocation?
+  onboarding               UserOnboarding?
+  privacy                  UserPrivacy?
+  languages                UserLanguage[]
+  interests                UserInterest[]
+  skills                   UserSkill[]
+  statusHistory            UserStatusHistory[]
+  verifications            Verification[]
+  userAConnections         Connection[]            @relation("ConnectionUserA")
+  userBConnections         Connection[]            @relation("ConnectionUserB")
+  tripGroupsOwned          TripGroup[]             @relation("TripGroupOwner")
+  createdTasks             ChecklistItem[]         @relation("ChecklistCreator")
+  groupMemberships         TripGroupMember[]
+  createdExpenses          Expense[]               @relation("ExpenseCreator")
+  expenseActivities        ExpenseActivity[]
+  groupInvitesSent         TripGroupInvite[]       @relation("TripGroupInviter")
+  checklistActivities      ChecklistActivity[]
+  aiConversations          AssistantConversation[]
+  chatConversationsAsUserA ChatConversation[]      @relation("ChatUserA")
+  chatConversationsAsUserB ChatConversation[]      @relation("ChatUserB")
+  chatMessages             ChatMessage[]
 
   @@index([email])
   @@index([phone])

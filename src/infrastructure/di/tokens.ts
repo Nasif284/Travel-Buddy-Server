@@ -1,9 +1,12 @@
-import { ADMIN_TOKENS } from './admin/admin.tokens';
-import { CHECKLIST_TOKENS } from './checklsit/checklist.tokens';
-import { EXPENSE_TOKENS } from './expense/tokens';
+import { ADMIN_TOKENS } from './admin-side/admin/admin.tokens';
+import { CHECKLIST_TOKENS } from './client-side/checklsit/checklist.tokens';
+import { EXPENSE_TOKENS } from './client-side/expense/tokens';
 import { LOOKUP_TOKENS } from './lookup/lookup.tokens';
-import { TRIP_TOKENS } from './trip/tokens';
-import { USER_TOKENS } from './user/user.tokens';
+import { TRIP_TOKENS } from './client-side/trip/tokens';
+import { USER_TOKENS } from './client-side/user/user.tokens';
+import { VERIFICATION_TOKENS } from './admin-side/verification-queue/verification.tokens';
+import { ITINERARY_TOKENS } from './client-side/itenerary/tokens';
+import { AI_ASSISTANT_TOKENS } from './client-side/ai-assistant/tokens';
 
 export const TOKENS = {
   IUserRepository: 'IUserRepository',
@@ -11,6 +14,12 @@ export const TOKENS = {
   ILookupRepository: 'ILookupRepository',
   IChecklistRepository: 'IChecklistRepository',
   IExpenseRepository: 'IExpenseRepository',
+  IVerificationRepository: 'IVerificationRepository',
+  IItineraryRepository: 'IItineraryRepository',
+  IAssistantRepository: 'IAssistantRepository',
+
+  AdminAuthenticationMiddleware: 'AdminAuthenticationMiddleware',
+  UserAuthMiddleware: 'UserAuthMiddleware',
 
   IHashService: 'IHashService',
   ITokenService: 'ITokenService',
@@ -23,6 +32,15 @@ export const TOKENS = {
   IWeatherService: 'IWeatherService',
   IPhoneOtpService: 'IPhoneOtpService',
   ISmsService: 'ISmsService',
+  ICacheService: 'ICacheService',
+  IVerificationQueueService: 'IVerificationQueueService',
+  IOcrService: 'IOcrService',
+  IDocumentAnalysisService: 'IDocumentAnalysisService',
+  IDocumentExtractionService: 'IDocumentExtractionService',
+  IAIModelService: 'IAIModelService',
+  IPlacesService: 'IPlacesService',
+  IAiItineraryService: 'IAiItineraryService',
+  GooglePlacesClient: 'GooglePlacesClient',
 
   PrismaClient: 'PrismaClient',
   RedisClient: 'RedisClient',
@@ -33,4 +51,7 @@ export const TOKENS = {
   ...TRIP_TOKENS,
   ...CHECKLIST_TOKENS,
   ...EXPENSE_TOKENS,
+  ...VERIFICATION_TOKENS,
+  ...ITINERARY_TOKENS,
+  ...AI_ASSISTANT_TOKENS,
 } as const;

@@ -48,6 +48,7 @@ export class SendPhoneOtp implements ISendPhoneOtp {
       await this.phoneOtpService.save(phone, otp);
       await this.smsService.sendOtp(phone, otp);
     } catch (err) {
+      console.log(err);
       await this.phoneOtpService.delete(phone);
       throw new PhoneOtpSendFailedError();
     }

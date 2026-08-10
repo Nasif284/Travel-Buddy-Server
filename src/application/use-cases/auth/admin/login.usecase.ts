@@ -3,7 +3,6 @@ import { config } from '../../../../config/env.config';
 import { AdminNotFoundError } from '../../../../domain/errors/admin.error';
 import { IncorrectPasswordError } from '../../../../domain/errors/auth.error';
 import { LoginRequestDTO } from '../../../dtos/auth/user/request/login.dto';
-import { LoginResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 import { IAdminRepository } from '../../../interfaces/repositories/admin.respository';
 import { IHashService } from '../../../interfaces/services/hash.service.interface';
 import { ISessionService } from '../../../interfaces/services/session.service.interface';
@@ -11,6 +10,7 @@ import { ITokenService } from '../../../interfaces/services/token.service.interf
 import { IAdminLogin } from '../../../interfaces/use-cases/auth/admin/login.interface';
 import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
+import { AdminLoginResponseDTO } from '../../../dtos/auth/admin/response/admin-login.dto';
 @injectable()
 export class AdminLogin implements IAdminLogin {
   private readonly _refreshTtl: number;
@@ -27,7 +27,7 @@ export class AdminLogin implements IAdminLogin {
     this._refreshTtl =
       ms((config.jwt.refreshExpiration ?? '7d') as StringValue) / 1000;
   }
-  async execute(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
+  async execute(dto: LoginRequestDTO): Promise<AdminLoginResponseDTO> {
     const { email, password } = dto;
     const admin = await this._adminRepository.findByEmail(email);
     if (!admin) {
@@ -54,10 +54,11 @@ export class AdminLogin implements IAdminLogin {
       accessToken,
       refreshToken,
       response: {
-        user: {
+        admin: {
           id: admin.id,
           email: admin.email,
           fullName: admin.fullName,
+          role: admin.role.name,
         },
       },
     };

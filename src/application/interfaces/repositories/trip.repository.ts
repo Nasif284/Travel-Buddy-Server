@@ -15,16 +15,31 @@ import {
   GetGroupsResponseDTO,
   GroupData,
 } from '../../dtos/trip/responce/get-groups.dto';
-import {
-  GetGroupInvitesResponse,
-  GroupInvite,
-} from '../../dtos/trip/responce/get-invites.dto';
+import { GetGroupInvitesResponse } from '../../dtos/trip/responce/get-invites.dto';
 import { GetMatchProfileResponseDTO } from '../../dtos/trip/responce/get-match-profile.dto';
 import { TripMatchResponseDTO } from '../../dtos/trip/responce/get-matches.dto';
 import { GetMembersResponseDTO } from '../../dtos/trip/responce/get-members.dto';
 import { GetUserTripsResponseDTO } from '../../dtos/trip/responce/get-user-trips.dto';
 import { TripDestination } from '../../dtos/trip/responce/get-weather.dto';
+export interface GroupTripForAI {
+  startDate: Date;
+  endDate: Date;
 
+  budgetStyle: string;
+  travelStyle: string;
+
+  travellers: number;
+
+  destination: {
+    placeId: string;
+    name: string;
+    city: string | null;
+    state: string | null;
+    country: string;
+    latitude: number;
+    longitude: number;
+  };
+}
 export interface ITripRepository {
   findDestinationByPlaceId(placeId: string): Promise<Destination | null>;
   createDestination(payload: CreateDestinationRequestDTO): Promise<Destination>;
@@ -91,4 +106,5 @@ export interface ITripRepository {
     payload: GetGroupsRequestDTO,
   ): Promise<GetAllGroupsResponseDTO>;
   getUserTripGroups(userId: string): Promise<GetGroupsResponseDTO>;
+  getGroupTrip(groupId: string): Promise<GroupTripForAI | null>;
 }

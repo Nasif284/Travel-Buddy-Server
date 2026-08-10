@@ -153,3 +153,43 @@ model ExpenseSplitMethod {
 
   @@map("expense_split_methods")
 }
+
+
+model VerificationStatus {
+  code String @id @db.VarChar(30)
+  name        String  @db.VarChar(100)
+
+  verifications Verification[]
+
+  @@map("verification_statuses")
+}
+
+model VerificationDocumentType {
+  code String @id @db.VarChar(30)
+  name        String @db.VarChar(100)
+
+  hasFrontSide Boolean @default(true) @map("has_front_side")
+  hasBackSide  Boolean @default(false) @map("has_back_side")
+
+  verifications Verification[]
+
+  @@map("verification_document_types")
+}
+
+model VerificationDocumentSide {
+  code String @id @db.VarChar(50)
+  name String @db.VarChar(50)
+
+  documents VerificationDocument[]
+
+  @@map("verification_document_sides")
+}
+
+model VerificationActivityType {
+  code String @id @db.VarChar(40)
+  name        String @db.VarChar(100)
+
+  activities VerificationActivity[]
+
+  @@map("verification_activity_types")
+}

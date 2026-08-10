@@ -3,10 +3,12 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
-import { IStorageService } from '../../application/interfaces/services/storage.service.interface';
+
 import { s3Client } from '../../config/s3.config';
 import { config } from '../../config/env.config';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { IStorageService } from '../../application/interfaces/services/storage.service.interface';
+
 export class StorageService implements IStorageService {
   async upload(file: Buffer, key: string, mimeType: string): Promise<string> {
     await s3Client.send(
@@ -17,7 +19,7 @@ export class StorageService implements IStorageService {
         ContentType: mimeType,
       }),
     );
-    return `https://${config.s3.bucketName}.s3.${config.s3.region}.amazonaws.com/${key}`;
+    return key;
   }
   async getSignedUrl(key: string): Promise<string> {
     const command = new GetObjectCommand({
@@ -36,5 +38,15 @@ export class StorageService implements IStorageService {
         Key: key,
       }),
     );
+  }
+  async download(storageKey: string): Promise<Buffer> {
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: config.s3.bucketName,
+        Key: storageKey,
+      }),
+    );
+
+    return Buffer.from(await response.Body!.transformToByteArray());
   }
 }

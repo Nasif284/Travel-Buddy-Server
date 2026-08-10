@@ -1,9 +1,11 @@
 import axios from 'axios';
+
+import { config } from '../../config/env.config';
 import {
   IGeocodingService,
   ReverseGeocodeResult,
 } from '../../application/interfaces/services/geocode.service.interfcae';
-import { config } from '../../config/env.config';
+
 interface AddressComponent {
   long_name: string;
   short_name: string;

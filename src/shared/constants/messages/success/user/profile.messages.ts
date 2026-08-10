@@ -4,4 +4,6 @@ export const PROFILE_MESSAGES = {
   COVER_UPDATED: 'Cover Updated',
   SETTINGS_UPDATED: 'Updated Settings',
   FETCHED_SETTINGS: 'Fetched user settings',
+  DOCUMENTS_SUBMITTER: 'Documents submitted for verification',
+  GET_DOC_VERIFICATION: 'Fetched user document verification details ',
 };

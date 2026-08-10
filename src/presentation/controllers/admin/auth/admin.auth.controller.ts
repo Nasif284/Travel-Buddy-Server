@@ -1,11 +1,7 @@
 import { CookieOptions, Request, Response } from 'express';
-import { AdminLogin } from '../../../../application/use-cases/auth/admin/login.usecase';
 import { HttpStatus } from '../../../../domain/enums/HttpStatusCodes.constants';
 import { config } from '../../../../config/env.config';
-import { CreateAdmin } from '../../../../application/use-cases/admins/create.usecase';
-import { Logout } from '../../../../application/use-cases/auth/user/logout.usecase';
 import jwt from 'jsonwebtoken';
-import { AdminRefreshToken } from '../../../../application/use-cases/auth/admin/admin-refresh.usercase';
 import ms, { StringValue } from 'ms';
 import { ApiResponse } from '../../../responses/common-response';
 import { ADMIN_MESSAGES } from '../../../../shared/constants/messages/success/admin/admin.messages';
@@ -13,18 +9,22 @@ import { AUTH_ERROR_CODES } from '../../../../shared/constants/error-codes/auth.
 import { AUTH_ERROR_MESSAGES } from '../../../../shared/constants/messages/error/auth.messages';
 import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
+import { IAdminLogin } from '../../../../application/interfaces/use-cases/auth/admin/login.interface';
+import { ICreate } from '../../../../application/interfaces/use-cases/admins/create.interface';
+import { ILogout } from '../../../../application/interfaces/use-cases/auth/user/logout.interface';
+import { IAdminRefreshToken } from '../../../../application/interfaces/use-cases/auth/admin/admin-refresh.interface';
 @injectable()
 export class AdminAuthController {
   private readonly _accessTtl: number;
   private readonly _refreshTtl: number;
 
   constructor(
-    @inject(TOKENS.IAdminLogin) private readonly _loginUseCase: AdminLogin,
+    @inject(TOKENS.IAdminLogin) private readonly _loginUseCase: IAdminLogin,
     @inject(TOKENS.ICreateAdmin)
-    private readonly _createAdminUseCase: CreateAdmin,
-    @inject(TOKENS.ILogout) private readonly _logoutUseCase: Logout,
+    private readonly _createAdminUseCase: ICreate,
+    @inject(TOKENS.ILogout) private readonly _logoutUseCase: ILogout,
     @inject(TOKENS.IAdminRefreshToken)
-    private readonly _refreshUseCase: AdminRefreshToken,
+    private readonly _refreshUseCase: IAdminRefreshToken,
   ) {
     this._accessTtl = ms((config.jwt.accessExpiration ?? '15m') as StringValue);
     this._refreshTtl = ms(
@@ -50,7 +50,6 @@ export class AdminAuthController {
       path: '/',
     };
   }
-
   login = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._loginUseCase.execute(req.body);
     res.cookie(
@@ -65,7 +64,9 @@ export class AdminAuthController {
     );
     return res
       .status(HttpStatus.OK)
-      .json(ApiResponse.success(ADMIN_MESSAGES.LOGGED_ID, result.response));
+      .json(
+        ApiResponse.success(ADMIN_MESSAGES.LOGGED_ID, result.response.admin),
+      );
   };
 
   create = async (req: Request, res: Response): Promise<Response> => {

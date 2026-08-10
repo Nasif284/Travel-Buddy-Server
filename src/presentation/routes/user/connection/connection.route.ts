@@ -1,51 +1,56 @@
 import { Router } from 'express';
 import { ConnectionsController } from '../../../controllers/user/connections/connection.controller';
-import { authenticate } from '../../../middleware/user/auth/userAuth.middleware';
+import { UserAuthMiddleware } from '../../../middleware/user/auth/userAuth.middleware';
 import { asyncHandler } from '../../../middleware/error/asyncHandler';
 
 export function buildConnectionRoutes(
   controller: ConnectionsController,
+  userAuth: UserAuthMiddleware,
 ): Router {
   const router = Router();
-  router.get('/', authenticate, asyncHandler(controller.getConnections));
+  router.get(
+    '/',
+    userAuth.authenticate,
+    asyncHandler(controller.getConnections),
+  );
   router.post(
     '/',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.sendConnectionRequest),
   );
   router.get(
     '/requests/incoming',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.getIncomingRequests),
   );
   router.get(
     '/requests/sent',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.getSentRequests),
   );
   router.get(
     '/requests',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.getAllRequests),
   );
   router.patch(
     '/accept/:id',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.acceptRequest),
   );
   router.patch(
     '/reject/:id',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.rejectRequest),
   );
   router.patch(
     '/withdraw/:id',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.withdrawRequest),
   );
   router.patch(
     '/disconnect/:id',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.disconnect),
   );
   return router;

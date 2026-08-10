@@ -9,10 +9,13 @@ import {
 
 import { Admin } from '../../../domain/entities/admin/admin.entity';
 
-import { AdminMapper } from '../mappers/admin.mapper';
 import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../di/tokens';
 import { GetAdminsResponseDTO } from '../../../application/dtos/admins/response/get-admins.dto';
+import { capitalizeFirstLetter } from '../../../shared/helpers/capitalizseFirstLetter';
+import { UpdateAdminStatusDTO } from '../../../application/dtos/admins/request/update-admin.dto';
+import { AdminNotFoundError } from '../../../domain/errors/admin.error';
+import { AdminMapper } from '../mappers/admin.mapper';
 
 @injectable()
 export class AdminRepository
@@ -117,8 +120,86 @@ export class AdminRepository
         email: a.email,
         name: a.fullName,
         role: a.role.name,
-        status: a.accountStatusCode,
+        status: capitalizeFirstLetter(a.accountStatusCode),
+        lastActive: a.lastActiveAt!,
+        ip: a.lastActiveIp!,
       })),
     };
+  }
+  async updateLastActive(adminId: string, ip: string): Promise<void> {
+    await this.prisma.admin.update({
+      where: {
+        id: adminId,
+      },
+      data: {
+        lastActiveAt: new Date(),
+        lastActiveIp: ip,
+      },
+    });
+  }
+
+  async updatePassword(adminId: string, passwordHash: string): Promise<void> {
+    await this.prisma.admin.update({
+      where: {
+        id: adminId,
+      },
+      data: {
+        passwordHash,
+      },
+    });
+  }
+
+  async updateRole(adminId: string, roleName: string): Promise<void> {
+    const role = await this.prisma.role.findFirst({
+      where: {
+        name: roleName,
+      },
+    });
+    if (role) {
+      await this.prisma.admin.update({
+        where: {
+          id: adminId,
+        },
+        data: {
+          roleId: role.id,
+        },
+      });
+    }
+  }
+
+  async updateStatus(
+    adminId: string,
+    status: UpdateAdminStatusDTO,
+    actionedBy: string,
+  ): Promise<void> {
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id: adminId,
+      },
+    });
+    if (!admin) {
+      throw new AdminNotFoundError();
+    }
+    await this.prisma.$transaction([
+      this.prisma.admin.update({
+        where: {
+          id: adminId,
+        },
+        data: {
+          accountStatusCode: status.statusCode,
+        },
+      }),
+      this.prisma.adminStatusHistory.create({
+        data: {
+          newStatusCode: status.statusCode,
+          ...(status.reason && {
+            reason: status.reason,
+          }),
+          previousStatusCode: admin.accountStatusCode,
+          actionedBy,
+          adminId,
+        },
+      }),
+    ]);
   }
 }

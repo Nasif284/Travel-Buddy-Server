@@ -4,19 +4,31 @@ import { AdminControllers } from '../../../infrastructure/di/container';
 import { buildUserManagementRoutes } from './user-management/user-management.route';
 import { buildTripsManagementRoutes } from './trip-management/trip-management.route';
 import { buildAdminsRoutes } from './admins/admins.route';
+import { AdminAuthMiddleware } from '../../middleware/user/auth/adminAuthMiddleware';
+import { buildVerificationsRoute } from './verification-queue/verification.route';
 
-export function buildAdminRoutes(container: AdminControllers): Router {
+export function buildAdminRoutes(
+  container: AdminControllers,
+  adminAuth: AdminAuthMiddleware,
+): Router {
   const router = Router();
   router.use('/auth', buildAdminAuthRoutes(container.adminAuthController));
   router.use(
     '/users',
-    buildUserManagementRoutes(container.userManagementController),
+    buildUserManagementRoutes(container.userManagementController, adminAuth),
   );
   router.use(
     '/trips',
-    buildTripsManagementRoutes(container.tripManagementController),
+    buildTripsManagementRoutes(container.tripManagementController, adminAuth),
   );
-  router.use('/admins', buildAdminsRoutes(container.adminsController));
+  router.use(
+    '/admins',
+    buildAdminsRoutes(container.adminsController, adminAuth),
+  );
+  router.use(
+    '/verifications',
+    buildVerificationsRoute(container.verificationController, adminAuth),
+  );
 
   return router;
 }

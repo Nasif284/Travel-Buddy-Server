@@ -4,7 +4,6 @@ import { ITripRepository } from '../../interfaces/repositories/trip.repository';
 import { ICreateTrip } from '../../interfaces/use-cases/trip/create-trip.usecase';
 import { CreateTripRequestDTO } from '../../dtos/trip/request/create-trip.dto';
 import { IImageService } from '../../interfaces/services/image.service.interace';
-import { generateInviteCode } from '../../../shared/helpers/generateUniqueCode';
 import { ICalculateMatch } from '../../interfaces/use-cases/trip/calculate-match.interface';
 import logger from '../../../infrastructure/logging/logger';
 

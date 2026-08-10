@@ -2,10 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { IAuthMe } from '../../../interfaces/use-cases/auth/user/auth-me.interface';
 import { TOKENS } from '../../../../infrastructure/di/tokens';
 import { IUserRepository } from '../../../interfaces/repositories/user.reposetory';
-import {
-  UnauthorizedError,
-  UserNotFoundError,
-} from '../../../../domain/errors/auth.error';
+import { UnauthorizedError } from '../../../../domain/errors/auth.error';
 import { IStorageService } from '../../../interfaces/services/storage.service.interface';
 import { AuthResponseDTO } from '../../../dtos/auth/user/responce/login.dto';
 @injectable()

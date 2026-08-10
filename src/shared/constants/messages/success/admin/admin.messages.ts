@@ -4,4 +4,5 @@ export const ADMIN_MESSAGES = {
   LOGGED_OUT: 'Admin logged out successfully',
   REFRESH_TOKEN: 'Token refreshed successfully',
   FETCHED_ADMINS: 'Fetched all admins',
+  UPDATED: 'Updated admin successfully',
 } as const;

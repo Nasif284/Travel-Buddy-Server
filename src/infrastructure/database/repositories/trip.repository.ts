@@ -2,7 +2,10 @@ import { inject, injectable } from 'tsyringe';
 import { Trip, Prisma, PrismaClient } from '@prisma/client';
 import { BaseRepository } from './base.repository';
 import { TOKENS } from '../../di/tokens';
-import { ITripRepository } from '../../../application/interfaces/repositories/trip.repository';
+import {
+  GroupTripForAI,
+  ITripRepository,
+} from '../../../application/interfaces/repositories/trip.repository';
 import {
   CreateDestinationRequestDTO,
   Destination,
@@ -35,11 +38,7 @@ import {
   OnlyAdminCanRemoveError,
   UserAlreadyExistInTheGroupError,
 } from '../../../domain/errors/trip.error';
-import {
-  GetGroupInvitesResponse,
-  GroupInvite,
-} from '../../../application/dtos/trip/responce/get-invites.dto';
-import { id } from 'zod/v4/locales';
+import { GetGroupInvitesResponse } from '../../../application/dtos/trip/responce/get-invites.dto';
 import { TripDestination } from '../../../application/dtos/trip/responce/get-weather.dto';
 import { GetGroupsRequestDTO } from '../../../application/dtos/trip/request/get-all-groups.dto';
 import { GetAllGroupsResponseDTO } from '../../../application/dtos/trip/responce/get-all-groups.dto';
@@ -494,6 +493,7 @@ export class TripRepository
       }),
     };
   }
+
   async getMatchProfile(payload: {
     matchId: string;
     userId: string;
@@ -592,6 +592,7 @@ export class TripRepository
       },
     };
   }
+
   async getUserPastTrips(payload: {
     userId: string;
   }): Promise<GetUserTripsResponseDTO> {
@@ -641,6 +642,7 @@ export class TripRepository
       }),
     };
   }
+
   async editTrip(tripId: string, payload: EditTripData): Promise<void> {
     await this.prisma.trip.update({
       where: {
@@ -649,6 +651,7 @@ export class TripRepository
       data: payload,
     });
   }
+
   async createGroup(
     tripId: string,
     userId: string,
@@ -671,6 +674,7 @@ export class TripRepository
       });
     });
   }
+
   async getActiveGroups(userId: string): Promise<GroupData[]> {
     const groups = await this.prisma.tripGroup.findMany({
       where: {
@@ -726,6 +730,7 @@ export class TripRepository
       };
     });
   }
+
   async addMember(
     userId: string,
     groupId: string,
@@ -767,6 +772,7 @@ export class TripRepository
       },
     });
   }
+
   async getMembers(groupId: string): Promise<GetMembersResponseDTO> {
     const members = await this.prisma.tripGroupMember.findMany({
       where: {
@@ -788,6 +794,7 @@ export class TripRepository
       })),
     };
   }
+
   async getInviteCode(groupId: string): Promise<{ inviteCode: string }> {
     const group = await this.prisma.tripGroup.findFirst({
       where: {
@@ -799,6 +806,7 @@ export class TripRepository
     }
     return { inviteCode: group.inviteCode };
   }
+
   async getGroupWithTrip(groupId: string): Promise<{
     inviteCode: string;
     groupName: string;
@@ -825,6 +833,7 @@ export class TripRepository
       destination: group.trip.destination.name,
     };
   }
+
   async joinGroupByInviteCode(payload: {
     inviteCode: string;
     userId: string;
@@ -898,6 +907,7 @@ export class TripRepository
 
     return { groupId: group.id, alreadyMember: false };
   }
+
   async GetGroupWithDetails(groupId: string): Promise<GroupData> {
     const group = await this.prisma.tripGroup.findFirst({
       where: {
@@ -945,6 +955,7 @@ export class TripRepository
       })),
     };
   }
+
   async createGroupInvite(payload: {
     groupId: string;
     invitedBy: string;
@@ -997,6 +1008,7 @@ export class TripRepository
       });
     }
   }
+
   async getGroupInvites(groupId: string): Promise<GetGroupInvitesResponse> {
     const invites = await this.prisma.tripGroupInvite.findMany({
       where: {
@@ -1017,6 +1029,7 @@ export class TripRepository
       }),
     };
   }
+
   async changeMemberRole(groupId: string, memberId: string): Promise<void> {
     await this.prisma.tripGroupMember.update({
       where: {
@@ -1061,6 +1074,7 @@ export class TripRepository
       },
     });
   }
+
   async getTripDestination(
     tripGroupId: string,
   ): Promise<TripDestination | null> {
@@ -1105,6 +1119,7 @@ export class TripRepository
       country: destination.country.name,
     };
   }
+
   async getAllTripGroups(
     payload: GetGroupsRequestDTO,
   ): Promise<GetAllGroupsResponseDTO> {
@@ -1240,6 +1255,7 @@ export class TripRepository
       totalPages: Math.ceil(total / limit),
     };
   }
+
   async getUserTripGroups(userId: string): Promise<GetGroupsResponseDTO> {
     const groups = await this.prisma.tripGroup.findMany({
       where: {
@@ -1292,6 +1308,56 @@ export class TripRepository
           })),
         };
       }),
+    };
+  }
+
+  async getGroupTrip(groupId: string): Promise<GroupTripForAI | null> {
+    const group = await this.prisma.tripGroup.findUnique({
+      where: {
+        id: groupId,
+      },
+
+      include: {
+        members: {
+          select: {
+            id: true,
+          },
+        },
+
+        trip: {
+          include: {
+            destination: {
+              include: {
+                country: true,
+              },
+            },
+
+            budgetStyle: true,
+            travelStyle: true,
+          },
+        },
+      },
+    });
+
+    if (!group) {
+      return null;
+    }
+
+    return {
+      startDate: group.trip.dateFrom,
+      endDate: group.trip.dateTo,
+      budgetStyle: group.trip.budgetStyle?.label ?? '',
+      travelStyle: group.trip.travelStyle?.label ?? '',
+      travellers: group.members.length,
+      destination: {
+        placeId: group.trip.destination.placeId,
+        name: group.trip.destination.name,
+        city: group.trip.destination.city,
+        state: group.trip.destination.state,
+        country: group.trip.destination.country.name,
+        latitude: Number(group.trip.destination.latitude),
+        longitude: Number(group.trip.destination.longitude),
+      },
     };
   }
 }

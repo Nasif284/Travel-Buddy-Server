@@ -14,7 +14,6 @@ import { calculateExpenseShares } from '../../../shared/helpers/calculateSplit';
 import { GetExpensesResponseDTO } from '../../../application/dtos/expense/response/get-expenses.dto';
 import { UpdateExpenseRequestDTO } from '../../../application/dtos/expense/request/update-expense.dto';
 import { GetExpenseSummaryResponseDTO } from '../../../application/dtos/expense/response/get-summery.dto';
-import { ExpenseBalanceMode } from '../../../application/dtos/expense/request/get-balances.dot';
 import {
   ExpenseCategoryReportDTO,
   ExpenseOverallReportDTO,

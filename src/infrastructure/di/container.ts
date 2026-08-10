@@ -15,7 +15,13 @@ import { ProfileController } from '../../presentation/controllers/user/profile/p
 import { ChecklistController } from '../../presentation/controllers/trip/checklist/checklist.controller';
 import { ExpenseController } from '../../presentation/controllers/trip/expense/expense.controller';
 import { TripManagementController } from '../../presentation/controllers/admin/trip-management/trips-management.controller';
-import { AdminsController } from '../../presentation/controllers/admin/adimins/admins.controller';
+import { AdminsController } from '../../presentation/controllers/admin/admins/admins.controller';
+import { AdminAuthMiddleware } from '../../presentation/middleware/user/auth/adminAuthMiddleware';
+import { UserAuthMiddleware } from '../../presentation/middleware/user/auth/userAuth.middleware';
+import { VerificationQueueController } from '../../presentation/controllers/admin/verification-queue/verification.controller';
+import { ItineraryController } from '../../presentation/controllers/trip/Itenerary/Itinerary.controller';
+import { AiAssistantController } from '../../presentation/controllers/user/ai-assistant/ai-assistant.controller';
+
 export interface AppContainer {
   adminControllers: AdminControllers;
   authController: AuthController;
@@ -26,19 +32,26 @@ export interface AppContainer {
   tripControllers: TripControllers;
   connectionsController: ConnectionsController;
   profileController: ProfileController;
+  assistantController: AiAssistantController;
+  authMiddlewares: AuthMiddlewares;
 }
 
 export interface TripControllers {
   tripController: TripController;
   checklistController: ChecklistController;
   expenseController: ExpenseController;
+  itineraryController: ItineraryController;
 }
-
+export interface AuthMiddlewares {
+  adminAuthMiddleware: AdminAuthMiddleware;
+  userAuthMiddleware: UserAuthMiddleware;
+}
 export interface AdminControllers {
   adminAuthController: AdminAuthController;
   userManagementController: UserManagementController;
   tripManagementController: TripManagementController;
   adminsController: AdminsController;
+  verificationController: VerificationQueueController;
 }
 
 export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
@@ -57,6 +70,13 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
   const expenseController = container.resolve(ExpenseController);
   const tripManagementController = container.resolve(TripManagementController);
   const adminsController = container.resolve(AdminsController);
+  const verificationController = container.resolve(VerificationQueueController);
+  const itineraryController = container.resolve(ItineraryController);
+  const assistantController = container.resolve(AiAssistantController);
+
+  const adminAuthMiddleware = container.resolve(AdminAuthMiddleware);
+  const userAuthMiddleware = container.resolve(UserAuthMiddleware);
+
   return {
     authController,
     adminControllers: {
@@ -64,6 +84,7 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
       tripManagementController,
       userManagementController,
       adminsController,
+      verificationController,
     },
     onboardingController,
     lookupController,
@@ -73,8 +94,14 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
       tripController,
       checklistController,
       expenseController,
+      itineraryController,
     },
     connectionsController,
     profileController,
+    authMiddlewares: {
+      userAuthMiddleware,
+      adminAuthMiddleware,
+    },
+    assistantController,
   };
 }

@@ -33,6 +33,28 @@ model Trip {
     @@map("trips")
 }
 
+model TripGroup {
+    id         String   @id @default(uuid()) @db.Uuid
+    tripId     String   @unique @map("trip_id") @db.Uuid
+    inviteCode String   @unique @map("invite_code") @db.VarChar(20)
+    createdBy  String   @map("created_by") @db.Uuid
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    trip  Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+    owner User @relation("TripGroupOwner", fields: [createdBy], references: [id])
+
+    members            TripGroupMember[]
+    invites            TripGroupInvite[]
+    checklistItems     ChecklistItem[]
+    expenses           Expense[]
+    expenseSettlements ExpenseSettlement[]
+    itineraryDays      ItineraryDay[]
+    chatConversation   ChatConversation?
+
+    @@index([createdBy])
+    @@map("trip_groups")
+}
+
 model Destination {
     id          String   @id @default(uuid()) @db.Uuid
     placeId     String   @unique @map("place_id") @db.VarChar(255)
@@ -72,6 +94,8 @@ model TripGroupMember {
     paidShares          ExpenseShare[]      @relation("SharePaidBy")
     settlementsPaid     ExpenseSettlement[] @relation("SettlementPayer")
     settlementsReceived ExpenseSettlement[] @relation("SettlementReceiver")
+    createdActivities   ItineraryActivity[]
+    createdDays         ItineraryDay[]
 
     @@unique([groupId, userId])
     @@index([groupId])
@@ -106,26 +130,6 @@ model TripMatch {
 
     @@unique([tripAId, tripBId])
     @@map("trip_matches")
-}
-
-model TripGroup {
-    id         String   @id @default(uuid()) @db.Uuid
-    tripId     String   @unique @map("trip_id") @db.Uuid
-    inviteCode String   @unique @map("invite_code") @db.VarChar(20)
-    createdBy  String   @map("created_by") @db.Uuid
-    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-
-    trip  Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
-    owner User @relation("TripGroupOwner", fields: [createdBy], references: [id])
-
-    members            TripGroupMember[]
-    invites            TripGroupInvite[]
-    checklistItems     ChecklistItem[]
-    expenses           Expense[]
-    expenseSettlements ExpenseSettlement[]
-
-    @@index([createdBy])
-    @@map("trip_groups")
 }
 
 model TripGroupInvite {

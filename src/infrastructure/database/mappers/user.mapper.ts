@@ -1,6 +1,5 @@
 // src/infrastructure/database/mappers/UserMapper.ts
 
-import { User, UserProps } from '../../../domain/entities/user/user.entity';
 import {
   Country,
   User as PrismaUser,
@@ -17,6 +16,7 @@ import {
   RequestFromOption,
   OnboardingSource,
 } from '../../../domain/enums';
+import { User, UserProps } from '../../../domain/entities/user/user.entity';
 
 type UserWithRelations = PrismaUser & {
   onboarding?: UserOnboarding | null;

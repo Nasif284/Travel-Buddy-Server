@@ -37,10 +37,13 @@ export class JwtTokenService implements ITokenService {
   }
 
   verifyAccessToken(token: string): TokenPayload {
+    console.log('Access Secret:', this._accessSecret);
     try {
       return jwt.verify(token, this._accessSecret) as TokenPayload;
-    } catch {
-      throw new UnauthorizedError();
+    } catch (err) {
+      // throw new UnauthorizedError();
+      console.error('verify error:', err);
+      throw err;
     }
   }
 

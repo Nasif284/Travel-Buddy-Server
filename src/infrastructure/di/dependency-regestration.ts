@@ -12,30 +12,57 @@ import {
   JwtTokenService,
   RedisSessionService,
 } from '../services';
-import { RedisOtpService } from '../services/redisOtp.service';
+import { RedisOtpService } from '../services/email-otp.service';
 import { AdminRepository } from '../database/repositories/admin.respository';
-import { registerUserAuthDependencies } from './user/auth.dependency';
-import { registerAdminAuthDependencies } from './admin/auth.dependency';
-import { registerUsersManagementDependencies } from './admin/user-management.dependency';
-import { registerOnboardingDependency } from './user/onbaording.dependency';
+import { registerUserAuthDependencies } from './client-side/user/auth.dependency';
+import { registerAdminAuthDependencies } from './admin-side/admin/auth.dependency';
+import { registerUsersManagementDependencies } from './admin-side/user-management/user-management.dependency';
+import { registerOnboardingDependency } from './client-side/user/onbaording.dependency';
 import { StorageService } from '../services/storage.service';
 import { LookupRepository } from '../database/repositories/lookups.repository';
 import { registerLookupDependency } from './lookup/lookup.dependency';
-import { registerLocationDependency } from './user/location.dependency,';
+import { registerLocationDependency } from './client-side/user/location.dependency,';
 import { GoogleGeocodingService } from '../services/geocode.service';
-import { registerUserDependency } from './user/user.dependency';
+import { registerUserDependency } from './client-side/user/user.dependency';
 import { TripRepository } from '../database/repositories/trip.repository';
 import { ImageService } from '../services/image.service';
-import { registerTripDependency } from './trip/trip.dependency';
-import { registerConnectionDependency } from './user/connection.dependency';
-import { registerProfileDependency } from './user/porfile.dependency';
+import { registerTripDependency } from './client-side/trip/trip.dependency';
+import { registerConnectionDependency } from './client-side/user/connection.dependency';
+import { registerProfileDependency } from './client-side/user/porfile.dependency';
 import { ChecklistRepository } from '../database/repositories/checklist.repository';
-import { registerChecklistDependency } from './checklsit/checklist.dependency';
+import { registerChecklistDependency } from './client-side/checklsit/checklist.dependency';
 import { ExpenseRepository } from '../database/repositories/expense.repository';
-import { registerExpenseDependency } from './expense/dependency';
+import { registerExpenseDependency } from './client-side/expense/dependency';
 import { OpenMeteoWeatherService } from '../services/open-mateo-weather.service';
 import { TwilioSmsService } from '../services/sms-service.service';
-import { RedisPhoneOtpService } from '../services/redis-phone-otp.service';
+import { RedisPhoneOtpService } from '../services/phone-otp.service';
+import { RedisCacheService } from '../services/redis-cache.service';
+import { AdminAuthMiddleware } from '../../presentation/middleware/user/auth/adminAuthMiddleware';
+import { UserAuthMiddleware } from '../../presentation/middleware/user/auth/userAuth.middleware';
+import { registerAdminsDependencies } from './admin-side/admins-management/admins.dependency';
+import { VerificationRepository } from '../database/repositories/verification.repository';
+import { registerVerificationDependency } from './admin-side/verification-queue/dependency';
+import { IVerificationQueueService } from '../../application/interfaces/services/verification-queue.service.interface';
+import { BullMQVerificationQueueService } from '../services/BullMq-verification-queue.service';
+import { IOcrService } from '../../application/interfaces/services/ocr.service.interface';
+import { IDocumentAnalysisService } from '../../application/interfaces/services/doucment-analysis.service.interface';
+import { GoogleDocumentAiService } from '../services/google-ocr.service';
+import { IDocumentExtractionService } from '../../application/interfaces/services/document-extraction.service.interface';
+import { DocumentExtractionService } from '../services/document-extraction.service';
+import { RuleBasedDocumentAnalysisService } from '../services/DocumentAnalysis.service';
+import { IItineraryRepository } from '../../application/interfaces/repositories/itenary.repository';
+import { ItineraryRepository } from '../database/repositories/itenary.repository';
+import { registerItineraryDependencies } from './client-side/itenerary/dependency';
+import { IAIModelService } from '../../application/interfaces/services/ai-model.service.interface';
+import { OpenRouterAIModelService } from '../services/open-router-ai-model.service';
+import { IPlacesService } from '../../application/interfaces/services/places.service.interface';
+import { GooglePlacesService } from '../services/google-places.service';
+import { IAiItineraryService } from '../../application/interfaces/services/ai-itinerary.service.interface';
+import { AiItineraryService } from '../services/ai-itinerary.service';
+import { GooglePlacesClient } from '../services/google-places-client.service';
+import { IAssistantRepository } from '../../application/interfaces/repositories/ai-assistant.repository';
+import { AssistantRepository } from '../database/repositories/ai-assistant.repository';
+import { registerAiAssistantDependency } from './client-side/ai-assistant/dependency';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -79,6 +106,39 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IPhoneOtpService,
     RedisPhoneOtpService,
   );
+  container.registerSingleton<RedisCacheService>(
+    TOKENS.ICacheService,
+    RedisCacheService,
+  );
+  container.registerSingleton<IVerificationQueueService>(
+    TOKENS.IVerificationQueueService,
+    BullMQVerificationQueueService,
+  );
+  container.registerSingleton<IOcrService>(
+    TOKENS.IOcrService,
+    GoogleDocumentAiService,
+  );
+  container.registerSingleton<IDocumentAnalysisService>(
+    TOKENS.IDocumentAnalysisService,
+    RuleBasedDocumentAnalysisService,
+  );
+  container.registerSingleton<IDocumentExtractionService>(
+    TOKENS.IDocumentExtractionService,
+    DocumentExtractionService,
+  );
+  container.registerSingleton<IAIModelService>(
+    TOKENS.IAIModelService,
+    OpenRouterAIModelService,
+  );
+  container.registerSingleton<IPlacesService>(
+    TOKENS.IPlacesService,
+    GooglePlacesService,
+  );
+  container.registerSingleton<IAiItineraryService>(
+    TOKENS.IAiItineraryService,
+    AiItineraryService,
+  );
+  container.registerSingleton(TOKENS.GooglePlacesClient, GooglePlacesClient);
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
@@ -104,11 +164,34 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IExpenseRepository,
     ExpenseRepository,
   );
+  container.registerSingleton<VerificationRepository>(
+    TOKENS.IVerificationRepository,
+    VerificationRepository,
+  );
+  container.registerSingleton<IItineraryRepository>(
+    TOKENS.IItineraryRepository,
+    ItineraryRepository,
+  );
+  container.registerSingleton<IAssistantRepository>(
+    TOKENS.IAssistantRepository,
+    AssistantRepository,
+  );
+
+  container.registerSingleton<AdminAuthMiddleware>(
+    TOKENS.AdminAuthenticationMiddleware,
+    AdminAuthMiddleware,
+  );
+  container.registerSingleton<UserAuthMiddleware>(
+    TOKENS.UserAuthMiddleware,
+    UserAuthMiddleware,
+  );
 
   // admin use-cases injection
   registerAdminAuthDependencies();
   registerUsersManagementDependencies();
   registerLookupDependency();
+  registerAdminsDependencies();
+  registerVerificationDependency();
 
   // user use-cases injection
   registerUserAuthDependencies();
@@ -120,4 +203,6 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
   registerProfileDependency();
   registerChecklistDependency();
   registerExpenseDependency();
+  registerItineraryDependencies();
+  registerAiAssistantDependency();
 }

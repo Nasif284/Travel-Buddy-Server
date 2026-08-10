@@ -28,16 +28,19 @@ export class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
+    this.app.set('trust proxy', true);
     this.app.use(morganMiddleware);
 
     this.app.use(cookieParser());
   }
+
   private initializeRoutes(): void {
     this.app.get('/', (_, res) => {
       res.send('API Running...');
     });
     this.app.use('/api/v1', buildRoutes(this.container));
   }
+
   private initializeErrorHandling(): void {
     this.app.use(globalErrorHandler);
   }

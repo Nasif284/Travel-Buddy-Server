@@ -2,24 +2,25 @@ import { Router } from 'express';
 import { OnboardingController } from '../../../controllers/user/onboarding/onboarding.controller';
 import { validate } from '../../../validators/validator';
 import { onboardingSourceSchema } from '../../../validators/user/onboarding/source.validator';
-import { authenticate } from '../../../middleware/user/auth/userAuth.middleware';
+import { UserAuthMiddleware } from '../../../middleware/user/auth/userAuth.middleware';
 import { asyncHandler } from '../../../middleware/error/asyncHandler';
 import { upload } from '../../../middleware/storage/multer.middleware';
 import { TravelStyleSchema } from '../../../validators/user/onboarding/travel-style.validator';
 
 export function buildOnboardingRoutes(
   controller: OnboardingController,
+  userAuth: UserAuthMiddleware,
 ): Router {
   const router = Router();
   router.post(
     '/source',
-    authenticate,
+    userAuth.authenticate,
     validate(onboardingSourceSchema),
     asyncHandler(controller.addOnboardingSource),
   );
   router.post(
     '/profile',
-    authenticate,
+    userAuth.authenticate,
     upload.fields([
       {
         name: 'image',
@@ -34,18 +35,18 @@ export function buildOnboardingRoutes(
   );
   router.post(
     '/travel-style',
-    authenticate,
+    userAuth.authenticate,
     validate(TravelStyleSchema),
     asyncHandler(controller.setTravelStyle),
   );
   router.patch(
     '/profile',
-    authenticate,
+    userAuth.authenticate,
     asyncHandler(controller.editOnboardingProfile),
   );
   router.patch(
     '/travel-style',
-    authenticate,
+    userAuth.authenticate,
     validate(TravelStyleSchema),
     asyncHandler(controller.editTravelStyle),
   );
