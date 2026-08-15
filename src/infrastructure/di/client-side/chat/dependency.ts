@@ -1,0 +1,41 @@
+import { container } from 'tsyringe';
+import { TOKENS } from '../../tokens';
+import { IGetDirectChatUseCase } from '../../../../application/interfaces/use-cases/chats/get-direct-chat.interface';
+import { GetDirectChatUseCase } from '../../../../application/use-cases/chats/get-direct-chat.usecase';
+import { IGetGroupChatUseCase } from '../../../../application/interfaces/use-cases/chats/get-group-chat.interface';
+import { GetGroupChatUseCase } from '../../../../application/use-cases/chats/get-group-chat.interface';
+import { ISendChatMessageUseCase } from '../../../../application/interfaces/use-cases/chats/send-message.interface';
+import { SendChatMessageUseCase } from '../../../../application/use-cases/chats/send-message.usecase';
+import { IGetChatMessagesUseCase } from '../../../../application/interfaces/use-cases/chats/get-messages.interface';
+import { GetChatMessagesUseCase } from '../../../../application/use-cases/chats/get-messages.usecase';
+import { IJoinChatConversationValidationUseCase } from '../../../../application/interfaces/use-cases/chats/join-conversation-validation.interface';
+import { JoinChatConversationValidationUseCase } from '../../../../application/use-cases/chats/join-conversation-validation.usecase';
+import { IGetDirectConversationsUseCase } from '../../../../application/interfaces/use-cases/chats/get-direct-conversations.interface';
+import { GetDirectConversationsUseCase } from '../../../../application/use-cases/chats/get-direct-conversations.use-case';
+
+export function registerChatsDependency() {
+  container.registerSingleton<IGetDirectChatUseCase>(
+    TOKENS.IGetDirectChatUseCase,
+    GetDirectChatUseCase,
+  );
+  container.registerSingleton<IGetGroupChatUseCase>(
+    TOKENS.IGetGroupChatUseCase,
+    GetGroupChatUseCase,
+  );
+  container.registerSingleton<ISendChatMessageUseCase>(
+    TOKENS.ISendChatMessageUseCase,
+    SendChatMessageUseCase,
+  );
+  container.registerSingleton<IGetChatMessagesUseCase>(
+    TOKENS.IGetChatMessagesUseCase,
+    GetChatMessagesUseCase,
+  );
+  container.registerSingleton<IJoinChatConversationValidationUseCase>(
+    TOKENS.IJoinChatConversationValidationUseCase,
+    JoinChatConversationValidationUseCase,
+  );
+  container.registerSingleton<IGetDirectConversationsUseCase>(
+    TOKENS.IGetDirectConversationsUseCase,
+    GetDirectConversationsUseCase,
+  );
+}

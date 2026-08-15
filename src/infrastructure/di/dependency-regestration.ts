@@ -63,6 +63,9 @@ import { GooglePlacesClient } from '../services/google-places-client.service';
 import { IAssistantRepository } from '../../application/interfaces/repositories/ai-assistant.repository';
 import { AssistantRepository } from '../database/repositories/ai-assistant.repository';
 import { registerAiAssistantDependency } from './client-side/ai-assistant/dependency';
+import { IChatRepository } from '../../application/interfaces/repositories/chat.repository';
+import { ChatRepository } from '../database/repositories/chat.repository';
+import { registerChatsDependency } from './client-side/chat/dependency';
 
 export function registerDependencies(db: PrismaClient, redis: Redis): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
@@ -176,6 +179,10 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IAssistantRepository,
     AssistantRepository,
   );
+  container.registerSingleton<IChatRepository>(
+    TOKENS.IChatRepository,
+    ChatRepository,
+  );
 
   container.registerSingleton<AdminAuthMiddleware>(
     TOKENS.AdminAuthenticationMiddleware,
@@ -205,4 +212,5 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
   registerExpenseDependency();
   registerItineraryDependencies();
   registerAiAssistantDependency();
+  registerChatsDependency();
 }

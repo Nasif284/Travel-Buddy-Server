@@ -7,6 +7,7 @@ import { USER_TOKENS } from './client-side/user/user.tokens';
 import { VERIFICATION_TOKENS } from './admin-side/verification-queue/verification.tokens';
 import { ITINERARY_TOKENS } from './client-side/itenerary/tokens';
 import { AI_ASSISTANT_TOKENS } from './client-side/ai-assistant/tokens';
+import { CHAT_TOKENS } from './client-side/chat/tokens';
 
 export const TOKENS = {
   IUserRepository: 'IUserRepository',
@@ -17,6 +18,7 @@ export const TOKENS = {
   IVerificationRepository: 'IVerificationRepository',
   IItineraryRepository: 'IItineraryRepository',
   IAssistantRepository: 'IAssistantRepository',
+  IChatRepository: 'IChatRepository',
 
   AdminAuthenticationMiddleware: 'AdminAuthenticationMiddleware',
   UserAuthMiddleware: 'UserAuthMiddleware',
@@ -54,4 +56,5 @@ export const TOKENS = {
   ...VERIFICATION_TOKENS,
   ...ITINERARY_TOKENS,
   ...AI_ASSISTANT_TOKENS,
+  ...CHAT_TOKENS,
 } as const;

@@ -21,6 +21,7 @@ import { UserAuthMiddleware } from '../../presentation/middleware/user/auth/user
 import { VerificationQueueController } from '../../presentation/controllers/admin/verification-queue/verification.controller';
 import { ItineraryController } from '../../presentation/controllers/trip/Itenerary/Itinerary.controller';
 import { AiAssistantController } from '../../presentation/controllers/user/ai-assistant/ai-assistant.controller';
+import { ChatController } from '../../presentation/controllers/user/chat/chat.controller';
 
 export interface AppContainer {
   adminControllers: AdminControllers;
@@ -34,6 +35,7 @@ export interface AppContainer {
   profileController: ProfileController;
   assistantController: AiAssistantController;
   authMiddlewares: AuthMiddlewares;
+  chatController: ChatController;
 }
 
 export interface TripControllers {
@@ -73,6 +75,7 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
   const verificationController = container.resolve(VerificationQueueController);
   const itineraryController = container.resolve(ItineraryController);
   const assistantController = container.resolve(AiAssistantController);
+  const chatController = container.resolve(ChatController);
 
   const adminAuthMiddleware = container.resolve(AdminAuthMiddleware);
   const userAuthMiddleware = container.resolve(UserAuthMiddleware);
@@ -103,5 +106,6 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
       adminAuthMiddleware,
     },
     assistantController,
+    chatController,
   };
 }

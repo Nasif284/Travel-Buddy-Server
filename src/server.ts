@@ -15,6 +15,10 @@ import { PlaceContextBuilder } from './infrastructure/ai/ai-itinerary/builder/ai
 import { PlaceCategory } from './application/interfaces/services/places.service.interface';
 import { ItineraryState } from './infrastructure/ai/ai-itinerary/itinerary.states';
 import { AssistantService } from './infrastructure/services/ai-assistant.service';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { registerChatSocket } from './infrastructure/socket/chat.socket';
+import { registerSocketAuth } from './infrastructure/socket/socket-auth.middleware';
 
 const PORT = parseInt(process.env.PORT ?? '3000');
 
@@ -53,13 +57,24 @@ async function bootstrap(): Promise<void> {
 
   const container = buildContainer(db, redis);
   const app = new App(container).getServer();
+  const httpServer = createServer(app);
 
-  app.listen(PORT, () => {
+  const io = new Server(httpServer, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      credentials: true,
+    },
+  });
+  registerSocketAuth(io);
+  registerChatSocket(io);
+
+  httpServer.listen(PORT, () => {
     console.log(`[Server] Travel Buddy API running on port ${PORT}`);
     console.log(
       `[Server] Environment: ${process.env.NODE_ENV ?? 'development'}`,
     );
   });
+
   // const shutdown = async () => {
   //   console.log(`shutting down gracefully...`);
   //   await pool.end();

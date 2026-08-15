@@ -553,7 +553,6 @@ export class UserRepository
       LIMIT ${limit}
       OFFSET ${offset}
     `;
-    console.log(users, limit, offset);
 
     const totalResult = await this.prisma.$queryRaw<{ count: bigint }[]>`
       SELECT COUNT(*)::bigint AS count

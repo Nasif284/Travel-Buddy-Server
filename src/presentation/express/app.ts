@@ -8,6 +8,7 @@ import morganMiddleware from '../../infrastructure/logging/morgan.middleware';
 import cookieParser from 'cookie-parser';
 import { buildRoutes } from '../routes';
 import { globalErrorHandler } from '../middleware/error/error.middleware';
+
 export class App {
   private readonly app: Application;
   constructor(private readonly container: AppContainer) {

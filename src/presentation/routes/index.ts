@@ -10,6 +10,7 @@ import { buildTripRoutes } from './trip/trip.route';
 import { buildConnectionRoutes } from './user/connection/connection.route';
 import { buildProfileRoutes } from './user/profile/profile.route';
 import { buildAssistantRoute } from './user/ai-assistant/assistant.route';
+import { buildChatRoutes } from './user/chat/chat.route';
 
 export function buildRoutes(container: AppContainer): Router {
   const router = Router();
@@ -43,5 +44,6 @@ export function buildRoutes(container: AppContainer): Router {
     '/ai/assistant',
     buildAssistantRoute(container.assistantController, userAuth),
   );
+  router.use('/chat', buildChatRoutes(container.chatController, userAuth));
   return router;
 }
