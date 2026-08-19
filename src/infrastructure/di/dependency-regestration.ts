@@ -66,10 +66,21 @@ import { registerAiAssistantDependency } from './client-side/ai-assistant/depend
 import { IChatRepository } from '../../application/interfaces/repositories/chat.repository';
 import { ChatRepository } from '../database/repositories/chat.repository';
 import { registerChatsDependency } from './client-side/chat/dependency';
+import { ICallRepository } from '../../application/interfaces/repositories/call.repository.interface';
+import { CallRepository } from '../database/repositories/call.repository';
+import { registerCallDependency } from './client-side/call/dependency';
+import { Server } from 'socket.io';
+import { CallNotificationService } from '../services/call-notification.service';
+import { ICallNotificationService } from '../../application/interfaces/services/call-notification.service.interface';
 
-export function registerDependencies(db: PrismaClient, redis: Redis): void {
+export function registerDependencies(
+  db: PrismaClient,
+  redis: Redis,
+  io: Server,
+): void {
   container.registerInstance<PrismaClient>(TOKENS.PrismaClient, db);
   container.registerInstance<Redis>(TOKENS.RedisClient, redis);
+  container.registerInstance<Server>(TOKENS.Socket, io);
 
   container.registerSingleton<BcryptHashService>(
     TOKENS.IHashService,
@@ -142,6 +153,10 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     AiItineraryService,
   );
   container.registerSingleton(TOKENS.GooglePlacesClient, GooglePlacesClient);
+  container.registerSingleton<ICallNotificationService>(
+    TOKENS.ICallNotificationService,
+    CallNotificationService,
+  );
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
@@ -183,6 +198,10 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
     TOKENS.IChatRepository,
     ChatRepository,
   );
+  container.registerSingleton<ICallRepository>(
+    TOKENS.ICallRepository,
+    CallRepository,
+  );
 
   container.registerSingleton<AdminAuthMiddleware>(
     TOKENS.AdminAuthenticationMiddleware,
@@ -213,4 +232,5 @@ export function registerDependencies(db: PrismaClient, redis: Redis): void {
   registerItineraryDependencies();
   registerAiAssistantDependency();
   registerChatsDependency();
+  registerCallDependency();
 }

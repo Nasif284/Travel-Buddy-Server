@@ -50,6 +50,7 @@ model TripGroup {
     expenseSettlements ExpenseSettlement[]
     itineraryDays      ItineraryDay[]
     chatConversation   ChatConversation?
+    calls              Call[]              @relation("TripGroupCalls")
 
     @@index([createdBy])
     @@map("trip_groups")

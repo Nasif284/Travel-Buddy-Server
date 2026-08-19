@@ -1,0 +1,69 @@
+enum CallMediaType {
+  AUDIO
+  VIDEO
+}
+
+enum CallScope {
+  DIRECT
+  TRIP_GROUP
+}
+
+enum CallStatus {
+  RINGING
+  ACTIVE
+  ENDED
+  CANCELLED
+}
+
+enum CallParticipantStatus {
+  INVITED
+  JOINED
+  DECLINED
+  LEFT
+  MISSED
+}
+
+model Call {
+  id String @id @default(uuid()) @db.Uuid
+
+  scope CallScope
+  mediaType CallMediaType
+  status CallStatus @default(RINGING)
+
+  callerId String @map("caller_id") @db.Uuid
+  recipientId String? @map("recipient_id") @db.Uuid
+  tripGroupId String? @map("trip_group_id") @db.Uuid
+
+  startedAt DateTime? @map("started_at") @db.Timestamptz(6)
+  endedAt DateTime? @map("ended_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  caller User @relation("CallCaller", fields: [callerId], references: [id])
+  recipient User? @relation("CallRecipient", fields: [recipientId], references: [id])
+  tripGroup TripGroup? @relation("TripGroupCalls", fields: [tripGroupId], references: [id])
+
+  participants CallParticipant[]
+
+  @@index([callerId])
+  @@index([recipientId])
+  @@index([tripGroupId, status])
+  @@map("calls")
+}
+
+model CallParticipant {
+  id String @id @default(uuid()) @db.Uuid
+
+  callId String @map("call_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  status CallParticipantStatus @default(INVITED)
+
+  joinedAt DateTime? @map("joined_at") @db.Timestamptz(6)
+  leftAt DateTime? @map("left_at") @db.Timestamptz(6)
+
+  call Call @relation(fields: [callId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([callId, userId])
+  @@index([userId, status])
+  @@map("call_participants")
+}

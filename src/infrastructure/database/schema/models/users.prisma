@@ -66,6 +66,9 @@ model User {
   chatConversationsAsUserA ChatConversation[]      @relation("ChatUserA")
   chatConversationsAsUserB ChatConversation[]      @relation("ChatUserB")
   chatMessages             ChatMessage[]
+  initiatedCalls           Call[]                  @relation("CallCaller")
+  receivedCalls            Call[]                  @relation("CallRecipient")
+  callParticipants         CallParticipant[]
 
   @@index([email])
   @@index([phone])

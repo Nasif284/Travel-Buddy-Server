@@ -11,6 +11,7 @@ import { buildConnectionRoutes } from './user/connection/connection.route';
 import { buildProfileRoutes } from './user/profile/profile.route';
 import { buildAssistantRoute } from './user/ai-assistant/assistant.route';
 import { buildChatRoutes } from './user/chat/chat.route';
+import { buildCallRoutes } from './user/calls/call.route';
 
 export function buildRoutes(container: AppContainer): Router {
   const router = Router();
@@ -45,5 +46,6 @@ export function buildRoutes(container: AppContainer): Router {
     buildAssistantRoute(container.assistantController, userAuth),
   );
   router.use('/chat', buildChatRoutes(container.chatController, userAuth));
+  router.use('/calls', buildCallRoutes(container.callController, userAuth));
   return router;
 }

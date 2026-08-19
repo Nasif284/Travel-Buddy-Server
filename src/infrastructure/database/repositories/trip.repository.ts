@@ -774,6 +774,23 @@ export class TripRepository
   }
 
   async getMembers(groupId: string): Promise<GetMembersResponseDTO> {
+    const group = await this.prisma.tripGroup.findFirst({
+      where: {
+        id: groupId,
+      },
+      include: {
+        trip: {
+          select: {
+            name: true,
+            destination: {
+              select: {
+                coverUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
     const members = await this.prisma.tripGroupMember.findMany({
       where: {
         groupId,
@@ -792,6 +809,10 @@ export class TripRepository
         joinedAt: m.joinedAt,
         role: m.roleCode,
       })),
+      group: {
+        name: group!.trip.name,
+        coverUrl: group!.trip.destination.coverUrl,
+      },
     };
   }
 
@@ -1359,5 +1380,21 @@ export class TripRepository
         longitude: Number(group.trip.destination.longitude),
       },
     };
+  }
+
+  async findActiveMember(
+    groupId: string,
+    userId: string,
+  ): Promise<{ id: string } | null> {
+    return await this.prisma.tripGroupMember.findFirst({
+      where: {
+        groupId,
+        userId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+      },
+    });
   }
 }

@@ -19,6 +19,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { registerChatSocket } from './infrastructure/socket/chat.socket';
 import { registerSocketAuth } from './infrastructure/socket/socket-auth.middleware';
+import { registerCallSocket } from './infrastructure/socket/call.socket';
+import { CallNotificationService } from './infrastructure/services/call-notification.service';
 
 const PORT = parseInt(process.env.PORT ?? '3000');
 
@@ -55,19 +57,20 @@ async function bootstrap(): Promise<void> {
     process.exit(1);
   }
 
-  const container = buildContainer(db, redis);
-  const app = new App(container).getServer();
-  const httpServer = createServer(app);
-
+  const httpServer = createServer();
   const io = new Server(httpServer, {
     cors: {
       origin: process.env.FRONTEND_URL,
       credentials: true,
     },
   });
+  const container = buildContainer(db, redis, io);
+  const app = new App(container).getServer();
+  httpServer.on('request', app);
+
   registerSocketAuth(io);
   registerChatSocket(io);
-
+  registerCallSocket(io);
   httpServer.listen(PORT, () => {
     console.log(`[Server] Travel Buddy API running on port ${PORT}`);
     console.log(

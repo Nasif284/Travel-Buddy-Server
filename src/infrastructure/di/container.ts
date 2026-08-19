@@ -22,6 +22,8 @@ import { VerificationQueueController } from '../../presentation/controllers/admi
 import { ItineraryController } from '../../presentation/controllers/trip/Itenerary/Itinerary.controller';
 import { AiAssistantController } from '../../presentation/controllers/user/ai-assistant/ai-assistant.controller';
 import { ChatController } from '../../presentation/controllers/user/chat/chat.controller';
+import { CallController } from '../../presentation/controllers/user/call/call.controller';
+import { Server } from 'socket.io';
 
 export interface AppContainer {
   adminControllers: AdminControllers;
@@ -36,6 +38,7 @@ export interface AppContainer {
   assistantController: AiAssistantController;
   authMiddlewares: AuthMiddlewares;
   chatController: ChatController;
+  callController: CallController;
 }
 
 export interface TripControllers {
@@ -56,8 +59,12 @@ export interface AdminControllers {
   verificationController: VerificationQueueController;
 }
 
-export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
-  registerDependencies(db, redis);
+export function buildContainer(
+  db: PrismaClient,
+  redis: Redis,
+  io: Server,
+): AppContainer {
+  registerDependencies(db, redis, io);
   const authController = container.resolve(AuthController);
   const adminAuthController = container.resolve(AdminAuthController);
   const userManagementController = container.resolve(UserManagementController);
@@ -76,6 +83,7 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
   const itineraryController = container.resolve(ItineraryController);
   const assistantController = container.resolve(AiAssistantController);
   const chatController = container.resolve(ChatController);
+  const callController = container.resolve(CallController);
 
   const adminAuthMiddleware = container.resolve(AdminAuthMiddleware);
   const userAuthMiddleware = container.resolve(UserAuthMiddleware);
@@ -107,5 +115,6 @@ export function buildContainer(db: PrismaClient, redis: Redis): AppContainer {
     },
     assistantController,
     chatController,
+    callController,
   };
 }

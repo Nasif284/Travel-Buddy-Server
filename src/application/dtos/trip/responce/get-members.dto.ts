@@ -8,4 +8,8 @@ interface Member {
 }
 export interface GetMembersResponseDTO {
   members: Member[];
+  group?: {
+    name: string;
+    coverUrl: string | null;
+  };
 }

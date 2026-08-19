@@ -107,4 +107,8 @@ export interface ITripRepository {
   ): Promise<GetAllGroupsResponseDTO>;
   getUserTripGroups(userId: string): Promise<GetGroupsResponseDTO>;
   getGroupTrip(groupId: string): Promise<GroupTripForAI | null>;
+  findActiveMember(
+    groupId: string,
+    userId: string,
+  ): Promise<{ id: string } | null>;
 }
