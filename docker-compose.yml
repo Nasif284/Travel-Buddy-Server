@@ -19,7 +19,9 @@ services:
         condition: service_started
 
   postgres:
-    image: postgis/postgis:15-3.4
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: ${DB_USER:-nasif}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}

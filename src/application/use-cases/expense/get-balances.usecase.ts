@@ -225,7 +225,7 @@ export class GetExpenseBalances implements IGetExpenseBalances {
       });
 
       creditor.remaining -= settledAmount;
-      debtor.remaining += settledAmount;
+      debtor.remaining -= settledAmount;
 
       if (Math.abs(creditor.remaining) < 0.01) {
         creditor.remaining = 0;

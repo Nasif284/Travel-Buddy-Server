@@ -6,6 +6,7 @@ import { buildTripsManagementRoutes } from './trip-management/trip-management.ro
 import { buildAdminsRoutes } from './admins/admins.route';
 import { AdminAuthMiddleware } from '../../middleware/user/auth/adminAuthMiddleware';
 import { buildVerificationsRoute } from './verification-queue/verification.route';
+import { buildAdminAnalyticsRoutes } from './analytics/admin-analytics.route';
 
 export function buildAdminRoutes(
   container: AdminControllers,
@@ -29,6 +30,9 @@ export function buildAdminRoutes(
     '/verifications',
     buildVerificationsRoute(container.verificationController, adminAuth),
   );
-
+  router.use(
+    '/analytics',
+    buildAdminAnalyticsRoutes(container.adminAnalyticsController, adminAuth),
+  );
   return router;
 }

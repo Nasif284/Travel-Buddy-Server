@@ -24,6 +24,7 @@ import { AiAssistantController } from '../../presentation/controllers/user/ai-as
 import { ChatController } from '../../presentation/controllers/user/chat/chat.controller';
 import { CallController } from '../../presentation/controllers/user/call/call.controller';
 import { Server } from 'socket.io';
+import { AdminAnalyticsController } from '../../presentation/controllers/admin/analytics/admin-analytics.controller';
 
 export interface AppContainer {
   adminControllers: AdminControllers;
@@ -57,6 +58,7 @@ export interface AdminControllers {
   tripManagementController: TripManagementController;
   adminsController: AdminsController;
   verificationController: VerificationQueueController;
+  adminAnalyticsController: AdminAnalyticsController;
 }
 
 export function buildContainer(
@@ -84,6 +86,7 @@ export function buildContainer(
   const assistantController = container.resolve(AiAssistantController);
   const chatController = container.resolve(ChatController);
   const callController = container.resolve(CallController);
+  const adminAnalyticsController = container.resolve(AdminAnalyticsController);
 
   const adminAuthMiddleware = container.resolve(AdminAuthMiddleware);
   const userAuthMiddleware = container.resolve(UserAuthMiddleware);
@@ -96,6 +99,7 @@ export function buildContainer(
       userManagementController,
       adminsController,
       verificationController,
+      adminAnalyticsController,
     },
     onboardingController,
     lookupController,

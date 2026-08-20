@@ -12,4 +12,15 @@ export interface IAssistantRepository {
     conversationId: string,
     limit: number,
   ): Promise<AssistantMessage[]>;
+  saveMessageEmbedding(
+    messageId: string,
+    conversationId: string,
+    content: string,
+    embedding: number[],
+  ): Promise<void>;
+  searchSimilarMessages(
+    conversationId: string,
+    embedding: number[],
+    limit: number,
+  ): Promise<AssistantMessage[]>;
 }

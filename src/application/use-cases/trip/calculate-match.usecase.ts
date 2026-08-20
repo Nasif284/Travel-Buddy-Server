@@ -38,7 +38,7 @@ export class CalculateMatch implements ICalculateMatch {
       } else if (
         sourceTrip.destination.country === targetTrip.destination.country
       ) {
-        destinationScore = 20;
+        destinationScore = 10;
         reasons.push(`Both traveling to ${sourceTrip.destination.country}`);
       }
 

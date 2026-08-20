@@ -21,6 +21,7 @@ import { registerChatSocket } from './infrastructure/socket/chat.socket';
 import { registerSocketAuth } from './infrastructure/socket/socket-auth.middleware';
 import { registerCallSocket } from './infrastructure/socket/call.socket';
 import { CallNotificationService } from './infrastructure/services/call-notification.service';
+import { LocalEmbeddingService } from './infrastructure/services/ocal-embedding.service';
 
 const PORT = parseInt(process.env.PORT ?? '3000');
 
@@ -71,6 +72,13 @@ async function bootstrap(): Promise<void> {
   registerSocketAuth(io);
   registerChatSocket(io);
   registerCallSocket(io);
+  const embeddingService = new LocalEmbeddingService();
+  const vector = await embeddingService.embed(
+    'I am planning a five day trip to Kerala',
+  );
+
+  console.log('Dimensions:', vector.length);
+  console.log('First values:', vector.slice(0, 5));
   httpServer.listen(PORT, () => {
     console.log(`[Server] Travel Buddy API running on port ${PORT}`);
     console.log(

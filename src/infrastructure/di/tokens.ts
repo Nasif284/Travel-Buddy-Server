@@ -9,6 +9,7 @@ import { ITINERARY_TOKENS } from './client-side/itenerary/tokens';
 import { AI_ASSISTANT_TOKENS } from './client-side/ai-assistant/tokens';
 import { CHAT_TOKENS } from './client-side/chat/tokens';
 import { CALL_TOKENS } from './client-side/call/tokens';
+import { ADMIN_ANALYTICS_TOKENS } from './admin-side/admin-analytics/tokens';
 
 export const TOKENS = {
   IUserRepository: 'IUserRepository',
@@ -21,6 +22,7 @@ export const TOKENS = {
   IAssistantRepository: 'IAssistantRepository',
   IChatRepository: 'IChatRepository',
   ICallRepository: 'ICallRepository',
+  IAdminAnalyticsRepository: 'IAdminAnalyticsRepository',
 
   AdminAuthenticationMiddleware: 'AdminAuthenticationMiddleware',
   UserAuthMiddleware: 'UserAuthMiddleware',
@@ -46,6 +48,7 @@ export const TOKENS = {
   IAiItineraryService: 'IAiItineraryService',
   GooglePlacesClient: 'GooglePlacesClient',
   ICallNotificationService: 'ICallNotificationService',
+  IEmbeddingService: 'IEmbeddingService',
 
   PrismaClient: 'PrismaClient',
   RedisClient: 'RedisClient',
@@ -62,4 +65,5 @@ export const TOKENS = {
   ...AI_ASSISTANT_TOKENS,
   ...CHAT_TOKENS,
   ...CALL_TOKENS,
+  ...ADMIN_ANALYTICS_TOKENS,
 } as const;

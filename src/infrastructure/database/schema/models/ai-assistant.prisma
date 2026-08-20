@@ -2,12 +2,13 @@ model AssistantConversation {
     id String @id @default(uuid()) @db.Uuid
 
     userId String @unique @map("user_id") @db.Uuid
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-    messages AssistantMessage[]
+    messages   AssistantMessage[]
+    embeddings AssistantMessageEmbedding[]
 
     @@index([userId])
     @@map("assistant_conversations")
@@ -16,14 +17,38 @@ model AssistantConversation {
 model AssistantMessage {
     id String @id @default(uuid()) @db.Uuid
 
-    conversationId String @map("conversation_id") @db.Uuid
-    conversation AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    conversationId String                @map("conversation_id") @db.Uuid
+    conversation   AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-    role String @db.VarChar(20)
-    content String
+    role      String   @db.VarChar(20)
+    content   String
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    embedding AssistantMessageEmbedding?
 
     @@index([conversationId])
     @@index([createdAt])
     @@map("assistant_messages")
+}
+
+model AssistantMessageEmbedding {
+    id String @id @default(uuid()) @db.Uuid
+
+    messageId String @unique @map("message_id") @db.Uuid
+
+    conversationId String @map("conversation_id") @db.Uuid
+
+    content String
+
+    embedding Unsupported("vector(384)")
+
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    message AssistantMessage @relation(fields: [messageId],references: [id],onDelete: Cascade)
+
+    conversation AssistantConversation @relation(fields: [conversationId],references: [id],onDelete: Cascade)
+
+    @@index([conversationId])
+    @@index([createdAt])
+    @@map("assistant_message_embeddings")
 }

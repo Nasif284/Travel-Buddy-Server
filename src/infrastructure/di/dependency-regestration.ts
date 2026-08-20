@@ -72,6 +72,11 @@ import { registerCallDependency } from './client-side/call/dependency';
 import { Server } from 'socket.io';
 import { CallNotificationService } from '../services/call-notification.service';
 import { ICallNotificationService } from '../../application/interfaces/services/call-notification.service.interface';
+import { IAdminAnalyticsRepository } from '../../application/interfaces/repositories/admin-analytics.repository';
+import { AdminAnalyticsRepository } from '../database/repositories/admin-analytics.repository';
+import { registerAdminAnalyticsDependency } from './admin-side/admin-analytics/dependency';
+import { IEmbeddingService } from '../../application/interfaces/services/embedding.service.interface';
+import { LocalEmbeddingService } from '../services/ocal-embedding.service';
 
 export function registerDependencies(
   db: PrismaClient,
@@ -157,6 +162,10 @@ export function registerDependencies(
     TOKENS.ICallNotificationService,
     CallNotificationService,
   );
+  container.registerSingleton<IEmbeddingService>(
+    TOKENS.IEmbeddingService,
+    LocalEmbeddingService,
+  );
 
   container.registerSingleton<UserRepository>(
     TOKENS.IUserRepository,
@@ -202,6 +211,10 @@ export function registerDependencies(
     TOKENS.ICallRepository,
     CallRepository,
   );
+  container.registerSingleton<IAdminAnalyticsRepository>(
+    TOKENS.IAdminAnalyticsRepository,
+    AdminAnalyticsRepository,
+  );
 
   container.registerSingleton<AdminAuthMiddleware>(
     TOKENS.AdminAuthenticationMiddleware,
@@ -218,6 +231,7 @@ export function registerDependencies(
   registerLookupDependency();
   registerAdminsDependencies();
   registerVerificationDependency();
+  registerAdminAnalyticsDependency();
 
   // user use-cases injection
   registerUserAuthDependencies();
