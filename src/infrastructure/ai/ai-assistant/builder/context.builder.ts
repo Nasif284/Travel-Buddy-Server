@@ -4,6 +4,7 @@ import { IAssistantRepository } from '../../../../application/interfaces/reposit
 import { IUserRepository } from '../../../../application/interfaces/repositories/user.reposetory';
 import { ITripRepository } from '../../../../application/interfaces/repositories/trip.repository';
 import { AssistantContext } from '../../../../application/interfaces/use-cases/ai-assistant/chat.interface';
+import { IEmbeddingService } from '../../../../application/interfaces/services/embedding.service.interface';
 @injectable()
 export class AssistantContextBuilder {
   constructor(
@@ -13,9 +14,11 @@ export class AssistantContextBuilder {
     private readonly _userRepository: IUserRepository,
     @inject(TOKENS.ITripRepository)
     private readonly _tripRepository: ITripRepository,
+    @inject(TOKENS.IEmbeddingService)
+    private readonly _embeddingService: IEmbeddingService,
   ) {}
 
-  async build(userId: string): Promise<AssistantContext> {
+  async build(userId: string, message: string): Promise<AssistantContext> {
     const conversationId =
       await this._assistantRepository.getOrCreateConversation(userId);
 
@@ -23,6 +26,15 @@ export class AssistantContextBuilder {
       conversationId,
       10,
     );
+
+    const queryEmbedding = await this._embeddingService.embed(message);
+
+    const relevantMessages =
+      await this._assistantRepository.searchSimilarMessages(
+        conversationId,
+        queryEmbedding,
+        5,
+      );
 
     const user = await this._userRepository.findUserById(userId);
     const activeTrip = await this._tripRepository.getActiveTrip({ userId });
@@ -43,6 +55,7 @@ export class AssistantContextBuilder {
           }
         : null,
       recentMessages,
+      relevantMessages,
     };
   }
 }

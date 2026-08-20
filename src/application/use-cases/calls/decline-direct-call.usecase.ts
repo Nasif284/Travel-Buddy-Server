@@ -5,7 +5,6 @@ import { ICallRepository } from '../../interfaces/repositories/call.repository.i
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { CallDTO } from '../../dtos/call/request/call.dto';
 import { ICallNotificationService } from '../../interfaces/services/call-notification.service.interface';
-import { IStorageService } from '../../interfaces/services/storage.service.interface';
 
 @injectable()
 export class DeclineDirectCallUseCase implements IDeclineDirectCallUseCase {

@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Validate Branch Name
         if: github.event_name == 'pull_request'
@@ -21,20 +23,33 @@ jobs:
           echo "Branch: $BRANCH_NAME"
 
           if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|chore|release)\/[A-Z]+-[0-9]+-[a-z0-9-]+$ ]]; then
-          echo "❌ Invalid branch name."
-          exit 1
-          fi
-
-      - name: Validate Commit Message
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          echo "Commit: $COMMIT_MSG"
-
-          if [[ ! "$COMMIT_MSG" =~ ^(feat|fix|docs|style|refactor|test|chore|build|ci|perf)(\(.+\))?:\ .+ ]]; then
-            echo "❌ Invalid commit message."
-            echo "Example: feat: create trip API"
+            echo "❌ Invalid branch name."
+            echo "Expected: feature/TB-123-create-trip"
             exit 1
           fi
+
+      - name: Validate Commit Messages
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin ${{ github.base_ref }}
+
+          COMMITS=$(git rev-list origin/${{ github.base_ref }}..HEAD)
+
+          for COMMIT in $COMMITS; do
+            COMMIT_MSG=$(git log -1 --pretty=%s "$COMMIT")
+
+            echo "Checking commit:"
+            echo "$COMMIT_MSG"
+
+            if [[ ! "$COMMIT_MSG" =~ ^(feat|fix|docs|style|refactor|test|chore|build|ci|perf)(\(.+\))?:\ .+ ]]; then
+              echo "❌ Invalid commit message:"
+              echo "$COMMIT_MSG"
+              echo ""
+              echo "Example:"
+              echo "feat: create trip API"
+              exit 1
+            fi
+          done
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

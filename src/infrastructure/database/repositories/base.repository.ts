@@ -9,7 +9,6 @@ export abstract class BaseRepository<
 > implements IBaseRepository<TModel, TCreateInput, TUpdateInput> {
   constructor(
     protected readonly prisma: PrismaClient,
-
     protected readonly model: any,
   ) {}
 

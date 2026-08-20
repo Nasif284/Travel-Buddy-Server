@@ -18,11 +18,12 @@ export interface AssistantContext {
     endDate: string;
   } | null;
   recentMessages: AssistantMessage[];
+  relevantMessages: AssistantMessage[];
 }
 export interface IChatAssistantUseCase {
   execute(dto: ChatRequestDTO): Promise<ChatResponseDTO>;
 }
 
 export interface IAssistantContextBuilder {
-  build(userId: string): Promise<AssistantContext>;
+  build(userId: string, message: string): Promise<AssistantContext>;
 }

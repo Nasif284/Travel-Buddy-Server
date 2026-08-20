@@ -5,7 +5,6 @@ import {
   AICompletionResponse,
   IAIModelService,
 } from '../../application/interfaces/services/ai-model.service.interface';
-import { ZodSchema } from 'zod';
 
 @injectable()
 export class OpenRouterAIModelService implements IAIModelService {
@@ -39,8 +38,8 @@ export class OpenRouterAIModelService implements IAIModelService {
 
       if ('choices' in completion) {
         content = completion.choices?.[0]?.message?.content;
-        model = (completion as any).model;
-        usage = (completion as any).usage;
+        model = completion.model;
+        usage = completion.usage;
 
         if (!content) {
           throw new Error('Model returned empty response.');
@@ -64,39 +63,5 @@ export class OpenRouterAIModelService implements IAIModelService {
       (err as any).cause = error;
       throw err;
     }
-  }
-  async completeStructured<T>(
-    request: AICompletionRequest,
-    schema: ZodSchema<T>,
-  ): Promise<T> {
-    const response = await this.complete(request);
-    console.log('========= RAW AI RESPONSE =========');
-    console.log(response.text);
-    console.log('===================================');
-    const cleaned = this.extractJson(response.text);
-
-    let parsed: unknown;
-
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (error) {
-      const err = new Error('AI returned invalid JSON.');
-      (err as any).cause = error;
-      throw err;
-    }
-
-    return schema.parse(parsed);
-  }
-
-  private extractJson(text: string): string {
-    const firstBrace = text.indexOf('{');
-
-    const lastBrace = text.lastIndexOf('}');
-
-    if (firstBrace === -1 || lastBrace === -1) {
-      throw new Error('No JSON object found.');
-    }
-
-    return text.substring(firstBrace, lastBrace + 1);
   }
 }

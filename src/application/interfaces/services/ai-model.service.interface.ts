@@ -1,5 +1,3 @@
-import { ZodSchema } from 'zod';
-
 export type AIMessageRole = 'system' | 'user' | 'assistant';
 
 export interface AIMessage {
@@ -32,9 +30,4 @@ export interface AICompletionResponse {
 
 export interface IAIModelService {
   complete(request: AICompletionRequest): Promise<AICompletionResponse>;
-  completeStructured<T>(
-    request: AICompletionRequest,
-
-    schema: ZodSchema<T>,
-  ): Promise<T>;
 }

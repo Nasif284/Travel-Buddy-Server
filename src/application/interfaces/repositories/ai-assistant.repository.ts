@@ -7,7 +7,7 @@ export interface IAssistantRepository {
   saveMessages(
     conversationId: string,
     messages: AssistantMessage[],
-  ): Promise<void>;
+  ): Promise<AssistantChat[]>;
   getRecentMessages(
     conversationId: string,
     limit: number,

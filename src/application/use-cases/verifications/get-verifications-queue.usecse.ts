@@ -3,12 +3,8 @@ import { inject, injectable } from 'tsyringe';
 import { TOKENS } from '../../../infrastructure/di/tokens';
 import { IGetVerificationQueue } from '../../interfaces/use-cases/verifications/get-verification-queue.interface';
 import { IVerificationRepository } from '../../interfaces/repositories/verificatiom.repository';
-import {
-  GetVerificationQueueRequestDTO,
-  VerificationQueueTab,
-} from '../../dtos/verifications/request/get-verification-queue.dto';
+import { GetVerificationQueueRequestDTO } from '../../dtos/verifications/request/get-verification-queue.dto';
 import { GetVerificationQueueResponseDTO } from '../../dtos/verifications/response/get-verification-queue.dto';
-import { VerificationStatus } from '../../../domain/enums/verification.constants';
 import { IStorageService } from '../../interfaces/services/storage.service.interface';
 
 @injectable()

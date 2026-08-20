@@ -13,6 +13,7 @@ import { IAssistantRepository } from '../../interfaces/repositories/ai-assistant
 
 import { ChatResponseDTO } from '../../dtos/ai-assistant/response/chat.dto';
 import { IAssistantService } from '../../interfaces/services/ai-assistant.service.interface';
+import { IEmbeddingService } from '../../interfaces/services/embedding.service.interface';
 
 @injectable()
 export class ChatAssistantUseCase implements IChatAssistantUseCase {
@@ -25,24 +26,38 @@ export class ChatAssistantUseCase implements IChatAssistantUseCase {
 
     @inject(TOKENS.IAssistantRepository)
     private readonly assistantRepository: IAssistantRepository,
+
+    @inject(TOKENS.IEmbeddingService)
+    private readonly embeddingService: IEmbeddingService,
   ) {}
 
   async execute(dto: ChatRequestDTO): Promise<ChatResponseDTO> {
-    const context = await this.contextBuilder.build(dto.userId);
+    const context = await this.contextBuilder.build(dto.userId, dto.message);
 
     const reply = await this.assistantService.chat(context, dto.message);
+    const savedMessages = await this.assistantRepository.saveMessages(
+      context.conversationId,
+      [
+        {
+          role: 'user',
+          content: dto.message,
+        },
+        {
+          role: 'assistant',
+          content: reply,
+        },
+      ],
+    );
+    for (const message of savedMessages) {
+      const embedding = await this.embeddingService.embed(message.content);
 
-    await this.assistantRepository.saveMessages(context.conversationId, [
-      {
-        role: 'user',
-        content: dto.message,
-      },
-      {
-        role: 'assistant',
-        content: reply,
-      },
-    ]);
-
+      await this.assistantRepository.saveMessageEmbedding(
+        message.id,
+        context.conversationId,
+        message.content,
+        embedding,
+      );
+    }
     return {
       message: reply,
     };

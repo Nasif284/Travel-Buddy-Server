@@ -77,13 +77,84 @@ export class AssistantRepository implements IAssistantRepository {
   async saveMessages(
     conversationId: string,
     messages: AssistantMessage[],
+  ): Promise<AssistantChat[]> {
+    const createdMessages = [];
+
+    for (const message of messages) {
+      const created = await this.prisma.assistantMessage.create({
+        data: {
+          conversationId,
+          role: message.role,
+          content: message.content,
+        },
+      });
+
+      createdMessages.push({
+        id: created.id,
+        role: created.role,
+        content: created.content,
+        createdAt: created.createdAt,
+      });
+    }
+
+    return createdMessages;
+  }
+
+  async saveMessageEmbedding(
+    messageId: string,
+    conversationId: string,
+    content: string,
+    embedding: number[],
   ): Promise<void> {
-    await this.prisma.assistantMessage.createMany({
-      data: messages.map((m) => ({
-        conversationId,
-        role: m.role,
-        content: m.content,
-      })),
-    });
+    const vector = `[${embedding.join(',')}]`;
+
+    await this.prisma.$executeRaw`
+    INSERT INTO assistant_message_embeddings
+      (
+        id,
+        message_id,
+        conversation_id,
+        content,
+        embedding
+      )
+    VALUES
+      (
+        gen_random_uuid(),
+        ${messageId}::uuid,
+        ${conversationId}::uuid,
+        ${content},
+        ${vector}::vector
+      )
+  `;
+  }
+
+  async searchSimilarMessages(
+    conversationId: string,
+    embedding: number[],
+    limit: number,
+  ): Promise<AssistantMessage[]> {
+    const vector = `[${embedding.join(',')}]`;
+
+    const messages = await this.prisma.$queryRaw<
+      {
+        role: string;
+        content: string;
+      }[]
+    >`
+    SELECT
+      m.role,
+      e.content
+    FROM assistant_message_embeddings e
+    INNER JOIN assistant_messages m
+      ON m.id = e.message_id
+    WHERE e.conversation_id = ${conversationId}::uuid
+    ORDER BY e.embedding <=> ${vector}::vector
+    LIMIT ${limit}
+  `;
+
+    return messages.map((message) => ({
+      role: message.role as 'user' | 'assistant' | 'system',
+      content: message.content,
+    }));
   }
 }

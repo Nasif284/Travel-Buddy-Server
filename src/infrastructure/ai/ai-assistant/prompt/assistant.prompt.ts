@@ -7,6 +7,9 @@ export function buildAssistantPrompt(
   const history = context.recentMessages
     .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
     .join('\n');
+  const relevantHistory = context.relevantMessages
+    .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+    .join('\n');
 
   return {
     system: `
@@ -111,6 +114,10 @@ CONVERSATION STYLE:
 Conversation History:
 
 ${history || 'No previous conversation.'}
+
+Relevant Previous Conversation:
+
+${relevantHistory || 'No relevant previous conversation found.'}
 
 Current User Message:
 

@@ -9,7 +9,7 @@ import { validateResponseNode } from './nodes/response-validator.node';
 
 import { IAIModelService } from '../../../application/interfaces/services/ai-model.service.interface';
 import { IPlacesService } from '../../../application/interfaces/services/places.service.interface';
-import { repairResponseNode } from './nodes/repai.node';
+import { repairResponseNode } from './nodes/repair.node';
 import { routeValidation } from './nodes/route-validation';
 import { failureNode } from './nodes/filure.node';
 

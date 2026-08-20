@@ -46,7 +46,7 @@ export class GoogleDocumentAiService implements IOcrService {
       return {
         text,
       };
-    } catch (error: any) {
+    } catch (error) {
       console.dir(error, { depth: null });
       throw error;
     }

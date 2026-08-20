@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-import { UnauthorizedError } from '../../domain/errors/auth.error';
 import {
   ITokenService,
   TokenPayload,

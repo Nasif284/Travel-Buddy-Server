@@ -1,4 +1,3 @@
-import { VerificationDocument } from '@prisma/client';
 import { SubmitVerificationRepositoryDTO } from '../../dtos/profile/request/doc-verification.dto';
 import { Verification } from '../../dtos/profile/response/doc-verification.dto';
 import { GetDocVerificationResponseDTO } from '../../dtos/profile/response/get-doc-verification.dto';

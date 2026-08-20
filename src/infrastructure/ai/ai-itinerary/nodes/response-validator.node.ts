@@ -17,8 +17,7 @@ export async function validateResponseNode(state: ItineraryGraphState) {
     console.log(cleaned);
     console.log('=====================');
     const parsed = JSON.parse(cleaned);
-    const itinerary = GeneratedItinerarySchema.parse(parsed);
-
+    GeneratedItinerarySchema.parse(parsed);
     return {
       generatedItinerary: parsed,
       validationErrors: [],

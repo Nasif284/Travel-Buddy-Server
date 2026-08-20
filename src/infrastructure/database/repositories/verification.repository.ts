@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { BaseRepository } from './base.repository';
-import { Prisma, VerificationDocument } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   IVerificationRepository,
   UpdateVerificationAfterOcrRepositoryDTO,

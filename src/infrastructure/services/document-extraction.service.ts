@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { GenericIdParser } from './document-parser.service';
+import { GenericIdParser, ParsedDocument } from './document-parser.service';
 import {
   IDocumentExtractionService,
   OcrExtractionResult,
@@ -76,19 +76,14 @@ export class DocumentExtractionService implements IDocumentExtractionService {
       .map((l) => l.replace(/\s+/g, ' '));
   }
 
-  private calculateConfidence(parsed: any): number {
+  private calculateConfidence(parsed: ParsedDocument): number {
     let score = 0;
 
     if (parsed.fullName) score += 20;
-
     if (parsed.documentNumber) score += 25;
-
     if (parsed.dateOfBirth) score += 20;
-
     if (parsed.gender) score += 15;
-
     if (parsed.nationality) score += 10;
-
     if (parsed.expiryDate) score += 10;
 
     return score;
