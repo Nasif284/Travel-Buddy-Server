@@ -4,15 +4,39 @@ export interface ChatMessageDTO {
   id: string;
   conversationId: string;
   senderId: string;
+
+  type: 'TEXT' | 'IMAGE';
+
+  content: string;
+
+  attachment?: {
+    storageKey: string;
+    fileName: string | null;
+    mimeType: string;
+    fileSize: number | null;
+    url?: string;
+  } | null;
+
   sender?: {
     fullName: string;
     avatarUrl: string | null;
   };
-  content: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
+export interface SaveChatMessageDTO {
+  type: 'TEXT' | 'IMAGE';
 
+  content?: string;
+
+  attachment?: {
+    storageKey: string;
+    fileName?: string;
+    mimeType: string;
+    fileSize: number;
+  };
+}
 export interface IChatRepository {
   findDirectConversation(
     userId: string,
@@ -47,7 +71,7 @@ export interface IChatRepository {
   saveMessage(
     conversationId: string,
     senderId: string,
-    content: string,
+    data: SaveChatMessageDTO,
   ): Promise<ChatMessageDTO>;
 
   getMessages(

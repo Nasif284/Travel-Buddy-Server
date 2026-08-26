@@ -1,8 +1,9 @@
 import { inject, injectable } from 'tsyringe';
-import { PrismaClient, ChatType } from '@prisma/client';
+import { PrismaClient, ChatType, ChatMessageType } from '@prisma/client';
 import {
   ChatMessageDTO,
   IChatRepository,
+  SaveChatMessageDTO,
 } from '../../../application/interfaces/repositories/chat.repository';
 import { TOKENS } from '../../di/tokens';
 import { DirectConversationDTO } from '../../../application/dtos/chat/response/get-direct-conversations.dto';
@@ -148,21 +149,47 @@ export class ChatRepository implements IChatRepository {
   async saveMessage(
     conversationId: string,
     senderId: string,
-    content: string,
+    data: SaveChatMessageDTO,
   ): Promise<ChatMessageDTO> {
-    return this.prisma.chatMessage.create({
+    const message = await this.prisma.chatMessage.create({
       data: {
         conversationId,
         senderId,
-        content,
+        type: data.type as ChatMessageType,
+        content: data.content ?? '',
+
+        ...(data.type === 'IMAGE' && data.attachment
+          ? {
+              attachment: {
+                create: {
+                  storageKey: data.attachment.storageKey,
+                  fileName: data.attachment.fileName,
+                  mimeType: data.attachment.mimeType,
+                  fileSize: data.attachment.fileSize,
+                },
+              },
+            }
+          : {}),
       },
+
       select: {
         id: true,
         conversationId: true,
         senderId: true,
+        type: true,
         content: true,
         createdAt: true,
         updatedAt: true,
+
+        attachment: {
+          select: {
+            storageKey: true,
+            fileName: true,
+            mimeType: true,
+            fileSize: true,
+          },
+        },
+
         sender: {
           select: {
             fullName: true,
@@ -171,6 +198,8 @@ export class ChatRepository implements IChatRepository {
         },
       },
     });
+
+    return message;
   }
 
   async getMessages(
@@ -182,10 +211,13 @@ export class ChatRepository implements IChatRepository {
       where: {
         conversationId,
       },
+
       orderBy: {
         createdAt: 'desc',
       },
+
       take: limit + 1,
+
       ...(cursor
         ? {
             cursor: {
@@ -194,13 +226,25 @@ export class ChatRepository implements IChatRepository {
             skip: 1,
           }
         : {}),
+
       select: {
         id: true,
         conversationId: true,
         senderId: true,
+        type: true,
         content: true,
         createdAt: true,
         updatedAt: true,
+
+        attachment: {
+          select: {
+            storageKey: true,
+            fileName: true,
+            mimeType: true,
+            fileSize: true,
+          },
+        },
+
         sender: {
           select: {
             fullName: true,

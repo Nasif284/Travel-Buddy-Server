@@ -13,8 +13,9 @@ export class GetChatMessagesUseCase implements IGetChatMessagesUseCase {
   constructor(
     @inject(TOKENS.IChatRepository)
     private readonly chatRepository: IChatRepository,
+
     @inject(TOKENS.IStorageService)
-    private readonly _storageService: IStorageService,
+    private readonly storageService: IStorageService,
   ) {}
 
   async execute(
@@ -57,11 +58,21 @@ export class GetChatMessagesUseCase implements IGetChatMessagesUseCase {
       safeLimit,
       cursor,
     );
-    for (const m of messages) {
-      m.sender!.avatarUrl = await this._storageService.getSignedUrl(
-        m.sender!.avatarUrl!,
-      );
+
+    for (const message of messages) {
+      if (message.sender?.avatarUrl) {
+        message.sender.avatarUrl = await this.storageService.getSignedUrl(
+          message.sender.avatarUrl,
+        );
+      }
+
+      if (message.type === 'IMAGE' && message.attachment) {
+        message.attachment.url = await this.storageService.getSignedUrl(
+          message.attachment.storageKey,
+        );
+      }
     }
+
     return messages;
   }
 }

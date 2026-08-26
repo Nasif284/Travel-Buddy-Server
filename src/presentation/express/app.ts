@@ -8,6 +8,8 @@ import morganMiddleware from '../../infrastructure/logging/morgan.middleware';
 import cookieParser from 'cookie-parser';
 import { buildRoutes } from '../routes';
 import { globalErrorHandler } from '../middleware/error/error.middleware';
+import { register } from '../../infrastructure/logging/metrics';
+import metricsMiddleware from '../middleware/metrics/metrics-middleware';
 
 export class App {
   private readonly app: Application;
@@ -33,9 +35,16 @@ export class App {
     this.app.use(morganMiddleware);
 
     this.app.use(cookieParser());
+
+    this.app.use(metricsMiddleware);
   }
 
   private initializeRoutes(): void {
+    this.app.get('/metrics', async (_req, res) => {
+      res.set('Content-Type', register.contentType);
+      const metrics = await register.metrics();
+      res.end(metrics);
+    });
     this.app.get('/', (_, res) => {
       res.send('API Running...');
     });

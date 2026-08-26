@@ -46,7 +46,17 @@ export class StorageService implements IStorageService {
         Key: storageKey,
       }),
     );
-
     return Buffer.from(await response.Body!.transformToByteArray());
+  }
+  async getUploadSignedUrl(key: string, mimeType: string): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: config.s3.bucketName,
+      Key: key,
+      ContentType: mimeType,
+    });
+
+    return getSignedUrl(s3Client, command, {
+      expiresIn: 300,
+    });
   }
 }

@@ -11,12 +11,10 @@ import { registerSocketAuth } from './infrastructure/socket/socket-auth.middlewa
 import { registerCallSocket } from './infrastructure/socket/call.socket';
 
 const PORT = parseInt(process.env.PORT ?? '3000');
-
 async function bootstrap(): Promise<void> {
   console.log('[Server] Getting DB and Redis client instances...');
   const db = DbManager.getInstance();
   const redis = getRedisClient();
-
   try {
     console.log('[Server] Connecting to PostgreSQL database...');
     await db.$connect();
@@ -25,7 +23,6 @@ async function bootstrap(): Promise<void> {
     console.error('[PostgreSQL] Failed to connect:', err);
     process.exit(1);
   }
-
   try {
     console.log('[Server] Pinging Redis...');
     await redis.ping();

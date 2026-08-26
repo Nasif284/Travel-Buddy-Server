@@ -6,4 +6,5 @@ export const CHAT_TOKENS = {
   IJoinChatConversationValidationUseCase:
     'IJoinChatConversationValidationUseCase',
   IGetDirectConversationsUseCase: 'IGetDirectConversationsUseCase',
+  IUploadChatImageUseCase: 'IUploadChatImageUseCase',
 };

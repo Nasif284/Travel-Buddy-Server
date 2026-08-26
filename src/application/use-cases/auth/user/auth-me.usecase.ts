@@ -14,6 +14,7 @@ export class AuthMe implements IAuthMe {
     private readonly _storageService: IStorageService,
   ) {}
   async execute(dto: { userId: string }): Promise<AuthResponseDTO> {
+    console.log('inside usecase');
     const user = await this._userRepository.findUserById(dto.userId, {
       onboarding: true,
     });

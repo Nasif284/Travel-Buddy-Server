@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ChatController } from '../../../controllers/user/chat/chat.controller';
 import { UserAuthMiddleware } from '../../../middleware/user/auth/userAuth.middleware';
 import { asyncHandler } from '../../../middleware/error/asyncHandler';
+import { upload } from '../../../middleware/storage/multer.middleware';
 
 export function buildChatRoutes(
   controller: ChatController,
@@ -26,16 +27,22 @@ export function buildChatRoutes(
     asyncHandler(controller.getGroupChat),
   );
 
-  router.post(
-    '/:conversationId/messages',
-    auth.authenticate,
-    asyncHandler(controller.sendMessage),
-  );
+  // router.post(
+  //   '/:conversationId/messages',
+  //   auth.authenticate,
+  //   asyncHandler(controller.sendMessage),
+  // );
 
   router.get(
     '/:conversationId/messages',
     auth.authenticate,
     asyncHandler(controller.getMessages),
+  );
+  router.post(
+    '/upload/image',
+    auth.authenticate,
+    upload.single('image'),
+    asyncHandler(controller.uploadImage),
   );
 
   return router;

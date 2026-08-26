@@ -12,6 +12,8 @@ import { IJoinChatConversationValidationUseCase } from '../../../../application/
 import { JoinChatConversationValidationUseCase } from '../../../../application/use-cases/chats/join-conversation-validation.usecase';
 import { IGetDirectConversationsUseCase } from '../../../../application/interfaces/use-cases/chats/get-direct-conversations.interface';
 import { GetDirectConversationsUseCase } from '../../../../application/use-cases/chats/get-direct-conversations.use-case';
+import { IUploadChatImageUseCase } from '../../../../application/interfaces/use-cases/chats/upload-chat-image.interface';
+import { UploadChatImageUseCase } from '../../../../application/use-cases/chats/upload-chat-image.use-case';
 
 export function registerChatsDependency() {
   container.registerSingleton<IGetDirectChatUseCase>(
@@ -37,5 +39,9 @@ export function registerChatsDependency() {
   container.registerSingleton<IGetDirectConversationsUseCase>(
     TOKENS.IGetDirectConversationsUseCase,
     GetDirectConversationsUseCase,
+  );
+  container.registerSingleton<IUploadChatImageUseCase>(
+    TOKENS.IUploadChatImageUseCase,
+    UploadChatImageUseCase,
   );
 }

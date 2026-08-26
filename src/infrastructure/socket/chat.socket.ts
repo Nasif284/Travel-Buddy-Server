@@ -41,17 +41,18 @@ export function registerChatSocket(io: Server) {
 
     socket.on('chat:send', async (data) => {
       try {
-        const { conversationId, content } = data;
-
         const userId = socket.data.userId;
 
         const useCase = container.resolve<ISendChatMessageUseCase>(
           TOKENS.ISendChatMessageUseCase,
         );
 
-        const message = await useCase.execute(userId, conversationId, content);
+        const message = await useCase.execute(userId, data);
 
-        io.to(`conversation:${conversationId}`).emit('chat:message', message);
+        io.to(`conversation:${data.conversationId}`).emit(
+          'chat:message',
+          message,
+        );
       } catch (error) {
         socket.emit('chat:error', {
           message:

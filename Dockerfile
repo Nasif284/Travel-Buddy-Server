@@ -1,30 +1,29 @@
 FROM node:22
 
 WORKDIR /app
+
+# Install Doppler CLI
+RUN apt-get update && \
+    apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg && \
+    curl -sLf --retry 3 --tlsv1.2 --proto "=https" \
+    'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' \
+    | gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" \
+    | tee /etc/apt/sources.list.d/doppler-cli.list && \
+    apt-get update && \
+    apt-get install -y doppler && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
+
 RUN npm install
+
 COPY . .
+
 EXPOSE 5000
-CMD ["npm", "run", "dev"]
 
-# FROM node:20-alpine AS builder
-# WORKDIR /app
-
-# COPY package*.json ./
-# RUN npm install
-
-# COPY . .
-# RUN npm run build
-
-
-# FROM node:20-alpine
-# WORKDIR /app
-
-# COPY package*.json ./
-# RUN npm install --omit=dev
-
-# COPY --from=builder /app/dist ./dist
-
-# EXPOSE 5000
-
-# CMD ["node", "dist/server.js"]
+CMD ["doppler", "run", "--", "npm", "run", "dev"]
