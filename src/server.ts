@@ -40,6 +40,7 @@ async function bootstrap(): Promise<void> {
       credentials: true,
     },
   });
+
   const container = buildContainer(db, redis, io);
   const app = new App(container).getServer();
   httpServer.on('request', app);
