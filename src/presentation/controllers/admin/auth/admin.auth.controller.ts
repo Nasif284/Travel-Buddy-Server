@@ -36,7 +36,7 @@ export class AdminAuthController {
     return {
       httpOnly: true,
       secure: config.env !== 'development',
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
       maxAge,
     };
@@ -46,7 +46,7 @@ export class AdminAuthController {
     return {
       httpOnly: true,
       secure: config.env !== 'development',
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
     };
   }

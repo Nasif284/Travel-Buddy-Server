@@ -65,8 +65,8 @@ export class AuthController {
   private getCookieOptions(maxAge: number): CookieOptions {
     return {
       httpOnly: true,
-      secure: config.env == 'development' ? false : true,
-      sameSite: 'lax',
+      secure: config.env !== 'development',
+      sameSite: 'none',
       path: '/',
       maxAge,
     };
@@ -74,8 +74,8 @@ export class AuthController {
   private getClearCookieOptions(): CookieOptions {
     return {
       httpOnly: true,
-      secure: config.env == 'development' ? false : true,
-      sameSite: 'lax',
+      secure: config.env !== 'development',
+      sameSite: 'none',
       path: '/',
     };
   }
