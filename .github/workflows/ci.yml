@@ -119,3 +119,34 @@ jobs:
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy to EC2
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd /home/ubuntu",
+              "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 090413359387.dkr.ecr.ap-south-1.amazonaws.com",
+              "docker compose -f docker-compose.prod.yml pull api",
+              "docker compose -f docker-compose.prod.yml up -d",
+              "docker image prune -f"
+            ]' \
+            --region ap-south-1
