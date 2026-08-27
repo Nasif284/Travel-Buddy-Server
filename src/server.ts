@@ -23,7 +23,6 @@ async function bootstrap(): Promise<void> {
     console.error('[PostgreSQL] Failed to connect:', err);
     process.exit(1);
   }
-
   try {
     console.log('[Server] Pinging Redis...');
     await redis.ping();
