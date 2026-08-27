@@ -35,7 +35,7 @@ export class AdminAuthController {
   private getCookieOptions(maxAge: number): CookieOptions {
     return {
       httpOnly: true,
-      secure: config.env == 'development' ? false : true,
+      secure: config.env !== 'development',
       sameSite: 'lax',
       path: '/',
       maxAge,
@@ -45,7 +45,7 @@ export class AdminAuthController {
   private getClearCookieOptions(): CookieOptions {
     return {
       httpOnly: true,
-      secure: config.env == 'development' ? false : true,
+      secure: config.env !== 'development',
       sameSite: 'lax',
       path: '/',
     };
