@@ -77,33 +77,24 @@
 #   grafana_data:
 #   prometheus_data:
 
-
-
-
 services:
   api:
     build:
       context: .
       dockerfile: Dockerfile.prod
-
     ports:
-      - "5000:5000"
-
+      - '5000:5000'
     environment:
       DOPPLER_TOKEN: ${DOPPLER_TOKEN}
-
     depends_on:
       redis:
         condition: service_started
-
     restart: unless-stopped
 
   redis:
     image: redis:alpine
-
     volumes:
       - redis_data:/data
-
     restart: unless-stopped
 
 volumes:

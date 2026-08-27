@@ -3,6 +3,7 @@ name: Travel Buddy CI
 on:
   push:
     branches: [main, dev]
+
   pull_request:
     branches: [main]
 
@@ -20,6 +21,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
+
           echo "Branch: $BRANCH_NAME"
 
           if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|chore|release)\/[A-Z]+-[0-9]+-[a-z0-9-]+$ ]]; then
@@ -36,25 +38,30 @@ jobs:
           COMMITS=$(git rev-list origin/${{ github.base_ref }}..HEAD)
 
           for COMMIT in $COMMITS; do
+
             COMMIT_MSG=$(git log -1 --pretty=%s "$COMMIT")
 
             echo "Checking commit:"
             echo "$COMMIT_MSG"
 
             if [[ ! "$COMMIT_MSG" =~ ^(feat|fix|docs|style|refactor|test|chore|build|ci|perf)(\(.+\))?:\ .+ ]]; then
+
               echo "❌ Invalid commit message:"
               echo "$COMMIT_MSG"
+
               echo ""
               echo "Example:"
               echo "feat: create trip API"
+
               exit 1
             fi
+
           done
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install Dependencies
@@ -74,3 +81,41 @@ jobs:
 
       - name: Build Application
         run: npm run build
+
+  build-and-push:
+    needs: build-and-check
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f Dockerfile.prod \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }} \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest \
+            .
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
