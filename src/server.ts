@@ -33,8 +33,7 @@ async function bootstrap(): Promise<void> {
     process.exit(1);
   }
 
-  const httpServer = createServer();
-  const io = new Server(httpServer, {
+  const io = new Server({
     cors: {
       origin: process.env.FRONTEND_URL,
       credentials: true,
@@ -43,17 +42,10 @@ async function bootstrap(): Promise<void> {
 
   const container = buildContainer(db, redis, io);
   const app = new App(container).getServer();
-  console.log(
-    '[DEBUG] request listeners BEFORE express:',
-    httpServer.listeners('request').map((fn) => fn.name),
-  );
 
-  httpServer.on('request', app);
+  const httpServer = createServer(app);
 
-  console.log(
-    '[DEBUG] request listeners AFTER express:',
-    httpServer.listeners('request').map((fn) => fn.name),
-  );
+  io.attach(httpServer);
 
   registerSocketAuth(io);
   registerChatSocket(io);

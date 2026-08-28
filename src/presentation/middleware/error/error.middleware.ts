@@ -11,9 +11,11 @@ export function globalErrorHandler(
   res: Response,
   next: NextFunction,
 ): void {
+  if (res.headersSent) {
+    return next(err);
+  }
   if (err instanceof AppError) {
     res.status(err.statusCode).json(ApiResponse.error(err.code, err.message));
-
     return;
   }
   console.error('[Unhandled error]', err);
