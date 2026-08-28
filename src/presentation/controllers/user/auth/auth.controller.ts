@@ -63,23 +63,28 @@ export class AuthController {
   }
 
   private getCookieOptions(maxAge: number): CookieOptions {
+    const isProduction = config.env === 'production';
     return {
       httpOnly: true,
-      secure: config.env !== 'development',
+      secure: isProduction,
       sameSite: 'none',
       path: '/',
+      domain: 'travelbuddy.nasifhub.online',
       maxAge,
+      ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
     };
   }
   private getClearCookieOptions(): CookieOptions {
+    const isProduction = config.env === 'production';
+
     return {
       httpOnly: true,
-      secure: config.env !== 'development',
-      sameSite: 'none',
+      secure: isProduction,
+      sameSite: 'lax',
       path: '/',
+      ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
     };
   }
-
   register = async (req: Request, res: Response): Promise<Response> => {
     const result = await this._registerUseCase.execute(req.body);
     res.cookie(
