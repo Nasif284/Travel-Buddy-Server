@@ -43,7 +43,17 @@ async function bootstrap(): Promise<void> {
 
   const container = buildContainer(db, redis, io);
   const app = new App(container).getServer();
+  console.log(
+    '[DEBUG] request listeners BEFORE express:',
+    httpServer.listeners('request').map((fn) => fn.name),
+  );
+
   httpServer.on('request', app);
+
+  console.log(
+    '[DEBUG] request listeners AFTER express:',
+    httpServer.listeners('request').map((fn) => fn.name),
+  );
 
   registerSocketAuth(io);
   registerChatSocket(io);
