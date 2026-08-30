@@ -21,9 +21,8 @@ export class GoogleAuth implements IGoogleAuth {
     @inject(TOKENS.ISessionService)
     private readonly _sessionService: ISessionService,
   ) {
-    this._refreshTtl = ms(
-      (config.jwt.refreshExpiration ?? '7d') as StringValue,
-    );
+    this._refreshTtl = this._refreshTtl =
+      ms((config.jwt.refreshExpiration ?? '7d') as StringValue) / 1000;
   }
   async execute(dto: { token: string }): Promise<GoogleAuthResponseDTO> {
     const { token } = dto;

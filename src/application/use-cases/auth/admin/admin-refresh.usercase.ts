@@ -26,9 +26,8 @@ export class AdminRefreshToken implements IAdminRefreshToken {
     @inject(TOKENS.IAdminRepository)
     private readonly _adminRepository: IAdminRepository,
   ) {
-    this._refreshTtl = ms(
-      (config.jwt.refreshExpiration ?? '7d') as StringValue,
-    );
+    this._refreshTtl =
+      ms((config.jwt.refreshExpiration ?? '7d') as StringValue) / 1000;
   }
   async execute(dto: RefreshTokenRequestDTO): Promise<RefreshTokenResponseDTO> {
     const { token, userId } = dto;

@@ -198,7 +198,14 @@ export class ChatRepository implements IChatRepository {
         },
       },
     });
-
+    await this.prisma.chatConversation.update({
+      where: {
+        id: conversationId,
+      },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
     return message;
   }
 

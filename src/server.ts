@@ -52,9 +52,7 @@ async function bootstrap(): Promise<void> {
   registerCallSocket(io);
   httpServer.listen(PORT, () => {
     console.log(`[Server] Travel Buddy API running on port ${PORT}`);
-    console.log(
-      `[Server] Environment: ${process.env.NODE_ENV ?? 'development'}`,
-    );
+    console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
   });
 
   const shutdown = async () => {

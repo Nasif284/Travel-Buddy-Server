@@ -21,19 +21,14 @@ export class UserAuthMiddleware {
   ): Promise<void> => {
     try {
       const token = req.cookies?.accessToken;
-      console.log('token');
-      console.log('middle-1');
       if (!token) {
         throw new UnauthorizedError();
       }
-      console.log('middle-1');
       const payload = this.tokenService.verifyAccessToken(token);
-      console.log('middle-');
       req.user = {
         userId: payload.userId,
         email: payload.email,
       };
-
       next();
     } catch (err) {
       res.status(HttpStatus.UNAUTHORIZED).json({

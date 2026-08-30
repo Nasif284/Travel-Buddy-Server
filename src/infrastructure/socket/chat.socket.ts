@@ -8,7 +8,6 @@ import { IJoinChatConversationValidationUseCase } from '../../application/interf
 export function registerChatSocket(io: Server) {
   io.on('connection', (socket: Socket) => {
     console.log(`[Socket] Connected: ${socket.id}`);
-
     socket.on('chat:join', async (conversationId: string) => {
       try {
         const userId = socket.data.userId;
