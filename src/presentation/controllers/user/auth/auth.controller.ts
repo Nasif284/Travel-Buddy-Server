@@ -68,9 +68,9 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
-      // path: '/',
+      path: '/',
       maxAge,
-      // ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
+      ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
     };
   }
   private getClearCookieOptions(): CookieOptions {
@@ -80,8 +80,8 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
-      // path: '/',
-      // ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
+      path: '/',
+      ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
     };
   }
   register = async (req: Request, res: Response): Promise<Response> => {

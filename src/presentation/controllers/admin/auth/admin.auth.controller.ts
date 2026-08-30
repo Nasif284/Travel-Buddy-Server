@@ -39,8 +39,8 @@ export class AdminAuthController {
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
       maxAge,
-      // path: '/',
-      // ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
+      path: '/',
+      ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
     };
   }
   private getClearCookieOptions(): CookieOptions {
@@ -50,8 +50,8 @@ export class AdminAuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
-      // path: '/',
-      // ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
+      path: '/',
+      ...(isProduction ? { domain: 'travelbuddy.nasifhub.online' } : {}),
     };
   }
   login = async (req: Request, res: Response): Promise<Response> => {
