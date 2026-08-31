@@ -76,10 +76,7 @@ services:
     volumes:
       - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - alloy_data:/var/lib/alloy/data
-
-      # Allow Alloy to discover/read Docker container logs
       - /var/run/docker.sock:/var/run/docker.sock:ro
-
     depends_on:
       - loki
     restart: unless-stopped

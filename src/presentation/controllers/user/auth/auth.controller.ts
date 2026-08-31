@@ -23,6 +23,7 @@ import { TOKENS } from '../../../../infrastructure/di/tokens';
 import { IAuthMe } from '../../../../application/interfaces/use-cases/auth/user/auth-me.interface';
 import { IVerifyPhoneOtp } from '../../../../application/interfaces/use-cases/auth/user/verify-phone-otp.interface';
 import { ISendPhoneOtp } from '../../../../application/interfaces/use-cases/auth/user/send-otp-sms.interface';
+import { loginAttemptsTotal } from '../../../../infrastructure/logging/metrics';
 @injectable()
 export class AuthController {
   private readonly _accessTtl: number;
@@ -120,6 +121,9 @@ export class AuthController {
       result.refreshToken,
       this.getCookieOptions(this._refreshTtl),
     );
+    loginAttemptsTotal.inc({
+      status: 'success',
+    });
     return res
       .status(HttpStatus.OK)
       .json(ApiResponse.success(USER_MESSAGES.LOGIN_SUCCESS, result.response));

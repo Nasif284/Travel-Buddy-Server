@@ -4,6 +4,7 @@ import { container } from 'tsyringe';
 import { TOKENS } from '../di/tokens';
 import { ISendChatMessageUseCase } from '../../application/interfaces/use-cases/chats/send-message.interface';
 import { IJoinChatConversationValidationUseCase } from '../../application/interfaces/use-cases/chats/join-conversation-validation.interface';
+import { chatMessagesTotal } from '../logging/metrics';
 
 export function registerChatSocket(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -47,7 +48,7 @@ export function registerChatSocket(io: Server) {
         );
 
         const message = await useCase.execute(userId, data);
-
+        chatMessagesTotal.inc();
         io.to(`conversation:${data.conversationId}`).emit(
           'chat:message',
           message,
