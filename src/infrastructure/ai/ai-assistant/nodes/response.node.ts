@@ -7,7 +7,6 @@ export async function generateAssistantResponseNode(
   aiModel: IAIModelService,
 ) {
   const prompt = buildAssistantPrompt(state.context, state.userMessage);
-
   const response = await aiModel.complete({
     messages: [
       {
