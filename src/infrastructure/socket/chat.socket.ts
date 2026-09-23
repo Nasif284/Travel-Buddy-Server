@@ -4,21 +4,54 @@ import { container } from 'tsyringe';
 import { TOKENS } from '../di/tokens';
 import { ISendChatMessageUseCase } from '../../application/interfaces/use-cases/chats/send-message.interface';
 import { IJoinChatConversationValidationUseCase } from '../../application/interfaces/use-cases/chats/join-conversation-validation.interface';
+import { IPresenceService } from '../../application/interfaces/services/presence.service.interface';
+import { IMarkMessagesAsReadUseCase } from '../../application/interfaces/use-cases/chats/mark-messages-read.interface';
+import { IChatRepository } from '../../application/interfaces/repositories/chat.repository';
 
 export function registerChatSocket(io: Server) {
   io.on('connection', (socket: Socket) => {
-    console.log(`[Socket] Connected: ${socket.id}`);
+    const userId = socket.data.userId;
+    console.log(`[Socket] Connected: ${socket.id}, user: ${userId}`);
+
+    if (userId) {
+      socket.join(`user:${userId}`);
+      const presenceService = container.resolve<IPresenceService>(
+        TOKENS.IPresenceService,
+      );
+      presenceService
+        .setUserOnline(userId, socket.id)
+        .then(({ isFirstSocket }) => {
+          if (isFirstSocket) {
+            io.emit('presence:user_online', { userId });
+          }
+        })
+        .catch((err) => console.error('[Presence] Connect error:', err));
+    }
+
+    socket.on('presence:get_status', async (data: { userIds: string[] }) => {
+      try {
+        const presenceService = container.resolve<IPresenceService>(
+          TOKENS.IPresenceService,
+        );
+        const statuses = await presenceService.getUsersPresence(
+          data.userIds || [],
+        );
+        socket.emit('presence:status', { statuses });
+      } catch (error) {
+        console.error('[Presence] Status error:', error);
+      }
+    });
 
     socket.on('chat:join', async (conversationId: string) => {
       try {
-        const userId = socket.data.userId;
+        const currentUserId = socket.data.userId;
 
         const useCase =
           container.resolve<IJoinChatConversationValidationUseCase>(
             TOKENS.IJoinChatConversationValidationUseCase,
           );
 
-        await useCase.execute(userId, conversationId);
+        await useCase.execute(currentUserId, conversationId);
 
         socket.join(`conversation:${conversationId}`);
 
@@ -39,20 +72,69 @@ export function registerChatSocket(io: Server) {
       socket.leave(`conversation:${conversationId}`);
     });
 
+    socket.on('chat:read', async (data: { conversationId: string }) => {
+      try {
+        const currentUserId = socket.data.userId;
+        if (!currentUserId || !data?.conversationId) return;
+
+        const useCase = container.resolve<IMarkMessagesAsReadUseCase>(
+          TOKENS.IMarkMessagesAsReadUseCase,
+        );
+
+        const result = await useCase.execute(
+          currentUserId,
+          data.conversationId,
+        );
+
+        const chatRepo = container.resolve<IChatRepository>(
+          TOKENS.IChatRepository,
+        );
+        const conversation = await chatRepo.getConversation(
+          data.conversationId,
+        );
+
+        const roomTargets = [`conversation:${data.conversationId}`];
+        if (conversation?.userAId)
+          roomTargets.push(`user:${conversation.userAId}`);
+        if (conversation?.userBId)
+          roomTargets.push(`user:${conversation.userBId}`);
+
+        io.to(roomTargets).emit('chat:messages_read', {
+          conversationId: data.conversationId,
+          readerId: currentUserId,
+          readAt: result.readAt,
+        });
+      } catch (error) {
+        console.error('[Socket] Mark read error:', error);
+      }
+    });
+
     socket.on('chat:send', async (data) => {
       try {
-        const userId = socket.data.userId;
+        const currentUserId = socket.data.userId;
 
         const useCase = container.resolve<ISendChatMessageUseCase>(
           TOKENS.ISendChatMessageUseCase,
         );
 
-        const message = await useCase.execute(userId, data);
+        const message = await useCase.execute(currentUserId, data);
 
-        io.to(`conversation:${data.conversationId}`).emit(
-          'chat:message',
-          message,
+        socket.join(`conversation:${message.conversationId}`);
+
+        const chatRepo = container.resolve<IChatRepository>(
+          TOKENS.IChatRepository,
         );
+        const conversation = await chatRepo.getConversation(
+          message.conversationId,
+        );
+
+        const roomTargets = [`conversation:${message.conversationId}`];
+        if (conversation?.userAId)
+          roomTargets.push(`user:${conversation.userAId}`);
+        if (conversation?.userBId)
+          roomTargets.push(`user:${conversation.userBId}`);
+
+        io.to(roomTargets).emit('chat:message', message);
       } catch (error) {
         socket.emit('chat:error', {
           message:
@@ -62,7 +144,20 @@ export function registerChatSocket(io: Server) {
     });
 
     socket.on('disconnect', () => {
-      console.log(`[Socket] Disconnected: ${socket.id}`);
+      console.log(`[Socket] Disconnected: ${socket.id}, user: ${userId}`);
+      if (userId) {
+        const presenceService = container.resolve<IPresenceService>(
+          TOKENS.IPresenceService,
+        );
+        presenceService
+          .setUserOffline(userId, socket.id)
+          .then(({ isFullyOffline, lastSeen }) => {
+            if (isFullyOffline) {
+              io.emit('presence:user_offline', { userId, lastSeen });
+            }
+          })
+          .catch((err) => console.error('[Presence] Disconnect error:', err));
+      }
     });
   });
 }

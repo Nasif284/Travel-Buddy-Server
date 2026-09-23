@@ -26,6 +26,25 @@ export class SendChatMessageUseCase implements ISendChatMessageUseCase {
     userId: string,
     dto: SendChatMessageDTO,
   ): Promise<ChatMessageDTO> {
+    if (!dto.conversationId && dto.recipientId) {
+      const existingId = await this.chatRepository.findDirectConversation(
+        userId,
+        dto.recipientId,
+      );
+      if (existingId) {
+        dto.conversationId = existingId;
+      } else {
+        dto.conversationId = await this.chatRepository.createDirectConversation(
+          userId,
+          dto.recipientId,
+        );
+      }
+    }
+
+    if (!dto.conversationId) {
+      throw new Error('Conversation ID or recipient ID is required.');
+    }
+
     await this._validate.execute(userId, dto.conversationId);
 
     if (dto.type === 'TEXT') {
@@ -50,7 +69,7 @@ export class SendChatMessageUseCase implements ISendChatMessageUseCase {
     }
 
     const message = await this.chatRepository.saveMessage(
-      dto.conversationId,
+      dto.conversationId!,
       userId,
       {
         type: 'TEXT',
@@ -70,7 +89,7 @@ export class SendChatMessageUseCase implements ISendChatMessageUseCase {
     }
 
     const message = await this.chatRepository.saveMessage(
-      dto.conversationId,
+      dto.conversationId!,
       userId,
       {
         type: 'IMAGE',

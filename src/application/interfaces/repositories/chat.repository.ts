@@ -9,6 +9,9 @@ export interface ChatMessageDTO {
 
   content: string;
 
+  status: 'SENT' | 'DELIVERED' | 'READ';
+  readAt?: Date | null;
+
   attachment?: {
     storageKey: string;
     fileName: string | null;
@@ -80,4 +83,9 @@ export interface IChatRepository {
     cursor?: string,
   ): Promise<ChatMessageDTO[]>;
   getDirectConversations(userId: string): Promise<DirectConversationDTO[]>;
+
+  markMessagesAsRead(
+    conversationId: string,
+    userId: string,
+  ): Promise<{ count: number; readAt: Date }>;
 }

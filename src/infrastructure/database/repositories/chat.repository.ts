@@ -178,6 +178,8 @@ export class ChatRepository implements IChatRepository {
         senderId: true,
         type: true,
         content: true,
+        status: true,
+        readAt: true,
         createdAt: true,
         updatedAt: true,
 
@@ -233,6 +235,8 @@ export class ChatRepository implements IChatRepository {
         senderId: true,
         type: true,
         content: true,
+        status: true,
+        readAt: true,
         createdAt: true,
         updatedAt: true,
 
@@ -256,6 +260,7 @@ export class ChatRepository implements IChatRepository {
 
     return messages.reverse();
   }
+
   async getDirectConversations(
     userId: string,
   ): Promise<DirectConversationDTO[]> {
@@ -297,7 +302,9 @@ export class ChatRepository implements IChatRepository {
           take: 1,
 
           select: {
+            senderId: true,
             content: true,
+            status: true,
             createdAt: true,
           },
         },
@@ -308,30 +315,74 @@ export class ChatRepository implements IChatRepository {
       },
     });
 
-    return conversations.map((conversation) => {
-      const otherUser =
-        conversation.userAId === userId
-          ? conversation.userB
-          : conversation.userA;
+    const results = await Promise.all(
+      conversations.map(async (conversation) => {
+        const otherUser =
+          conversation.userAId === userId
+            ? conversation.userB
+            : conversation.userA;
 
-      return {
-        conversationId: conversation.id,
+        const unreadCount = await this.prisma.chatMessage.count({
+          where: {
+            conversationId: conversation.id,
+            senderId: { not: userId },
+            status: { not: 'READ' },
+          },
+        });
 
-        user: {
-          id: otherUser!.id,
-          name: otherUser!.fullName,
-          profileImage: otherUser!.avatarUrl ?? undefined,
-        },
+        const lastMsg = conversation.messages[0];
+        const effectiveUpdatedAt = lastMsg
+          ? lastMsg.createdAt
+          : conversation.updatedAt;
 
-        lastMessage: conversation.messages[0]
-          ? {
-              content: conversation.messages[0].content,
-              createdAt: conversation.messages[0].createdAt,
-            }
-          : undefined,
+        return {
+          conversationId: conversation.id,
 
-        updatedAt: conversation.updatedAt,
-      };
+          user: {
+            id: otherUser!.id,
+            name: otherUser!.fullName,
+            profileImage: otherUser!.avatarUrl ?? undefined,
+          },
+
+          lastMessage: lastMsg
+            ? {
+                content: lastMsg.content,
+                createdAt: lastMsg.createdAt,
+                senderId: lastMsg.senderId,
+                status: lastMsg.status,
+              }
+            : undefined,
+
+          unreadCount,
+
+          updatedAt: effectiveUpdatedAt,
+        };
+      }),
+    );
+
+    return results.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  }
+
+  async markMessagesAsRead(
+    conversationId: string,
+    userId: string,
+  ): Promise<{ count: number; readAt: Date }> {
+    const now = new Date();
+    const result = await this.prisma.chatMessage.updateMany({
+      where: {
+        conversationId,
+        senderId: { not: userId },
+        status: { not: 'READ' },
+      },
+      data: {
+        status: 'READ',
+        readAt: now,
+      },
     });
+
+    return { count: result.count, readAt: now };
   }
 }

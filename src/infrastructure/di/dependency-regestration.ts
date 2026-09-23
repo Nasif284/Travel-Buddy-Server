@@ -77,6 +77,8 @@ import { AdminAnalyticsRepository } from '../database/repositories/admin-analyti
 import { registerAdminAnalyticsDependency } from './admin-side/admin-analytics/dependency';
 import { IEmbeddingService } from '../../application/interfaces/services/embedding.service.interface';
 import { LocalEmbeddingService } from '../services/ocal-embedding.service';
+import { IPresenceService } from '../../application/interfaces/services/presence.service.interface';
+import { PresenceService } from '../services/presence.service';
 
 export function registerDependencies(
   db: PrismaClient,
@@ -165,6 +167,10 @@ export function registerDependencies(
   container.registerSingleton<IEmbeddingService>(
     TOKENS.IEmbeddingService,
     LocalEmbeddingService,
+  );
+  container.registerSingleton<IPresenceService>(
+    TOKENS.IPresenceService,
+    PresenceService,
   );
 
   container.registerSingleton<UserRepository>(

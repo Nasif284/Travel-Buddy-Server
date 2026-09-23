@@ -49,6 +49,7 @@ export const TOKENS = {
   GooglePlacesClient: 'GooglePlacesClient',
   ICallNotificationService: 'ICallNotificationService',
   IEmbeddingService: 'IEmbeddingService',
+  IPresenceService: 'IPresenceService',
 
   PrismaClient: 'PrismaClient',
   RedisClient: 'RedisClient',
