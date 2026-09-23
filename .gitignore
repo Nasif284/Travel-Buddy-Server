@@ -24,6 +24,8 @@ yarn-error.log*
 logs/
 *.log
 
+*.md
+
 # OS Metadata
 .DS_Store
 Thumbs.db

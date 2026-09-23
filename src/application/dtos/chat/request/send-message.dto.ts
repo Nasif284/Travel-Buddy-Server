@@ -1,5 +1,6 @@
 export interface SendChatMessageDTO {
-  conversationId: string;
+  conversationId?: string;
+  recipientId?: string;
 
   type: 'TEXT' | 'IMAGE';
 

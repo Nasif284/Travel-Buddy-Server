@@ -11,7 +11,7 @@ export class GetDirectChatUseCase implements IGetDirectChatUseCase {
     private readonly chatRepository: IChatRepository,
   ) {}
 
-  async execute(userId: string, otherUserId: string): Promise<string> {
+  async execute(userId: string, otherUserId: string): Promise<string | null> {
     if (userId === otherUserId) {
       throw new Error('You cannot start a chat with yourself.');
     }
@@ -21,10 +21,6 @@ export class GetDirectChatUseCase implements IGetDirectChatUseCase {
       otherUserId,
     );
 
-    if (existing) {
-      return existing;
-    }
-
-    return this.chatRepository.createDirectConversation(userId, otherUserId);
+    return existing ?? null;
   }
 }

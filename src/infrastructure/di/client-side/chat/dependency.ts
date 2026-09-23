@@ -14,6 +14,8 @@ import { IGetDirectConversationsUseCase } from '../../../../application/interfac
 import { GetDirectConversationsUseCase } from '../../../../application/use-cases/chats/get-direct-conversations.use-case';
 import { IUploadChatImageUseCase } from '../../../../application/interfaces/use-cases/chats/upload-chat-image.interface';
 import { UploadChatImageUseCase } from '../../../../application/use-cases/chats/upload-chat-image.use-case';
+import { IMarkMessagesAsReadUseCase } from '../../../../application/interfaces/use-cases/chats/mark-messages-read.interface';
+import { MarkMessagesAsReadUseCase } from '../../../../application/use-cases/chats/mark-messages-read.usecase';
 
 export function registerChatsDependency() {
   container.registerSingleton<IGetDirectChatUseCase>(
@@ -43,5 +45,9 @@ export function registerChatsDependency() {
   container.registerSingleton<IUploadChatImageUseCase>(
     TOKENS.IUploadChatImageUseCase,
     UploadChatImageUseCase,
+  );
+  container.registerSingleton<IMarkMessagesAsReadUseCase>(
+    TOKENS.IMarkMessagesAsReadUseCase,
+    MarkMessagesAsReadUseCase,
   );
 }
