@@ -76,10 +76,43 @@ services:
     volumes:
       - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - alloy_data:/var/lib/alloy/data
+
+      # Allow Alloy to discover/read Docker container logs
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
     depends_on:
       - loki
     restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: travelbuddy-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=1234
+    ports:
+      - '3001:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  prometheus:
+  image: prom/prometheus:latest
+  container_name: travelbuddy-prometheus
+  command:
+    - '--config.file=/etc/prometheus/prometheus.yml'
+    - '--storage.tsdb.path=/prometheus'
+  ports:
+    - '9090:9090'
+  volumes:
+    - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - prometheus_data:/prometheus
+  depends_on:
+    - api
+  restart: unless-stopped
 
 volumes:
   postgres_data:
